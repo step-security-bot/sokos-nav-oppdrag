@@ -57,7 +57,7 @@ dependencies {
 }
 
 tasks {
-    withType<Jar>().configureEach {
+    named<Jar>("jar") {
         archiveBaseName.set("app")
 
         manifest {
