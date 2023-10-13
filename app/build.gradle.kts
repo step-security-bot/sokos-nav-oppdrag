@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     kotlin("plugin.serialization") version "1.9.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -59,12 +57,22 @@ dependencies {
 }
 
 tasks {
-    withType<ShadowJar>().configureEach {
-        enabled = true
-        archiveBaseName.set("app.jar")
+    withType<Jar>().configureEach {
+        archiveBaseName.set("app")
 
         manifest {
             attributes["Main-Class"] = "no.nav.sokos.app.ApplicationKt"
+            attributes["Class-Path"] = configurations.runtimeClasspath.get().joinToString(separator = " ") {
+                it.name
+            }
+        }
+
+        doLast {
+            configurations.runtimeClasspath.get().forEach {
+                val file = File("$buildDir/deps/${it.name}")
+                if (!file.exists())
+                    it.copyTo(file)
+            }
         }
     }
 }
