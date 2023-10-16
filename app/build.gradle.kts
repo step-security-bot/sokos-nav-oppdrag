@@ -1,6 +1,5 @@
 plugins {
     kotlin("plugin.serialization") version "1.9.10"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 val ktorVersion = "2.3.5"
@@ -59,19 +58,21 @@ dependencies {
 tasks {
     named<Jar>("jar") {
         archiveBaseName.set("app")
-
+        archiveVersion.set("")
         manifest {
             attributes["Main-Class"] = "no.nav.sokos.app.ApplicationKt"
-            attributes["Class-Path"] = configurations.runtimeClasspath.get().joinToString(separator = " ") {
-                it.name
-            }
+            attributes["Class-Path"] =
+                configurations.runtimeClasspath.get().joinToString(separator = " ") {
+                    it.name
+                }
         }
-
         doLast {
             configurations.runtimeClasspath.get().forEach {
-                val file = File("$buildDir/deps/${it.name}")
-                if (!file.exists())
-                    it.copyTo(file)
+                val fileProvider: Provider<RegularFile> = layout.buildDirectory.file("libs/${it.name}")
+                val targetFile = File(fileProvider.get().toString())
+                if (!targetFile.exists()) {
+                    it.copyTo(targetFile)
+                }
             }
         }
     }
