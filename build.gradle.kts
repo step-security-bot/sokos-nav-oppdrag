@@ -6,6 +6,7 @@ plugins {
 }
 
 val ktorVersion = "2.3.5"
+val kotestVersion = "5.7.2"
 val mockkVersion = "1.13.8"
 
 allprojects {
@@ -24,6 +25,8 @@ allprojects {
         implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
 
         // Test
+        testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
+        testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
         testImplementation("io.mockk:mockk:$mockkVersion")
 
     }
