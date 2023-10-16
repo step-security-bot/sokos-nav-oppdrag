@@ -58,7 +58,6 @@ dependencies {
 tasks {
     named<Jar>("jar") {
         archiveBaseName.set("app")
-        archiveVersion.set("")
         manifest {
             attributes["Main-Class"] = "no.nav.sokos.app.ApplicationKt"
             attributes["Class-Path"] =
