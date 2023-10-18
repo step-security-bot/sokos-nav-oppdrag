@@ -1,7 +1,3 @@
-plugins {
-    kotlin("plugin.serialization") version "1.9.10"
-}
-
 val ktorVersion = "2.3.5"
 val prometheusVersion = "1.11.5"
 val natpryceVersion = "1.6.10.0"
@@ -36,7 +32,7 @@ dependencies {
     // Config
     implementation("com.natpryce:konfig:$natpryceVersion")
 
-    // Jackson
+    // Serialization / Jackson
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")

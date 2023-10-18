@@ -55,7 +55,7 @@ subprojects {
             reports.forEach { report -> report.required.value(false) }
         }
 
-        withType<Wrapper>() {
+        withType<Wrapper> {
             gradleVersion = "8.4"
         }
     }
