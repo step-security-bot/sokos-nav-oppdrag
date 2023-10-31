@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 val ktorVersion = "2.3.5"
 val kotestVersion = "5.7.2"
 val mockkVersion = "1.13.8"
@@ -22,7 +20,6 @@ val jacksonVersion="2.15.3"
 val jooqVersion="3.18.7"
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("nu.studer.jooq") version "8.2.1"
 }
 
@@ -82,14 +79,4 @@ dependencies {
     testImplementation("com.atlassian.oai:swagger-request-validator-restassured:$swaggerRequestValidatorVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
 
-    tasks {
-        withType<ShadowJar>().configureEach {
-            enabled = true
-            archiveFileName.set("app.jar")
-            manifest {
-                attributes["Main-Class"] = "no.nav.sokos.oppdragsinfo.ApplicationKt"
-                attributes["Class-Path"] = "/var/run/secrets/db2license/db2jcc_license_cisuz.jar"
-            }
-        }
-    }
 }

@@ -59,7 +59,7 @@ tasks {
             attributes["Class-Path"] =
                 configurations.runtimeClasspath.get().joinToString(separator = " ") {
                     it.name
-                }
+                }.plus(" /var/run/secrets/db2license/db2jcc_license_cisuz.jar")
         }
         doLast {
             configurations.runtimeClasspath.get().forEach {
