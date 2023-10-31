@@ -28,7 +28,7 @@ class Db2DataSource(
             poolName = oppdragDatabaseConfig.poolName
             databaseName = oppdragDatabaseConfig.name
             serverName = oppdragDatabaseConfig.host
-            portNumber = oppdragDatabaseConfig.port
+            portNumber = oppdragDatabaseConfig.port.toInt()
             currentSchema = oppdragDatabaseConfig.schema
             currentFunctionPath = oppdragDatabaseConfig.schema
             user = oppdragDatabaseConfig.username

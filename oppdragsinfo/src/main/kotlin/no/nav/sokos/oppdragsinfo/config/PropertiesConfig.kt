@@ -41,7 +41,7 @@ object PropertiesConfig {
     operator fun get(key: String): String = config[Key(key, stringType)]
     data class OppdragDatabaseConfig(
         val host: String = get("DATABASE_HOST"),
-        val port: Int = get("DATABASE_PORT").toInt(),
+        val port: String = get("DATABASE_PORT"),
         val name: String = get("DATABASE_NAME"),
         val schema: String = get("DATABASE_SCHEMA"),
         val username: String = get("DATABASE_USERNAME"),
