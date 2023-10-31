@@ -31,6 +31,7 @@ spec:
       memory: 4096Mi
   ingresses:
     - https://sokos-nav-oppdrag.dev.intern.nav.no
+    - https://sokos-nav-oppdrag.dev-fss-pub.nais.io
   prometheus:
     enabled: true
     path: /metrics
@@ -40,10 +41,30 @@ spec:
     application:
       enabled: true
       allowAllUsers: true
+      tenant: trygdeetaten.no
       claims:
         extra:
           - NAVident
+  accessPolicy:
+    inbound:
+      rules:
+        - application: sokos-op-fasade
+          namespace: okonomi
+          cluster: dev-gcp
   webproxy: true
+  envFrom:
+    - secret: oppdrag-credentials
+  filesFrom:
+    - secret: db2license
+      mountPath: /var/run/secrets/db2license
   env:
+    - name: DATABASE_HOST
+      value: "155.55.1.82"
+    - name: DATABASE_PORT
+      value: "5025"
+    - name: DATABASE_NAME
+      value: "QDB2"
+    - name: DATABASE_SCHEMA
+      value: "OS231Q1"
     - name: USE_AUTHENTICATION
       value: "true"
