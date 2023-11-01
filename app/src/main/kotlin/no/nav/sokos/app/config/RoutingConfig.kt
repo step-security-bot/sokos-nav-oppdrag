@@ -1,12 +1,13 @@
 package no.nav.sokos.app.config
 
-import io.ktor.server.application.Application
+import io.ktor.server.application.*
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.routing
 import no.nav.sokos.app.ApplicationState
 import no.nav.sokos.app.api.metricsApi
 import no.nav.sokos.app.api.naisApi
 import io.ktor.server.auth.authenticate
+import io.ktor.server.resources.*
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.venteregister.api.venteregisterApi
 
@@ -14,6 +15,7 @@ fun Application.routingConfig(
     applicationState: ApplicationState,
     useAuthentication: Boolean
 ) {
+    install(Resources)
     routing {
         naisApi({ applicationState.initialized }, { applicationState.running })
         metricsApi()
