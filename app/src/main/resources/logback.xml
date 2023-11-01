@@ -37,7 +37,7 @@
             <!-- remote port to log to -->
             <port>6514</port>
             <!-- IMPORTANT: Set to your application name. -->
-            <ident>sokos-skattekort-person</ident>
+            <ident>sokos-nav-oppdrag</ident>
             <!-- max log message length in bytes -->
             <maxMessageLength>128000</maxMessageLength>
         </syslogConfig>
@@ -65,6 +65,6 @@
         </if>
     </root>
 
-    <logger name="no.nav.sokos.skattekort.person" level="INFO"/>
+    <logger name="no.nav.sokos" level="INFO"/>
 
 </configuration>

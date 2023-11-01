@@ -1,7 +1,6 @@
 package no.nav.sokos.oppdragsinfo.domain
 
 import kotlinx.serialization.Serializable
-import java.util.*
 
 @Serializable
 data class Oppdrag(
@@ -20,7 +19,8 @@ data class Oppdrag(
 //    val oppdragslinjer: List<Oppdragslinje>?,
 //    val oppdragStatusList: List<OppdragStatus>?,
 //    val enhetsList: List<Oppdragsenhet>?,
-//    val belopGrenseListe: List<Belopsgrense>?,
+//    val belopGrenseListe: List<Bel
+    //    opsgrense>?,
 //    val tekstList: List<OppdragsTekst>?,
 //    val omposteringList: List<Ompostering>?,
 )
