@@ -7,17 +7,13 @@ import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
 import no.nav.sokos.oppdragsinfo.database.Db2DataSource
 import no.nav.sokos.oppdragsinfo.database.OppdragsinfoRepository.hentKorreksjonerMedOppdragsId
-import no.nav.sokos.oppdragsinfo.database.OppdragsinfoRepository.hentOmposteringerMedOffnr
 import no.nav.sokos.oppdragsinfo.database.OppdragsinfoRepository.hentOppdragsdetaljerMedOppdragsId
-import no.nav.sokos.oppdragsinfo.database.OppdragsinfoRepository.hentOppdragsinfoMedOffnr
 import no.nav.sokos.oppdragsinfo.database.OppdragsinfoRepository.hentOppdragsinfoMedOppdragsId
 import no.nav.sokos.oppdragsinfo.database.OppdragsinfoRepository.hentOppdragslinjeMedOppdragsId
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
-import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.security.getSaksbehandler
 import org.jooq.*
 import org.jooq.impl.DSL
-import java.time.LocalDate
 
 private val logger = KotlinLogging.logger {}
 

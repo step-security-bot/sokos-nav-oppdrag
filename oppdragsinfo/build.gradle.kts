@@ -21,6 +21,7 @@ val jooqVersion="3.18.7"
 
 plugins {
     id("nu.studer.jooq") version "8.2.1"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.20"
 }
 
 dependencies {

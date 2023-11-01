@@ -4,7 +4,6 @@ import io.ktor.server.application.call
 import io.ktor.server.routing.Route
 import mu.KotlinLogging
 import io.ktor.resources.*
-import io.ktor.server.auth.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsinfoResponse
