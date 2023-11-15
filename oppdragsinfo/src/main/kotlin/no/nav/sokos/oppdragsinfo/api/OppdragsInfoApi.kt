@@ -18,7 +18,7 @@ private val log = KotlinLogging.logger {}
 class Oppdrag(val faggruppeKode: Int, val fagSystemId: Int, val vedtakFom: String)
 
 @Resource("/api/v1/oppdrag/{oppdragId}")  class OppdragId(val oppdragId: String) {
-    @Resource("/oppdragslinje/{linjeId}")
+    @Resource("/linje/{linjeId}")
     class Oppdragslinje(val oppdragId: OppdragId, val linjeId: Int)
 }
 

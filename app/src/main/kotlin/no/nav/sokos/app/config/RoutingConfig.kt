@@ -8,6 +8,7 @@ import no.nav.sokos.app.api.metricsApi
 import no.nav.sokos.app.api.naisApi
 import io.ktor.server.auth.authenticate
 import io.ktor.server.resources.*
+import no.nav.sokos.app.api.swaggerApi
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.venteregister.api.venteregisterApi
 
@@ -19,7 +20,7 @@ fun Application.routingConfig(
     routing {
         naisApi({ applicationState.initialized }, { applicationState.running })
         metricsApi()
-
+        swaggerApi()
         authenticate(useAuthentication, AUTHENTICATION_NAME) {
             oppdragsInfoApi()
             venteregisterApi()
