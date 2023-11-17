@@ -5,8 +5,8 @@ plugins {
     kotlin("jvm") version "1.9.20"
 }
 
-val ktorVersion = "2.3.5"
-val kotestVersion = "5.7.2"
+val ktorVersion = "2.3.6"
+val kotestVersion = "5.8.0"
 val mockkVersion = "1.13.8"
 
 allprojects {
