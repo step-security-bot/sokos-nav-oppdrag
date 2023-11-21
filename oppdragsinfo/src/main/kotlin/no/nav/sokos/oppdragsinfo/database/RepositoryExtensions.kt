@@ -1,7 +1,13 @@
 package no.nav.sokos.oppdragsinfo.database
 
-//import no.nav.sokos.app.metrics.databaseFailureCounter
-import java.sql.*
+// import no.nav.sokos.app.metrics.databaseFailureCounter
+
+import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.Parameter
+import java.sql.Connection
+import java.sql.Date
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.SQLException
 import java.time.LocalDate
 
 object RepositoryExtensions {
@@ -29,8 +35,7 @@ object RepositoryExtensions {
         var index = 1; parameters.forEach { it?.addToPreparedStatement(this, index++) }
     }
 
-    fun <T> ResultSet.
-            toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
+    fun <T> ResultSet.toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
         while (next()) {
             add(mapper())
         }

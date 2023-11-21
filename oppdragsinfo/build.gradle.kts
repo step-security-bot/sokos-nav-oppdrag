@@ -1,23 +1,22 @@
 val ktorVersion = "2.3.6"
 val kotestVersion = "5.7.2"
 val mockkVersion = "1.13.8"
-val kotlin_version="1.9.10"
-val logback_version="1.4.11"
-val prometeus_version="1.12.0"
-val h2_version="2.1.214"
-val swaggerRequestValidatorVersion="2.39.0"
-val restAssuredVersion="5.3.2"
-val mockOAuth2ServerVersion="2.0.0"
-val kotlinLoggingVersion="3.0.5"
-val janionVersion="3.1.10"
-val logbackVersion="1.4.11"
-val logstashVersion="7.4"
-val papertrailappVersion="1.0.0"
-val natpryceVersion="1.6.10.0"
-val hikariVersion="5.1.0"
-val db2_jcc_version="11.5.9.0"
-val jacksonVersion="2.16.0"
-val jooqVersion="3.18.7"
+val kotlinVersion = "1.9.10"
+val prometheusVersion = "1.12.0"
+val h2Version = "2.1.214"
+val swaggerRequestValidatorVersion = "2.39.0"
+val restAssuredVersion = "5.3.2"
+val mockOAuth2ServerVersion = "2.0.0"
+val kotlinLoggingVersion = "3.0.5"
+val janionVersion = "3.1.10"
+val logbackVersion = "1.4.11"
+val logstashVersion = "7.4"
+val papertrailappVersion = "1.0.0"
+val natpryceVersion = "1.6.10.0"
+val hikariVersion = "5.1.0"
+val db2JccVersion = "11.5.9.0"
+val jacksonVersion = "2.16.0"
+val jooqVersion = "3.18.7"
 
 plugins {
     id("nu.studer.jooq") version "8.2.1"
@@ -49,7 +48,7 @@ dependencies {
     // Monitorering
     implementation("io.ktor:ktor-server-metrics-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
-    implementation("io.micrometer:micrometer-registry-prometheus:$prometeus_version")
+    implementation("io.micrometer:micrometer-registry-prometheus:$prometheusVersion")
 
     // Serialization
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
@@ -71,7 +70,7 @@ dependencies {
     // Database
     implementation("org.jooq:jooq:$jooqVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
-    implementation("com.ibm.db2:jcc:$db2_jcc_version")
+    implementation("com.ibm.db2:jcc:$db2JccVersion")
 
     // Test
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")
@@ -79,5 +78,4 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
     testImplementation("com.atlassian.oai:swagger-request-validator-restassured:$swaggerRequestValidatorVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
-
 }
