@@ -19,7 +19,7 @@ import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.binder.system.UptimeMetrics
 import java.util.UUID
-import no.nav.sokos.app.metrics.prometheusMeterRegistry
+import no.nav.sokos.app.metrics.prometheusMeterRegistryApp
 import org.slf4j.event.Level
 
 const val SECURE_LOGGER = "secureLogger"
@@ -47,7 +47,7 @@ fun Application.commonConfig() {
         }
     }
     install(MicrometerMetrics) {
-        registry = prometheusMeterRegistry
+        registry = prometheusMeterRegistryApp
         meterBinders = listOf(
             UptimeMetrics(),
             JvmMemoryMetrics(),

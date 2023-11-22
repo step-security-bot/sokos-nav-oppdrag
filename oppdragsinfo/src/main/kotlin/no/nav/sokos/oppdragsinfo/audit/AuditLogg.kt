@@ -5,11 +5,11 @@ data class AuditLogg(
     val offnr: String = "ukjent",
 ) {
     val version = "0"
-    val deviceVendor = "OKONOMI"
-    val deviceProduct = "AuditLogger"
+    val deviceVendor = "Okonomiportalen"
+    val deviceProduct = "sokos-nav-oppdrag-oppdragsinfo"
     val deviceVersion = "1.0"
     val deviceEventClassId = "audit:access"
-    val name = "sokos-oppdragsinfo"
+    val name = "sokos-nav-oppdrag-oppdragsinfo"
     val severity = "INFO"
     val brukerhandling = "NAV-ansatt har hentet informasjon om oppdrag knyttet til bruker"
 

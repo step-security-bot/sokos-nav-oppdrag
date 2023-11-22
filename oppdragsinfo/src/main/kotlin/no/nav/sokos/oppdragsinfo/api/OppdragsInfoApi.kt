@@ -7,7 +7,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 
 import mu.KotlinLogging
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsinfoResponse
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoResponse
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.database.Db2DataSource
@@ -16,7 +16,7 @@ import no.nav.sokos.oppdragsinfo.service.OppdragsinfoService
 private val log = KotlinLogging.logger {}
 
 @Resource("/api/v1/oppdrag")
-class Oppdrag(val faggruppeKode: Int, val fagSystemId: Int, val vedtakFom: String)
+class Oppdrag(val faggruppeKode: Int? = null, val fagSystemId: Int? = null, val vedtakFom: String? = null)
 
 @Resource("/api/v1/oppdrag/{oppdragId}")
 class OppdragId(val oppdragId: String) {
@@ -32,7 +32,7 @@ fun Route.oppdragsInfoApi() {
     val gdprLogger = AuditLogger()
     val oppdragsinfoService = OppdragsinfoService(db2DataSource, gdprLogger)
     get<Oppdrag> { oppdrag ->
-        val response = OppdragsinfoResponse(
+        val response = OppdragsInfoResponse(
                 oppdragsinfoService.hentOppdrag(
                         call.request.headers.get("offnr").orEmpty(),
                         oppdrag.faggruppeKode,
@@ -43,7 +43,7 @@ fun Route.oppdragsInfoApi() {
         call.respond(response)
     }
     get<OppdragId> { oppdragId ->
-        val response = OppdragsinfoResponse(
+        val response = OppdragsInfoResponse(
                 oppdragsinfoService.hentOppdrag(
                         oppdragId.oppdragId,
                         call
@@ -51,7 +51,7 @@ fun Route.oppdragsInfoApi() {
         call.respond(response)
     }
     get<OppdragId.Oppdragslinje> { oppdragslinje ->
-        val response = OppdragsinfoResponse(
+        val response = OppdragsInfoResponse(
                 oppdragsinfoService.hentOppdragslinje(
                         oppdragslinje.oppdragId.oppdragId,
                         oppdragslinje.linjeId,
@@ -60,7 +60,7 @@ fun Route.oppdragsInfoApi() {
         call.respond(response)
     }
     get<Oppdragsdetaljer> { oppdragsdetaljer ->
-        val response = OppdragsinfoResponse(
+        val response = OppdragsInfoResponse(
                 oppdragsinfoService.hentOppdragsdetaljer(
                         oppdragsdetaljer.oppdragId.oppdragId,
                         call

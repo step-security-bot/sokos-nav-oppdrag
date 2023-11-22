@@ -18,7 +18,7 @@ DATABASE_USERNAME=$(kubectl -n okonomi get secret oppdrag-credentials -o jsonpat
 DATABASE_PASSWORD=$(kubectl -n okonomi get secret oppdrag-credentials -o jsonpath="{ .data['DATABASE_PASSWORD'] }" | base64 -d)
 
 # Get AZURE and DATABASE system variables
-envValue=$(kubectl exec -it $(kubectl get pods | grep sokos-nav-oppdrag | cut -f1 -d' ') -c sokos-nav-oppdrag -- env | egrep "^AZURE")
+envValue=$(kubectl exec -it $(kubectl get pods | grep sokos-nav-oppdrag | cut -f1 -d' ') -c sokos-nav-oppdrag -- env | egrep "^AZURE|^DATABASE")
 
 # Set AZURE as local environment variables
 rm -f defaults.properties
