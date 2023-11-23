@@ -7,6 +7,7 @@ val logbackVersion = "1.4.11"
 val logstashVersion = "7.4"
 val papertrailappVersion = "1.0.0"
 val jacksonVersion = "2.16.0"
+val konsistVersion = "0.13.0"
 
 dependencies {
 
@@ -47,6 +48,10 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
     runtimeOnly("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     runtimeOnly("com.papertrailapp:logback-syslog4j:$papertrailappVersion")
+
+    // Test
+    testImplementation("com.lemonappdev:konsist:$konsistVersion")
+
 
     // Modules
     implementation(project(":oppdragsinfo"))

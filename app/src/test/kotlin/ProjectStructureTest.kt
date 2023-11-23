@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 
 
 //https://docs.konsist.lemonappdev.com/getting-started/readme
-internal class BarneSikringTest : FunSpec({
+internal class ProjectStructureTest : FunSpec({
     val projectScope = Konsist.scopeFromProduction()
     val moduleNames = projectScope.files.filter {
         it.moduleName != "app"
@@ -24,32 +24,32 @@ internal class BarneSikringTest : FunSpec({
             val koscope = Konsist.scopeFromModule(module)
 
             koscope
-                    .classes()
-                    .withAllAnnotationsOf(Serializable::class)
-                    .assertTrue { it.resideInPackage("no.nav.sokos.$module.domain") }
+                .classes()
+                .withAllAnnotationsOf(Serializable::class)
+                .assertTrue { it.resideInPackage("no.nav.sokos.$module.domain") }
             koscope
-                    .classes()
-                    .withNameEndingWith("Config")
-                    .assertTrue { it.resideInPackage("no.nav.sokos.$module.config") }
+                .classes()
+                .withNameEndingWith("Config")
+                .assertTrue { it.resideInPackage("no.nav.sokos.$module.config") }
 
             koscope
-                    .classes()
-                    .withNameEndingWith("Api")
-                    .assertTrue { it.resideInPackage("no.nav.sokos.$module.api") }
+                .classes()
+                .withNameEndingWith("Api")
+                .assertTrue { it.resideInPackage("no.nav.sokos.$module.api") }
             koscope
-                    .classes()
-                    .withNameContaining("Service")
-                    .assertTrue { it.resideInPackage("no.nav.sokos.$module.service") }
+                .classes()
+                .withNameContaining("Service")
+                .assertTrue { it.resideInPackage("no.nav.sokos.$module.service") }
 
             koscope
-                    .classes()
-                    .withNameContaining("Repository", "DataSource")
-                    .assertTrue { it.resideInPackage("no.nav.sokos.$module.database..") }
+                .classes()
+                .withNameContaining("Repository", "DataSource")
+                .assertTrue { it.resideInPackage("no.nav.sokos.$module.database..") }
 
         }
 
     }
-    //https://docs.konsist.lemonappdev.com/writing-tests/architecture-assert
+
     test("Test layer boundary") {
 
         moduleNames.forEach {
@@ -75,7 +75,7 @@ internal class BarneSikringTest : FunSpec({
                 audit.dependsOnNothing()
                 metrics.dependsOnNothing()
 
-                database.dependsOn(domain, config)
+                database.dependsOn(domain, config, metrics)
                 security.dependsOn(domain, config, audit)
 
                 api.dependsOn(config, database, service, audit)
@@ -84,16 +84,14 @@ internal class BarneSikringTest : FunSpec({
         }
     }
 
-// Test ved å legge til   implementation(project(":venteregister")) i build.gradle for oppdragsinfo og så importer noe fra venteregister
     test("Moduler skal ikke importere fra andre moduler") {
         moduleNames.forEach {
             val moduleScope = Konsist.scopeFromModule(it)
             moduleScope.imports
-                    .withNameStartingWith("no.nav.sokos")
-                    .assertTrue { import ->
-                        println(import.name)
-                        import.hasNameContaining(it)
-                    }
+                .withNameStartingWith("no.nav.sokos")
+                .assertTrue { import ->
+                    import.hasNameContaining(it)
+                }
 
         }
 
@@ -101,12 +99,12 @@ internal class BarneSikringTest : FunSpec({
 
     test("Clean code test") {
         projectScope
-                .interfaces()
-                .assertTrue { it.hasFunModifier || it.hasPublicModifier }
+            .interfaces()
+            .assertTrue { it.hasFunModifier || it.hasPublicModifier }
 
         projectScope
-                .properties()
-                .assertTrue { !it.hasPublicModifier && it.numModifiers < 5 }
+            .properties()
+            .assertTrue { !it.hasPublicModifier && it.numModifiers < 5 }
 
         // kommentert ut fordi de failer
         /*   projectScope

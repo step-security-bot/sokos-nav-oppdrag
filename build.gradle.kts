@@ -8,7 +8,6 @@ plugins {
 val ktorVersion = "2.3.6"
 val kotestVersion = "5.8.0"
 val mockkVersion = "1.13.8"
-val konsistVersion = "0.13.0"
 
 allprojects {
     group = "no.nav.sokos"
@@ -29,7 +28,6 @@ allprojects {
         testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
         testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
         testImplementation("io.mockk:mockk:$mockkVersion")
-        testImplementation("com.lemonappdev:konsist:$konsistVersion")
 
     }
 }
