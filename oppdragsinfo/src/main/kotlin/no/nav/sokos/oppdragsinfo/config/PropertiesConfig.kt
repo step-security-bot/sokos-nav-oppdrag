@@ -1,6 +1,5 @@
 package no.nav.sokos.oppdragsinfo.config
 
-
 import com.natpryce.konfig.ConfigurationMap
 import com.natpryce.konfig.ConfigurationProperties
 import com.natpryce.konfig.EnvironmentVariables
@@ -11,15 +10,8 @@ import java.io.File
 
 object PropertiesConfig {
 
-    enum class Profile {
-        LOCAL, DEV, PROD
-    }
-
     private val defaultProperties = ConfigurationMap(
-            mapOf(
-                    "NAIS_APP_NAME" to "sokos-nav-oppdrag",
-                    "NAIS_NAMESPACE" to "okonomi",
-            )
+            mapOf()
     )
 
     private val localDevProperties = ConfigurationMap(
@@ -55,4 +47,8 @@ object PropertiesConfig {
             val password: String = get("DATABASE_PASSWORD"),
             val poolName: String = "HikariPool-OPPDRAG"
     )
+
+    enum class Profile {
+        LOCAL, DEV, PROD
+    }
 }

@@ -16,7 +16,7 @@ import no.nav.sokos.oppdragsinfo.service.OppdragsinfoService
 private val log = KotlinLogging.logger {}
 
 @Resource("/api/v1/oppdrag")
-class Oppdrag(val faggruppeKode: Int? = null, val fagSystemId: Int? = null, val vedtakFom: String? = null)
+class Oppdrag(val fagGruppeKode: Int? = null, val fagSystemId: Int? = null, val vedtakFom: String? = null)
 
 @Resource("/api/v1/oppdrag/{oppdragId}")
 class OppdragId(val oppdragId: String) {
@@ -35,7 +35,7 @@ fun Route.oppdragsInfoApi() {
         val response = OppdragsInfoResponse(
                 oppdragsinfoService.hentOppdrag(
                         call.request.headers.get("offnr").orEmpty(),
-                        oppdrag.faggruppeKode,
+                        oppdrag.fagGruppeKode,
                         oppdrag.fagSystemId,
                         oppdrag.vedtakFom,
                         call
