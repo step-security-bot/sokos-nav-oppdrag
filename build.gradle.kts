@@ -3,6 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     kotlin("jvm") version "1.9.20"
+    kotlin("plugin.serialization") version "1.9.20"
 }
 
 val ktorVersion = "2.3.6"
@@ -18,6 +19,7 @@ allprojects {
     }
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
     dependencies {
 

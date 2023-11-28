@@ -1,8 +1,8 @@
-package no.nav.sokos.oppdragsinfo.domain
+package no.nav.sokos.oppdragsinfo.api.model
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Oppdragslinje(
+data class OppdragsInfoRequest(
     val oppdragsId: String
 )

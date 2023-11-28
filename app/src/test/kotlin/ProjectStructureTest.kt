@@ -26,7 +26,8 @@ internal class ProjectStructureTest : FunSpec({
             koscope
                 .classes()
                 .withAllAnnotationsOf(Serializable::class)
-                .assertTrue { it.resideInPackage("no.nav.sokos.$module.domain") }
+                .assertTrue { it.resideInPackage("no.nav.sokos.$module.domain..") || it.resideInPackage("no.nav.sokos.$module.api.model..") }
+
             koscope
                 .classes()
                 .withNameEndingWith("Config")
@@ -45,6 +46,16 @@ internal class ProjectStructureTest : FunSpec({
                 .classes()
                 .withNameContaining("Repository", "DataSource")
                 .assertTrue { it.resideInPackage("no.nav.sokos.$module.database..") }
+
+            koscope
+                .classes()
+                .withNameEndingWith("Request")
+                .assertTrue { it.resideInPackage("no.nav.sokos.$module.api.model") }
+
+            koscope
+                .classes()
+                .withNameEndingWith("Response")
+                .assertTrue { it.resideInPackage("no.nav.sokos.$module.api.model") }
 
         }
 
@@ -69,17 +80,17 @@ internal class ProjectStructureTest : FunSpec({
                 val api = Layer("Api", "no.nav.sokos.$it.api..")
 
 
+
                 // Se gjennom dette og sjekk at det stemmer ref Onion Architecture
                 domain.dependsOnNothing()
                 config.dependsOnNothing()
-                audit.dependsOnNothing()
                 metrics.dependsOnNothing()
 
                 database.dependsOn(domain, config, metrics)
+                audit.dependsOn(config)
                 security.dependsOn(domain, config, audit)
-
-                api.dependsOn(config, database, service, audit)
                 service.dependsOn(domain, config, database, security, audit)
+                api.dependsOn(config, database, service, audit, domain)
             }
         }
     }

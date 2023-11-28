@@ -45,7 +45,6 @@ object PropertiesConfig {
             val schema: String = get("DATABASE_SCHEMA"),
             val username: String = get("DATABASE_USERNAME"),
             val password: String = get("DATABASE_PASSWORD"),
-            val poolName: String = "HikariPool-OPPDRAG"
     )
 
     enum class Profile {

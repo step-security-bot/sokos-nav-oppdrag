@@ -12,6 +12,7 @@ import no.nav.sokos.app.config.routingConfig
 import no.nav.sokos.app.config.securityConfig
 import no.nav.sokos.app.metrics.appStateReadyFalse
 import no.nav.sokos.app.metrics.appStateRunningFalse
+import no.nav.sokos.oppdragsinfo.database.Db2DataSource
 
 fun main() {
     val applicationState = ApplicationState()
@@ -23,11 +24,13 @@ fun main() {
 private class HttpServer(
     private val applicationState: ApplicationState,
     private val applicationConfiguration: PropertiesConfig.Configuration,
+    private val db2DataSource: Db2DataSource = Db2DataSource(),
     port: Int = 8080,
 ) {
 
     init {
         Runtime.getRuntime().addShutdownHook(Thread {
+            db2DataSource.close()
             this.stop()
         })
     }
