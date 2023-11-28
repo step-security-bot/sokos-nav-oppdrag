@@ -52,9 +52,6 @@ dependencies {
     // Test
     testImplementation("com.lemonappdev:konsist:$konsistVersion")
 
-    implementation(files(("/Users/mudasar/Documents/PO-Utbetaling/db2jcc_license_cisuz.jar")))
-
-
     // Modules
     implementation(project(":oppdragsinfo"))
     implementation(project(":venteregister"))
