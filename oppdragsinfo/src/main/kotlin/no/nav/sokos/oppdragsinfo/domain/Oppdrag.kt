@@ -10,7 +10,7 @@ data class Oppdrag(
     val frekvens: String,
     val kjorIdag: String,
     val stonadId: String,
-    val datoForfall: String,
+    val datoForfall: String?,
     val oppdragGjelderId: String,
     val typeBilag: String,
     val brukerId: String,

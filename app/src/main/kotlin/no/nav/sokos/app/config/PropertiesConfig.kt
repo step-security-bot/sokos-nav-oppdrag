@@ -18,10 +18,9 @@ object PropertiesConfig {
     )
     private val localDevProperties = ConfigurationMap(
         mapOf(
-            "USE_AUTHENTICATION" to "false",
+            "USE_AUTHENTICATION" to "true",
             "APPLICATION_PROFILE" to Profile.LOCAL.toString(),
-            "AZURE_APP_CLIENT_ID" to "azure-app-client-id",
-            "AZURE_APP_WELL_KNOWN_URL" to "azure-app-well-known-url",
+            "AZURE_APP_WELL_KNOWN_URL" to "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration"
         )
     )
     private val devProperties = ConfigurationMap(mapOf("APPLICATION_PROFILE" to Profile.DEV.toString()))

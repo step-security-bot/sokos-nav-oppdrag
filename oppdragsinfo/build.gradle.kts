@@ -17,6 +17,8 @@ val hikariVersion = "5.1.0"
 val db2JccVersion = "11.5.9.0"
 val jacksonVersion = "2.16.0"
 val jooqVersion = "3.18.7"
+val kotliqueryVersion = "1.9.0"
+val jakoVersion = "0.2.0"
 
 plugins {
     id("nu.studer.jooq") version "8.2.1"
@@ -70,6 +72,8 @@ dependencies {
     implementation("org.jooq:jooq:$jooqVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("com.ibm.db2:jcc:$db2JccVersion")
+    implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
+    implementation("com.github.AlessioCoser:jako:$jakoVersion")
 
     // Test
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")

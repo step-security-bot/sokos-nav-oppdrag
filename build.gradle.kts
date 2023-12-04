@@ -16,6 +16,7 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
+        maven { url = uri("https://jitpack.io") }
     }
 
     apply(plugin = "org.jetbrains.kotlin.jvm")
