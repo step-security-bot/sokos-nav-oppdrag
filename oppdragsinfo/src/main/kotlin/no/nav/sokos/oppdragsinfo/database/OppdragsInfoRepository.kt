@@ -8,6 +8,13 @@ import java.sql.Connection
 
 object OppdragsInfoRepository {
 
+    //DB2 greie som gjør queries raskere. Må kjøres før hver query.
+    //Funker ikke med testcontainers siden de ikke har en aksellerator siden det er en servergreie
+    // tro meg jeg har prøvd...
+    fun Connection.setAcceleration() {
+        prepareStatement("SET CURRENT QUERY ACCELERATION ALL;").execute()
+    }
+
     fun Connection.hentOppdrag(
             oppdragId: String,
     ): List<Oppdrag> =
