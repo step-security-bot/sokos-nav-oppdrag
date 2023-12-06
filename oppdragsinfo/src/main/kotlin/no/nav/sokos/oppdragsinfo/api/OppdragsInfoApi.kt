@@ -27,44 +27,4 @@ fun Route.oppdragsInfoApi(
             call.respond(response)
         }
     }
-
-    /*    get<Oppdrag> { oppdrag ->
-            val response = OppdragsInfoResponse(
-                    oppdragsInfoService.hentOppdrag1(
-                            call.request.headers.get("offnr").orEmpty(),
-                            oppdrag.fagGruppeKode,
-                            oppdrag.fagSystemId,
-                            oppdrag.vedtakFom,
-                            call
-                    ))
-            call.respond(response)
-        }
-
-        get<OppdragId> { oppdragId ->
-            val response = OppdragsInfoResponse(
-                    oppdragsInfoService.hentOppdrag2(
-                            oppdragId.oppdragId,
-                            call
-                    ))
-            call.respond(response)
-        }
-
-        get<OppdragId.Oppdragslinje> { oppdragslinje ->
-            val response = OppdragsInfoResponse(
-                    oppdragsInfoService.hentOppdragslinje(
-                            oppdragslinje.oppdragId.oppdragId,
-                            oppdragslinje.linjeId,
-                            call
-                    ))
-            call.respond(response)
-        }
-
-        get<Oppdragsdetaljer> { oppdragsdetaljer ->
-            val response = OppdragsInfoResponse(
-                    oppdragsInfoService.hentOppdragsdetaljer(
-                            oppdragsdetaljer.oppdragId.oppdragId,
-                            call
-                    ))
-            call.respond(response)
-        }*/
 }

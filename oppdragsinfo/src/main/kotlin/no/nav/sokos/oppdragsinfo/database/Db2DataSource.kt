@@ -4,11 +4,11 @@ import com.ibm.db2.jcc.DB2BaseDataSource
 import com.ibm.db2.jcc.DB2SimpleDataSource
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import java.sql.Connection
+import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 
 class Db2DataSource(
-        private val oppdragDatabaseConfig: PropertiesConfig.OppdragDatabaseConfig = PropertiesConfig.OppdragDatabaseConfig()
+    private val oppdragDatabaseConfig: PropertiesConfig.OppdragDatabaseConfig = PropertiesConfig.OppdragDatabaseConfig()
 ) {
     private val dataSource: HikariDataSource = HikariDataSource(hikariConfig())
 

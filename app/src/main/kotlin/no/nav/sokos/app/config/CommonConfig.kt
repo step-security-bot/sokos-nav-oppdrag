@@ -1,10 +1,7 @@
 package no.nav.sokos.app.config
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.http.HttpHeaders
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.metrics.micrometer.MicrometerMetrics
@@ -19,11 +16,16 @@ import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.binder.system.UptimeMetrics
 import java.util.UUID
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import mu.KotlinLogging
 import no.nav.sokos.app.metrics.prometheusMeterRegistryApp
 import org.slf4j.event.Level
 
-const val SECURE_LOGGER = "secureLogger"
-const val AUDIT_LOGGER = "auditLogger"
+private const val SECURE_LOGGER = "secureLogger"
+private const val AUDIT_LOGGER = "auditLogger"
+val logger = KotlinLogging.logger {}
+
 
 fun Application.commonConfig() {
     install(CallId) {
@@ -38,13 +40,14 @@ fun Application.commonConfig() {
         disableDefaultColors()
     }
     install(ContentNegotiation) {
-        jackson {
-            findAndRegisterModules()
-            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            enable(SerializationFeature.INDENT_OUTPUT)
-            setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        }
+        json(Json {
+            prettyPrint = true
+            isLenient = true
+
+            @OptIn(ExperimentalSerializationApi::class)
+            explicitNulls = false
+
+        })
     }
     install(MicrometerMetrics) {
         registry = prometheusMeterRegistryApp

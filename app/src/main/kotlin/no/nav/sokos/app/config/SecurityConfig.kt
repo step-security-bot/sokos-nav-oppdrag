@@ -2,7 +2,6 @@ package no.nav.sokos.app.config
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
-import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.client.call.body
 import io.ktor.client.engine.ProxyBuilder
 import io.ktor.client.engine.http
@@ -14,6 +13,7 @@ import io.ktor.server.auth.jwt.jwt
 import java.net.URI
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerialName
 import mu.KotlinLogging
 import no.nav.sokos.app.util.httpClient
 
@@ -74,9 +74,9 @@ private fun cachedJwkProvider(jwksUri: String): JwkProvider {
 }
 
 data class OpenIdMetadata(
-    @JsonProperty("jwks_uri") val jwksUri: String,
-    @JsonProperty("issuer") val issuer: String,
-    @JsonProperty("token_endpoint") val tokenEndpoint: String,
+    @SerialName("jwks_uri") val jwksUri: String,
+    @SerialName("issuer") val issuer: String,
+    @SerialName("token_endpoint") val tokenEndpoint: String,
 )
 
 private fun wellKnowConfig(wellKnownUrl: String): OpenIdMetadata {

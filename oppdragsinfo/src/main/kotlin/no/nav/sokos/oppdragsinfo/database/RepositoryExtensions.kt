@@ -2,18 +2,15 @@ package no.nav.sokos.oppdragsinfo.database
 
 import java.math.BigDecimal
 import java.sql.Connection
-import java.sql.Date
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.time.LocalDate
 import java.time.LocalDateTime
-import mu.KotlinLogging
+import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.Parameter
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.metrics.databaseFailureCounterOppdragsInfo
-
-val logger = KotlinLogging.logger { }
 
 object RepositoryExtensions {
 
@@ -28,7 +25,12 @@ object RepositoryExtensions {
         }
     }
 
-    inline fun <reified T : Any?> ResultSet.getColumn(
+    // Må kjøres før hver query som gjør query raskere
+    fun Connection.setAcceleration() {
+        prepareStatement("SET CURRENT QUERY ACCELERATION ALL;").execute()
+    }
+
+    private inline fun <reified T : Any?> ResultSet.getColumn(
         columnLabel: String,
         transform: (T) -> T = { it },
     ): T {
@@ -62,9 +64,6 @@ object RepositoryExtensions {
     }
 
     fun param(value: String?) = Parameter { sp: PreparedStatement, index: Int -> sp.setString(index, value) }
-    fun param(value: Int) = Parameter { sp: PreparedStatement, index: Int -> sp.setInt(index, value) }
-    fun param(value: LocalDate?) =
-        Parameter { sp: PreparedStatement, index: Int -> sp.setDate(index, Date.valueOf(value)) }
 
     fun PreparedStatement.withParameters(vararg parameters: Parameter?) = apply {
         var index = 1; parameters.forEach { it?.addToPreparedStatement(this, index++) }
