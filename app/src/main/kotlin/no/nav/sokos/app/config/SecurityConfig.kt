@@ -13,6 +13,7 @@ import io.ktor.server.auth.jwt.jwt
 import java.net.URI
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 import mu.KotlinLogging
 import no.nav.sokos.app.util.httpClient
@@ -73,6 +74,7 @@ private fun cachedJwkProvider(jwksUri: String): JwkProvider {
         .build()
 }
 
+@Serializable
 data class OpenIdMetadata(
     @SerialName("jwks_uri") val jwksUri: String,
     @SerialName("issuer") val issuer: String,
