@@ -13,7 +13,7 @@ object PropertiesConfig {
     private val defaultProperties = ConfigurationMap(
         mapOf(
             "NAIS_APP_NAME" to "sokos-nav-oppdrag",
-            "NAIS_NAMESPACE" to "okonomi",
+            "NAIS_NAMESPACE" to "okonomi"
         )
     )
     private val localDevProperties = ConfigurationMap(
@@ -21,7 +21,7 @@ object PropertiesConfig {
             "USE_AUTHENTICATION" to "false",
             "APPLICATION_PROFILE" to Profile.LOCAL.toString(),
             "AZURE_APP_CLIENT_ID" to "azure-app-client-id",
-            "AZURE_APP_WELL_KNOWN_URL" to "azure-app-well-known-url",
+            "AZURE_APP_WELL_KNOWN_URL" to "azure-app-well-known-url"
         )
     )
     private val devProperties = ConfigurationMap(mapOf("APPLICATION_PROFILE" to Profile.DEV.toString()))
