@@ -1,13 +1,14 @@
 package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
-import mu.KotlinLogging
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
-import no.nav.sokos.oppdragsinfo.config.SECURE_LOGGER
+import no.nav.sokos.oppdragsinfo.config.logger
+import no.nav.sokos.oppdragsinfo.config.secureLogger
 import no.nav.sokos.oppdragsinfo.database.Db2DataSource
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
+import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.setAcceleration
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.security.getSaksbehandler
@@ -17,9 +18,6 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFagomraade
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragstatus
 import no.nav.sokos.oppdragsinfo.domain.Faggruppe
 import no.nav.sokos.oppdragsinfo.domain.Fagomraade
-
-private val logger = KotlinLogging.logger {}
-private val secureLogger = KotlinLogging.logger(SECURE_LOGGER)
 
 class OppdragsInfoService(
     private val db2DataSource: Db2DataSource = Db2DataSource(),
@@ -40,6 +38,7 @@ class OppdragsInfoService(
             )
         )
         return db2DataSource.connection.useAndHandleErrors { connection ->
+            connection.setAcceleration()
             connection.hentOppdrag(oppdragsId.trim().toInt())
         }
     }

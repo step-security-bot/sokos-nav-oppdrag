@@ -1,3 +1,5 @@
+package no.nav.sokos.app
+
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.architecture.KoArchitectureCreator.assertArchitecture
 import com.lemonappdev.konsist.api.architecture.Layer
@@ -5,12 +7,13 @@ import com.lemonappdev.konsist.api.ext.list.withAllAnnotationsOf
 import com.lemonappdev.konsist.api.ext.list.withNameContaining
 import com.lemonappdev.konsist.api.ext.list.withNameEndingWith
 import com.lemonappdev.konsist.api.ext.list.withNameStartingWith
+import com.lemonappdev.konsist.api.verify.assertFalse
 import com.lemonappdev.konsist.api.verify.assertTrue
 import io.kotest.core.spec.style.FunSpec
 import kotlinx.serialization.Serializable
 
-
 //https://docs.konsist.lemonappdev.com/getting-started/readme
+
 internal class ProjectStructureTest : FunSpec({
     val projectScope = Konsist.scopeFromProduction()
     val moduleNames = projectScope.files.filter {
@@ -80,7 +83,6 @@ internal class ProjectStructureTest : FunSpec({
                 val api = Layer("Api", "no.nav.sokos.$it.api..")
 
 
-
                 // Se gjennom dette og sjekk at det stemmer ref Onion Architecture
                 domain.dependsOnNothing()
                 config.dependsOnNothing()
@@ -117,10 +119,9 @@ internal class ProjectStructureTest : FunSpec({
             .properties()
             .assertTrue { !it.hasPublicModifier && it.numModifiers < 5 }
 
-        // kommentert ut fordi de failer
-        /*   projectScope
-                   .imports
-                   .assertFalse { it.isWildcard }*/
+        projectScope
+            .imports
+            .assertFalse { it.isWildcard }
 
         /*   projectScope
                    .functions()

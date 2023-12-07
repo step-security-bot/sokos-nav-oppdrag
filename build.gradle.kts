@@ -2,11 +2,30 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    kotlin("jvm") version "1.9.20"
-    kotlin("plugin.serialization") version "1.9.20"
+    kotlin("jvm") version "1.9.21"
+    kotlin("plugin.serialization") version "1.9.21"
 }
 
+// Ktor
 val ktorVersion = "2.3.6"
+
+// Monitorering
+val prometheusVersion = "1.12.0"
+
+// Serialization
+val kotlinxSerializationVersion = "1.6.2"
+
+// Config
+val natpryceVersion = "1.6.10.0"
+
+// Logging
+val kotlinLoggingVersion = "3.0.5"
+
+// Database
+val hikariVersion = "5.1.0"
+val db2JccVersion = "11.5.9.0"
+
+// Test
 val kotestVersion = "5.8.0"
 val mockkVersion = "1.13.8"
 
@@ -25,7 +44,32 @@ allprojects {
     dependencies {
 
         // Ktor server
-        implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
+        implementation("io.ktor:ktor-server-swagger:$ktorVersion")
+
+        // Ktor client
+        implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+        implementation("io.ktor:ktor-client-apache-jvm:$ktorVersion")
+
+        // Security
+        implementation("io.ktor:ktor-server-auth-jvm:$ktorVersion")
+        implementation("io.ktor:ktor-server-auth-jwt-jvm:$ktorVersion")
+
+        // Monitorering
+        implementation("io.micrometer:micrometer-registry-prometheus:$prometheusVersion")
+
+        // Serialization
+        implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:$kotlinxSerializationVersion")
+
+        // Config
+        implementation("com.natpryce:konfig:$natpryceVersion")
+
+        // Logging
+        implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+
+        // Database
+        implementation("com.zaxxer:HikariCP:$hikariVersion")
+        implementation("com.ibm.db2:jcc:$db2JccVersion")
 
         // Test
         testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
