@@ -22,33 +22,7 @@ fun Route.oppdragsInfoApi(
             )
             call.respond(response)
         }
-        get("oppdrag2/{oppdragsId}") {
-            val response = OppdragsInfoResponse2(
-                oppdragsInfoService.hentOppdrag2(
-                    call.parameters.get("oppdragsId").orEmpty(),
-                    call
-                )
-            )
-            call.respond(response)
-        }
-        get("oppdrag3/{oppdragsId}") {
-            val response = OppdragsInfoResponse(
-                oppdragsInfoService.hentOppdrag3(
-                    call.parameters.get("oppdragsId").orEmpty(),
-                    call
-                )
-            )
-            call.respond(response)
-        }
-        get("oppdrag4/{oppdragsId}") {
-            val response = OppdragsInfoResponse(
-                oppdragsInfoService.hentOppdrag4(
-                    call.parameters.get("oppdragsId").orEmpty(),
-                    call
-                )
-            )
-            call.respond(response)
-        }
+
         post("oppdrag") {
             val oppdragsSokRequest: OppdragsSokRequest = call.receive()
             val response = OppdragsSokResponse(
@@ -60,32 +34,4 @@ fun Route.oppdragsInfoApi(
             call.respond(response)
         }
     }
-    /*
-            get<OppdragId> { oppdragId ->
-                val response = OppdragsInfoResponse(
-                        oppdragsInfoService.hentOppdrag2(
-                                oppdragId.oppdragId,
-                                call
-                        ))
-                call.respond(response)
-            }
-
-            get<OppdragId.Oppdragslinje> { oppdragslinje ->
-                val response = OppdragsInfoResponse(
-                        oppdragsInfoService.hentOppdragslinje(
-                                oppdragslinje.oppdragId.oppdragId,
-                                oppdragslinje.linjeId,
-                                call
-                        ))
-                call.respond(response)
-            }
-
-            get<Oppdragsdetaljer> { oppdragsdetaljer ->
-                val response = OppdragsInfoResponse(
-                        oppdragsInfoService.hentOppdragsdetaljer(
-                                oppdragsdetaljer.oppdragId.oppdragId,
-                                call
-                        ))
-                call.respond(response)
-            }*/
 }

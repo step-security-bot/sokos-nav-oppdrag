@@ -20,6 +20,7 @@ object PropertiesConfig {
         mapOf(
             "USE_AUTHENTICATION" to "true",
             "APPLICATION_PROFILE" to Profile.LOCAL.toString(),
+            "AZURE_APP_CLIENT_ID" to "6076c1ac-3577-442b-8323-e8d1c7d82d5a",
             "AZURE_APP_WELL_KNOWN_URL" to "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration"
         )
     )

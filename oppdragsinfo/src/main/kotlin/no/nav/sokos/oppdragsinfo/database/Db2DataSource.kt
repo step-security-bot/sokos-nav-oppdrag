@@ -16,7 +16,7 @@ class Db2DataSource(
 
     fun close() = dataSource.close()
 
-    fun hikariConfig() = HikariConfig().apply {
+    private fun hikariConfig() = HikariConfig().apply {
         maximumPoolSize = 10
         isAutoCommit = true
         poolName = "HikariPool-OPPDRAG"

@@ -10,7 +10,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import mu.KotlinLogging
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.Parameter
-import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.metrics.databaseFailureCounterOppdragsInfo
 
 val logger = KotlinLogging.logger { }
@@ -70,23 +69,7 @@ object RepositoryExtensions {
         var index = 1; parameters.forEach { it?.addToPreparedStatement(this, index++) }
     }
 
-    fun ResultSet.toOppdrag() = toList {
-        Oppdrag(
-            oppdragsId = getColumn("OPPDRAGS_ID"),
-            fagsystemId = getColumn("FAGSYSTEM_ID"),
-            kodeFagOmrade = getColumn("KODE_FAGOMRAADE"),
-            frekvens = getColumn("FREKVENS"),
-            kjorIdag = getColumn("KJOR_IDAG"),
-            stonadId = getColumn("STONAD_ID"),
-            datoForfall = getColumn("DATO_FORFALL"),
-            oppdragGjelderId = getColumn("OPPDRAG_GJELDER_ID"),
-            typeBilag = getColumn("TYPE_BILAG"),
-            brukerId = getColumn("BRUKERID"),
-            tidspunktReg = getColumn("TIDSPKT_REG")
-        )
-    }
-
-    private fun <T> ResultSet.toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
+    fun <T> ResultSet.toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
         while (next()) {
             add(mapper())
         }

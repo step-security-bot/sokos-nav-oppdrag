@@ -8,7 +8,3 @@ data class OppdragsInfoResponse(
     val oppdrag: List<Oppdrag>
 )
 
-@Serializable
-data class OppdragsInfoResponse2(
-    val oppdrag: List<Unit>
-)
