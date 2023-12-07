@@ -4,6 +4,7 @@ val logbackVersion = "1.4.14"
 val logstashVersion = "7.4"
 val papertrailappVersion = "1.0.0"
 val konsistVersion = "0.13.0"
+val mockOAuth2ServerVersion = "2.0.1"
 
 dependencies {
 
@@ -25,6 +26,8 @@ dependencies {
 
     // Test
     testImplementation("com.lemonappdev:konsist:$konsistVersion")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")
+    testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
 
     // Modules
     implementation(project(":oppdragsinfo"))

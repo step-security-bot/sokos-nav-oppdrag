@@ -1,3 +1,5 @@
+package no.nav.sokos.app
+
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.architecture.KoArchitectureCreator.assertArchitecture
 import com.lemonappdev.konsist.api.architecture.Layer
@@ -10,8 +12,8 @@ import com.lemonappdev.konsist.api.verify.assertTrue
 import io.kotest.core.spec.style.FunSpec
 import kotlinx.serialization.Serializable
 
-
 //https://docs.konsist.lemonappdev.com/getting-started/readme
+
 internal class ProjectStructureTest : FunSpec({
     val projectScope = Konsist.scopeFromProduction()
     val moduleNames = projectScope.files.filter {

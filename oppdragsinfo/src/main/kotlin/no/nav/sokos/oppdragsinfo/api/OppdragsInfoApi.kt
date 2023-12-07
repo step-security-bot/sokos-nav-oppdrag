@@ -10,7 +10,7 @@ import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoRequest
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoResponse
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 
-private const val BASE_PATH = "/api/v1"
+private const val BASE_PATH = "/api/v1/oppdragsinfo"
 
 fun Route.oppdragsInfoApi(
     oppdragsInfoService: OppdragsInfoService = OppdragsInfoService()

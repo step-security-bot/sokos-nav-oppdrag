@@ -26,7 +26,6 @@ private const val SECURE_LOGGER = "secureLogger"
 private const val AUDIT_LOGGER = "auditLogger"
 val logger = KotlinLogging.logger {}
 
-
 fun Application.commonConfig() {
     install(CallId) {
         header(HttpHeaders.XCorrelationId)
