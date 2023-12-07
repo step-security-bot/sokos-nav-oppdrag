@@ -10,26 +10,69 @@ import no.nav.sokos.oppdragsinfo.database.Db2DataSource
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.setAcceleration
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
-import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.security.getSaksbehandler
 import no.nav.sokos.oppdragsinfo.api.model.OppdragVO
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRequest
+import no.nav.sokos.oppdragsinfo.api.model.OppdragslinjeVO
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFagomraade
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragslinje
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragstatus
-import no.nav.sokos.oppdragsinfo.domain.Faggruppe
-import no.nav.sokos.oppdragsinfo.domain.Fagomraade
+import no.nav.sokos.oppdragsinfo.domain.*
 
 class OppdragsInfoService(
     private val db2DataSource: Db2DataSource = Db2DataSource(),
     private val auditLogger: AuditLogger = AuditLogger(),
 ) {
 
+    fun hentOppdragslinje(
+        oppdragsId: String,
+        oppdragslinje: String,
+        applicationCall: ApplicationCall
+    ): List<OppdragslinjeVO> {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        secureLogger.info("Henter oppdrag med id: $oppdragsId")
+        auditLogger.auditLog(
+            AuditLogg(
+                saksbehandler = saksbehandler.ident,
+                oppdragsId = oppdragsId
+            )
+        )
+        return db2DataSource.connection.useAndHandleErrors { connection ->
+            connection.setAcceleration()
+            val oppdragslinjer = connection.hentOppdragslinje(oppdragsId.trim().toInt(), oppdragslinje.trim().toInt())
+            oppdragslinjer.map { oppdLinje ->
+                OppdragslinjeVO(
+                    oppdLinje.oppdragsId,
+                    oppdLinje.linjeId,
+                    oppdLinje.delytelseId,
+                    oppdLinje.sats,
+                    oppdLinje.typeSats,
+                    oppdLinje.vedtakFom?.orEmpty(),
+                    oppdLinje.vedtakTom?.orEmpty(),
+                    oppdLinje.attestert,
+                    oppdLinje.vedtaksId,
+                    oppdLinje.utbetalesTilId,
+                    oppdLinje.refunderesOrgnr,
+                    oppdLinje.brukerid,
+                    oppdLinje.tidspktReg,
+                    mutableListOf(Skyldner(oppdLinje.oppdragsId, oppdLinje.linjeId)),
+                    mutableListOf(Valuta(oppdLinje.oppdragsId, oppdLinje.linjeId)),
+                    mutableListOf(Linjeenhet(oppdLinje.oppdragsId, oppdLinje.linjeId)),
+                    mutableListOf(Kid(oppdLinje.oppdragsId, oppdLinje.linjeId)),
+                    mutableListOf(OppdragsTekst(oppdLinje.oppdragsId, oppdLinje.linjeId)),
+                    mutableListOf(Grad(oppdLinje.oppdragsId, oppdLinje.linjeId)),
+                    mutableListOf(Kravhaver(oppdLinje.oppdragsId, oppdLinje.linjeId)),
+                    mutableListOf(Maksdato(oppdLinje.oppdragsId, oppdLinje.linjeId))
+                )
+            }
+        }
+    }
+
     fun hentOppdrag(
         oppdragsId: String,
         applicationCall: ApplicationCall
     ): List<Oppdrag> {
         val saksbehandler = hentSaksbehandler(applicationCall)
-        logger.info("Henter oppdrag med java.sql")
         secureLogger.info("Henter oppdrag med id: $oppdragsId")
         auditLogger.auditLog(
             AuditLogg(
@@ -63,6 +106,7 @@ class OppdragsInfoService(
             )
         )
         return db2DataSource.connection.useAndHandleErrors { connection ->
+            connection.setAcceleration()
             val oppdrag = connection.hentOppdrag(
                 oppdragsSokRequest.gjelderId,
                 oppdragsSokRequest.fagSystemId,

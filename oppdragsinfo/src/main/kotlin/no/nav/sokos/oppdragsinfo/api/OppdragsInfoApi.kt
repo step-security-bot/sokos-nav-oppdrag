@@ -23,6 +23,17 @@ fun Route.oppdragsInfoApi(
             call.respond(response)
         }
 
+        get("oppdrag/{oppdragsId}/{oppdragslinje}") {
+            val response = OppdragslinjeResponse(
+                oppdragsInfoService.hentOppdragslinje(
+                    call.parameters.get("oppdragsId").orEmpty(),
+                    call.parameters.get("oppdragslinje").orEmpty(),
+                    call
+                )
+            )
+            call.respond(response)
+        }
+
         post("oppdrag") {
             val oppdragsSokRequest: OppdragsSokRequest = call.receive()
             val response = OppdragsSokResponse(

@@ -5,13 +5,28 @@ import java.sql.Connection
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.withParameters
-import no.nav.sokos.oppdragsinfo.domain.Faggruppe
-import no.nav.sokos.oppdragsinfo.domain.Fagomraade
-import no.nav.sokos.oppdragsinfo.domain.Oppdrag
-import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
+import no.nav.sokos.oppdragsinfo.domain.*
 import java.sql.ResultSet
 
 object OppdragsInfoRepository {
+
+    fun Connection.hentOppdragslinje(
+        oppdragId: Int,
+        oppdragslinje: Int
+    ): List<Oppdragslinje> {
+        val resultSet = prepareStatement(
+            """
+                SELECT *
+                FROM T_OPPDRAGSLINJE
+                WHERE OPPDRAGS_ID = ?
+                and LINJE_ID = ?
+            """.trimIndent()
+        ).withParameters(
+            param(oppdragId),
+            param(oppdragslinje)
+        ).executeQuery()
+        return toOppdragslinje(resultSet)
+    }
 
     fun Connection.hentOppdrag(
         oppdragId: Int
@@ -20,10 +35,10 @@ object OppdragsInfoRepository {
             """
                 SELECT *
                 FROM T_OPPDRAG
-                WHERE OPPDRAGS_ID = (?)
+                WHERE OPPDRAGS_ID = ?
             """.trimIndent()
         ).withParameters(
-            param(oppdragId)
+            param(oppdragId),
         ).executeQuery()
         return toOppdrag(resultSet)
     }
@@ -96,6 +111,24 @@ object OppdragsInfoRepository {
             typeBilag = getColumn("TYPE_BILAG"),
             brukerId = getColumn("BRUKERID"),
             tidspunktReg = getColumn("TIDSPKT_REG")
+        )
+    }
+
+    fun toOppdragslinje(rs: ResultSet) = rs.toList {
+        Oppdragslinje(
+            oppdragsId = getColumn("OPPDRAGS_ID"),
+            linjeId = getColumn("LINJE_ID"),
+            delytelseId = getColumn("DELYTELSE_ID"),
+            sats = getColumn("SATS"),
+            typeSats = getColumn("TYPE_SATS"),
+            vedtakFom = getColumn("DATO_VEDTAK_FOM"),
+            vedtakTom = getColumn("DATO_VEDTAK_TOM"),
+            attestert = getColumn("ATTESTERT"),
+            vedtaksId = getColumn("VEDTAK_ID"),
+            utbetalesTilId = getColumn("UTBETALES_TIL_ID"),
+            refunderesOrgnr = getColumn("REFUNDERES_ID"),
+            brukerid = getColumn("BRUKERID"),
+            tidspktReg = getColumn("TIDSPKT_REG")
         )
     }
 
