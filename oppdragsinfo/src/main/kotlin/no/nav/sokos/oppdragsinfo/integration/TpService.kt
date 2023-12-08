@@ -1,4 +1,4 @@
-package no.nav.sokos.oppdragsinfo.tp
+package no.nav.sokos.oppdragsinfo.integration
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -8,7 +8,7 @@ import io.ktor.server.plugins.NotFoundException
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.metrics.tpCallCounter
-import no.nav.sokos.oppdragsinfo.tp.model.OrganisasjonsNavn
+import no.nav.sokos.oppdragsinfo.integration.model.OrganisasjonsNavn
 import no.nav.sokos.oppdragsinfo.util.RetryException
 import no.nav.sokos.oppdragsinfo.util.defaultHttpClient
 import no.nav.sokos.oppdragsinfo.util.retry

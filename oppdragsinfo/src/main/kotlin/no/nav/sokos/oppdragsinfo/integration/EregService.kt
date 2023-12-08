@@ -1,4 +1,4 @@
-package no.nav.sokos.oppdragsinfo.ereg
+package no.nav.sokos.oppdragsinfo.integration
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -11,7 +11,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.config.logger
-import no.nav.sokos.oppdragsinfo.ereg.model.Organisasjon
+import no.nav.sokos.oppdragsinfo.integration.model.Organisasjon
 import no.nav.sokos.oppdragsinfo.metrics.eregCallCounter
 import no.nav.sokos.oppdragsinfo.util.RetryException
 import no.nav.sokos.oppdragsinfo.util.defaultHttpClient
