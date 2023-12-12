@@ -29,8 +29,6 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
 
-    implementation(files(("/Users/mudasar/Documents/PO-Utbetaling/db2jcc_license_cisuz.jar")))
-
     // Modules
     implementation(project(":oppdragsinfo"))
     implementation(project(":venteregister"))
