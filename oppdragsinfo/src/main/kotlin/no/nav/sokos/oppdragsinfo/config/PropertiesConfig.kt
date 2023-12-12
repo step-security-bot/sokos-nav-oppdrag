@@ -46,6 +46,11 @@ object PropertiesConfig {
         val password: String = get("DATABASE_PASSWORD"),
     )
 
+    data class EksterneHost(
+        val eregHost: String = get("EREG_HOST"),
+        val tpHost: String = get("TP_HOST")
+    )
+
     enum class Profile {
         LOCAL, DEV, PROD
     }
