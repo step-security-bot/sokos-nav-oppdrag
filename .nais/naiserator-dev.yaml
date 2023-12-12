@@ -72,6 +72,6 @@ spec:
     - name: USE_AUTHENTICATION
       value: "true"
     - name: EREG_HOST
-      value: "https://modapp-q1.adeo.no"
+      value: "https://ereg-services-q1.dev.intern.nav.no"
     - name: TP_HOST
       value: "https://tp-q1.dev.intern.nav.no"

@@ -26,7 +26,7 @@ class EregService(
     suspend fun hentOrganisasjonsNavn(organisasjonsnummer: String): Organisasjon =
         retry {
             try {
-                httpClient.get("$eregHost/ereg/api/v1/organisasjon/$organisasjonsnummer/noekkelinfo") {
+                httpClient.get("$eregHost/v2/organisasjon/$organisasjonsnummer/noekkelinfo") {
                     header("Nav-Call-Id", MDC.get("x-correlation-id"))
                 }
             } catch (ex: Exception) {
@@ -37,6 +37,7 @@ class EregService(
             eregCallCounter.labels("${response.status.value}").inc()
             when (response.status.value) {
                 200 -> {
+                    println(response.body<String>())
                     response.body<Organisasjon>()
                 }
 
