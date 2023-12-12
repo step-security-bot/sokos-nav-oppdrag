@@ -5,8 +5,12 @@ import java.sql.Connection
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.withParameters
-import no.nav.sokos.oppdragsinfo.domain.*
 import java.sql.ResultSet
+import no.nav.sokos.oppdragsinfo.domain.Faggruppe
+import no.nav.sokos.oppdragsinfo.domain.Fagomraade
+import no.nav.sokos.oppdragsinfo.domain.Oppdrag
+import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
+import no.nav.sokos.oppdragsinfo.domain.Oppdragslinje
 
 object OppdragsInfoRepository {
 

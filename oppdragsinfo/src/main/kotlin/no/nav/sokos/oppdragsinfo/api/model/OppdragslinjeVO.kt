@@ -1,7 +1,14 @@
 package no.nav.sokos.oppdragsinfo.api.model
 
 import kotlinx.serialization.Serializable
-import no.nav.sokos.oppdragsinfo.domain.*
+import no.nav.sokos.oppdragsinfo.domain.Grad
+import no.nav.sokos.oppdragsinfo.domain.Kid
+import no.nav.sokos.oppdragsinfo.domain.Kravhaver
+import no.nav.sokos.oppdragsinfo.domain.Linjeenhet
+import no.nav.sokos.oppdragsinfo.domain.Maksdato
+import no.nav.sokos.oppdragsinfo.domain.OppdragsTekst
+import no.nav.sokos.oppdragsinfo.domain.Skyldner
+import no.nav.sokos.oppdragsinfo.domain.Valuta
 
 @Serializable
 data class OppdragslinjeVO(

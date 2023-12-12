@@ -17,7 +17,17 @@ import no.nav.sokos.oppdragsinfo.api.model.OppdragslinjeVO
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFagomraade
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragslinje
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragstatus
-import no.nav.sokos.oppdragsinfo.domain.*
+import no.nav.sokos.oppdragsinfo.domain.Faggruppe
+import no.nav.sokos.oppdragsinfo.domain.Fagomraade
+import no.nav.sokos.oppdragsinfo.domain.Grad
+import no.nav.sokos.oppdragsinfo.domain.Kid
+import no.nav.sokos.oppdragsinfo.domain.Kravhaver
+import no.nav.sokos.oppdragsinfo.domain.Linjeenhet
+import no.nav.sokos.oppdragsinfo.domain.Maksdato
+import no.nav.sokos.oppdragsinfo.domain.Oppdrag
+import no.nav.sokos.oppdragsinfo.domain.OppdragsTekst
+import no.nav.sokos.oppdragsinfo.domain.Skyldner
+import no.nav.sokos.oppdragsinfo.domain.Valuta
 
 class OppdragsInfoService(
     private val db2DataSource: Db2DataSource = Db2DataSource(),

@@ -1,6 +1,6 @@
 package no.nav.sokos.app.security
 
-import OPPDRAGSINFO_API_PATH
+import OPPDRAGSINFO_BASE_API_PATH
 import configureTestApplication
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -34,7 +34,7 @@ class SecurityTest : FunSpec({
                         }
                     }
                 }
-                val response = client.post(OPPDRAGSINFO_API_PATH)
+                val response = client.post("$OPPDRAGSINFO_BASE_API_PATH/oppdrag")
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
