@@ -1,9 +1,8 @@
 package no.nav.sokos.oppdragsinfo.integration.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OrganisasjonsNavn(
+data class LeverandorNavn(
     val navn: String
 )

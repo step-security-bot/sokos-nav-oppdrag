@@ -45,6 +45,8 @@ allprojects {
 
         // Ktor server
         implementation("io.ktor:ktor-server-swagger:$ktorVersion")
+        implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
+        implementation("io.ktor:ktor-server-request-validation:$ktorVersion")
 
         // Ktor client
         implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")

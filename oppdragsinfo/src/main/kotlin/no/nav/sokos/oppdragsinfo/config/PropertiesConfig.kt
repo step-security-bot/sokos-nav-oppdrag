@@ -21,7 +21,9 @@ object PropertiesConfig {
             "DATABASE_NAME" to "databaseName",
             "DATABASE_SCHEMA" to "databaseSchema",
             "DATABASE_USERNAME" to "databaseUsername",
-            "DATABASE_PASSWORD" to "databasePassword"
+            "DATABASE_PASSWORD" to "databasePassword",
+            "EREG_HOST" to "ereg-host",
+            "TP_HOST" to "tp-host"
         )
     )
 

@@ -5,14 +5,17 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
-import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.plugins.NotFoundException
+import io.ktor.http.HttpStatusCode
+import java.time.ZonedDateTime
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import no.nav.sokos.oppdragsinfo.config.ApiError
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.integration.model.Organisasjon
 import no.nav.sokos.oppdragsinfo.metrics.eregCallCounter
+import no.nav.sokos.oppdragsinfo.util.EregException
 import no.nav.sokos.oppdragsinfo.util.RetryException
 import no.nav.sokos.oppdragsinfo.util.defaultHttpClient
 import no.nav.sokos.oppdragsinfo.util.retry
@@ -37,22 +40,49 @@ class EregService(
             eregCallCounter.labels("${response.status.value}").inc()
             when (response.status.value) {
                 200 -> {
-                    println(response.body<String>())
                     response.body<Organisasjon>()
                 }
 
-                400 -> throw BadRequestException(
-                    "Ugyldig(e) parameter(e) i forespørsel: ${response.eregFeilmelding()}"
-                )
+                400 -> {
+                    throw EregException(
+                        ApiError(
+                            ZonedDateTime.now(),
+                            response.status.value,
+                            HttpStatusCode.BadRequest.description,
+                            response.eregFeilmelding() ?: "",
+                            "${eregHost}/v2/organisasjon/{orgnummer}/noekkelinfo",
+                        ),
+                        response
+                    )
+                }
 
-                404 -> throw NotFoundException()
+                404 -> {
+                    throw EregException(
+                        ApiError(
+                            ZonedDateTime.now(),
+                            response.status.value,
+                            HttpStatusCode.NotFound.description,
+                            response.eregFeilmelding() ?: "",
+                            "${eregHost}/v2/organisasjon/{orgnummer}/noekkelinfo",
+                        ),
+                        response
+                    )
+                }
+
                 else -> {
-                    throw Exception(
-                        "Noe gikk galt! Statuskode: ${response.status.value}, melding: ${response.eregFeilmelding()}"
+                    throw EregException(
+                        ApiError(
+                            ZonedDateTime.now(),
+                            response.status.value,
+                            response.status.description,
+                            response.eregFeilmelding() ?: "",
+                            "${eregHost}/v2/organisasjon/{orgnummer}/noekkelinfo",
+                        ),
+                        response
                     )
                 }
             }
         }
 }
 
-suspend fun HttpResponse.eregFeilmelding() = body<JsonElement>().jsonObject["melding"]?.toString()
+suspend fun HttpResponse.eregFeilmelding() = body<JsonElement>().jsonObject["melding"]?.jsonPrimitive?.content
