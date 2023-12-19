@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OppdragsSokResponse(
-    val oppdrag: List<OppdragVO>
+    val oppdrag: List<OppdragsSokVO>
 )

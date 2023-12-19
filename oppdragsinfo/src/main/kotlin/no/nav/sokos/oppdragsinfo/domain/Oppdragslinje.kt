@@ -5,19 +5,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Oppdragslinje(
     val oppdragsId: Int,
-    val linjeId: Int, // benyttes i visning av oppdrag
+    val linjeId: Int,
     val delytelseId: String,
-    val sats: Double, // benyttes i visning av oppdrag
-    val typeSats: String, // benyttes i visning av oppdrag
-    val vedtakFom: String?, // benyttes i visning av oppdrag
-    val vedtakTom: String?, // benyttes i visning av oppdrag
+    val sats: Double,
+    val typeSats: String,
+    val vedtakFom: String?,
+    val vedtakTom: String?,
+    val kodeKlasse: String,
     val attestert: String,
     val vedtaksId: String,
     val utbetalesTilId: String,
-    val refunderesOrgnr: String,
+    val refunderesOrgnr: String?,
     val brukerid: String,
     val tidspktReg: String
-//    val korreksjoner: List<Korreksjon>, // benyttes i visning av oppdrag
-//    val attestasjoner: List<Attest>, // benyttes i visning av oppdrag
-//    val statuser: List<LinjeStatus> // benyttes i visning av oppdrag
 )

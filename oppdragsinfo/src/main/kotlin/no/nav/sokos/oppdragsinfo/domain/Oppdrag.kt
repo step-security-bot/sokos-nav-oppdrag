@@ -14,10 +14,4 @@ data class Oppdrag(
     val typeBilag: String,
     val brukerId: String,
     val tidspunktReg: String
-//    val oppdragStatusList: List<OppdragStatus>
-//    val oppdragslinjer: List<Oppdragslinje>
-//    val enhetsList: List<Oppdragsenhet>,
-//    val tekstList: List<OppdragsTekst>, // benyttes i visning av oppdragsdetaljer
-//    val belopGrenseListe: List<Belopsgrense>, // benyttes i visning av oppdragsdetaljer
-//    val omposteringList: List<Ompostering>
 )

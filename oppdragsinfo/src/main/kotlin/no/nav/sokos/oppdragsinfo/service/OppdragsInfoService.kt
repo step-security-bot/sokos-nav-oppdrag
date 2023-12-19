@@ -1,6 +1,10 @@
 package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoLinjeVO
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoVO
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
@@ -11,30 +15,37 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.setAcceleration
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
 import no.nav.sokos.oppdragsinfo.security.getSaksbehandler
-import no.nav.sokos.oppdragsinfo.api.model.OppdragVO
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokVO
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRequest
 import no.nav.sokos.oppdragsinfo.api.model.OppdragslinjeVO
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.finnOppdrag
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.henKravhavere
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.henMaksdatoer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.henOppdragsTekster
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentAttestasjoner
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFagomraade
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentGrader
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKidlister
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKlasse
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKorreksjoner
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentLinjeenheter
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentLinjestatuser
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsenhet
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragslinje
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragslinjer
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragstatus
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentSkyldnere
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentValutaer
 import no.nav.sokos.oppdragsinfo.domain.Faggruppe
 import no.nav.sokos.oppdragsinfo.domain.Fagomraade
-import no.nav.sokos.oppdragsinfo.domain.Grad
-import no.nav.sokos.oppdragsinfo.domain.Kid
-import no.nav.sokos.oppdragsinfo.domain.Kravhaver
-import no.nav.sokos.oppdragsinfo.domain.Linjeenhet
-import no.nav.sokos.oppdragsinfo.domain.Maksdato
-import no.nav.sokos.oppdragsinfo.domain.Oppdrag
-import no.nav.sokos.oppdragsinfo.domain.OppdragsTekst
-import no.nav.sokos.oppdragsinfo.domain.Skyldner
-import no.nav.sokos.oppdragsinfo.domain.Valuta
+import java.sql.Connection
 
 class OppdragsInfoService(
     private val db2DataSource: Db2DataSource = Db2DataSource(),
-    private val auditLogger: AuditLogger = AuditLogger(),
+    private val auditLogger: AuditLogger = AuditLogger()
 ) {
 
-    fun hentOppdragslinje(
+    suspend fun hentOppdragslinje(
         oppdragsId: String,
         oppdragslinje: String,
         applicationCall: ApplicationCall
@@ -49,39 +60,59 @@ class OppdragsInfoService(
         )
         return db2DataSource.connection.useAndHandleErrors { connection ->
             connection.setAcceleration()
-            val oppdragslinjer = connection.hentOppdragslinje(oppdragsId.trim().toInt(), oppdragslinje.trim().toInt())
-            oppdragslinjer.map { oppdLinje ->
+            val oppdragsLinjeInfo =
+                finnOppdragslinjeInfo(connection, oppdragsId.trim().toInt(), oppdragslinje.trim().toInt())
+
+            oppdragsLinjeInfo.oppdragslinjer.map {
                 OppdragslinjeVO(
-                    oppdLinje.oppdragsId,
-                    oppdLinje.linjeId,
-                    oppdLinje.delytelseId,
-                    oppdLinje.sats,
-                    oppdLinje.typeSats,
-                    oppdLinje.vedtakFom?.orEmpty(),
-                    oppdLinje.vedtakTom?.orEmpty(),
-                    oppdLinje.attestert,
-                    oppdLinje.vedtaksId,
-                    oppdLinje.utbetalesTilId,
-                    oppdLinje.refunderesOrgnr,
-                    oppdLinje.brukerid,
-                    oppdLinje.tidspktReg,
-                    mutableListOf(Skyldner(oppdLinje.oppdragsId, oppdLinje.linjeId)),
-                    mutableListOf(Valuta(oppdLinje.oppdragsId, oppdLinje.linjeId)),
-                    mutableListOf(Linjeenhet(oppdLinje.oppdragsId, oppdLinje.linjeId)),
-                    mutableListOf(Kid(oppdLinje.oppdragsId, oppdLinje.linjeId)),
-                    mutableListOf(OppdragsTekst(oppdLinje.oppdragsId, oppdLinje.linjeId)),
-                    mutableListOf(Grad(oppdLinje.oppdragsId, oppdLinje.linjeId)),
-                    mutableListOf(Kravhaver(oppdLinje.oppdragsId, oppdLinje.linjeId)),
-                    mutableListOf(Maksdato(oppdLinje.oppdragsId, oppdLinje.linjeId))
+                    it.oppdragsId,
+                    it.linjeId,
+                    it.delytelseId,
+                    it.sats,
+                    it.typeSats,
+                    it.vedtakFom.orEmpty(),
+                    it.vedtakTom.orEmpty(),
+                    it.attestert,
+                    it.vedtaksId,
+                    it.utbetalesTilId,
+                    it.refunderesOrgnr.orEmpty(),
+                    it.brukerid,
+                    it.tidspktReg,
+                    oppdragsLinjeInfo.skyldnere,
+                    oppdragsLinjeInfo.valutaer,
+                    oppdragsLinjeInfo.linjeenheter,
+                    oppdragsLinjeInfo.kidliste,
+                    oppdragsLinjeInfo.tekster,
+                    oppdragsLinjeInfo.grader,
+                    oppdragsLinjeInfo.kravhavere,
+                    oppdragsLinjeInfo.maksdatoer
                 )
             }
         }
     }
 
-    fun hentOppdrag(
+    suspend fun finnOppdragslinjeInfo(connection: Connection, oppdragsId: Int, linjeId: Int): OppdragsLinjeInfo {
+        val oppdLinje: OppdragsLinjeInfo
+        coroutineScope {
+            oppdLinje = OppdragsLinjeInfo(
+                async { connection.hentOppdragslinje(oppdragsId, linjeId) }.await(),
+                async { connection.hentSkyldnere(oppdragsId, linjeId) }.await(),
+                async { connection.hentValutaer(oppdragsId, linjeId) }.await(),
+                async { connection.hentLinjeenheter(oppdragsId, linjeId) }.await(),
+                async { connection.hentKidlister(oppdragsId, linjeId) }.await(),
+                async { connection.henOppdragsTekster(oppdragsId, linjeId) }.await(),
+                async { connection.hentGrader(oppdragsId, linjeId) }.await(),
+                async { connection.henKravhavere(oppdragsId, linjeId) }.await(),
+                async { connection.henMaksdatoer(oppdragsId, linjeId) }.await()
+            )
+        }
+        return oppdLinje
+    }
+
+    suspend fun hentOppdrag(
         oppdragsId: String,
         applicationCall: ApplicationCall
-    ): List<Oppdrag> {
+    ): OppdragsInfoVO {
         val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdrag med id: $oppdragsId")
         auditLogger.auditLog(
@@ -92,14 +123,62 @@ class OppdragsInfoService(
         )
         return db2DataSource.connection.useAndHandleErrors { connection ->
             connection.setAcceleration()
-            connection.hentOppdrag(oppdragsId.trim().toInt())
+            val oppdrag = connection.hentOppdrag(oppdragsId.trim().toInt())
+            val fagomraade = connection.hentFagomraade(oppdrag[0].kodeFagOmrade)
+            val oppdragslinjer = connection.hentOppdragslinjer(oppdragsId.trim().toInt())
+            val oppdragsInfoLinjeInfo =
+                oppdragslinjer.map { finnLinjeInfoForOppdragsInfo(connection, oppdragsId.trim().toInt(), it.linjeId) }
+                    .toList()
+            var index = 0
+            val oppdragslinjerInfo = oppdragslinjer.map {
+                OppdragsInfoLinjeVO(
+                    it.oppdragsId,
+                    it.linjeId,
+                    it.sats,
+                    it.typeSats,
+                    it.vedtakFom.orEmpty(),
+                    it.vedtakTom.orEmpty(),
+                    if (it.sats < 0) "K" else "D",
+                    connection.hentKlasse(it.kodeKlasse).first(),
+                    oppdragsInfoLinjeInfo.get(index).korreksjoner,
+                    oppdragsInfoLinjeInfo.get(index).attestasjoner,
+                    oppdragsInfoLinjeInfo.get(index++).linjestatuser
+                )
+            }.toList()
+            OppdragsInfoVO(
+                oppdragsId.toInt(),
+                "TestTestesen",
+                oppdrag[0].fagsystemId,
+                fagomraade.first(),
+                oppdrag[0].kjorIdag,
+                oppdrag[0].oppdragGjelderId,
+                connection.hentOppdragsenhet(oppdragsId.toInt()),
+                connection.hentOppdragstatus(oppdragsId.toInt()),
+                oppdragslinjerInfo
+            )
         }
+    }
+
+    suspend fun finnLinjeInfoForOppdragsInfo(
+        connection: Connection,
+        oppdragsId: Int,
+        oppdragsLinje: Int
+    ): OppdragsInfoLinjeInfo {
+        val linjeInfo: OppdragsInfoLinjeInfo
+        coroutineScope {
+            linjeInfo = OppdragsInfoLinjeInfo(
+                async { connection.hentKorreksjoner(oppdragsId, oppdragsLinje) }.await(),
+                async { connection.hentAttestasjoner(oppdragsId, oppdragsLinje) }.await(),
+                async { connection.hentLinjestatuser(oppdragsId, oppdragsLinje) }.await()
+            )
+        }
+        return linjeInfo
     }
 
     fun sokOppdrag(
         oppdragsSokRequest: OppdragsSokRequest,
         applicationCall: ApplicationCall
-    ): List<OppdragVO> {
+    ): List<OppdragsSokVO> {
         val saksbehandler = hentSaksbehandler(applicationCall)
         logger.info(
             "Søker etter oppdrag med gjelderId = {}, fagSystemId = {}, fagGruppeKode = {}, vedtakFom = {}",
@@ -117,7 +196,7 @@ class OppdragsInfoService(
         )
         return db2DataSource.connection.useAndHandleErrors { connection ->
             connection.setAcceleration()
-            val oppdrag = connection.hentOppdrag(
+            val oppdrag = connection.finnOppdrag(
                 oppdragsSokRequest.gjelderId,
                 oppdragsSokRequest.fagSystemId,
                 oppdragsSokRequest.fagGruppeKode,
@@ -126,31 +205,28 @@ class OppdragsInfoService(
             val fagomraader = oppdrag
                 .map { connection.hentFagomraade(it.kodeFagOmrade) }
                 .flatten()
-
             oppdrag.map { oppd ->
                 val fagomraade = fagomraader.first { it.kode == oppd.kodeFagOmrade }
                 val oppdragStatuser = connection.hentOppdragstatus(oppd.oppdragsId)
-                fagomraade.let {
-                    OppdragVO(
-                        oppd.oppdragsId,
-                        "test testesen",
-                        oppd.fagsystemId,
-                        Fagomraade(
-                            fagomraade.kode,
-                            fagomraade.navn,
-                            Faggruppe(fagomraade.faggruppe.kode, fagomraade.faggruppe.navn)
-                        ),
-                        oppd.frekvens,
-                        oppd.kjorIdag,
-                        oppd.stonadId,
-                        oppd.datoForfall?.orEmpty(),
-                        oppd.oppdragGjelderId,
-                        oppd.typeBilag,
-                        oppd.brukerId,
-                        oppd.tidspunktReg,
-                        oppdragStatuser
-                    )
-                }
+                OppdragsSokVO(
+                    oppd.oppdragsId,
+                    "test testesen",
+                    oppd.fagsystemId,
+                    Fagomraade(
+                        fagomraade.kode,
+                        fagomraade.navn,
+                        Faggruppe(fagomraade.faggruppe.kode, fagomraade.faggruppe.navn)
+                    ),
+                    oppd.frekvens,
+                    oppd.kjorIdag,
+                    oppd.stonadId,
+                    oppd.datoForfall.orEmpty(),
+                    oppd.oppdragGjelderId,
+                    oppd.typeBilag,
+                    oppd.brukerId,
+                    oppd.tidspunktReg,
+                    oppdragStatuser
+                )
             }
         }
     }

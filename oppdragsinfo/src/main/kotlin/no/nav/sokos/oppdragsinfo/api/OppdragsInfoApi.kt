@@ -7,7 +7,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoResponse
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRequest
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.api.model.OppdragslinjeResponse
@@ -20,14 +19,22 @@ fun Route.oppdragsInfoApi(
 ) {
     route(BASE_PATH) {
         get("oppdrag/{oppdragsId}") {
-            val response = OppdragsInfoResponse(
-                oppdragsInfoService.hentOppdrag(
-                    call.parameters.get("oppdragsId").orEmpty(),
-                    call
-                )
+            val response = oppdragsInfoService.hentOppdrag(
+                call.parameters.get("oppdragsId").orEmpty(),
+                call
             )
             call.respond(response)
         }
+
+//        get("oppdrag/{oppdragsId}/detaljer") {
+//            val response = OppdragsInfoDetaljerResponse(
+//                oppdragsInfoService.hentOppdragsdetaljer (
+//                    call.parameters.get("oppdragsId").orEmpty(),
+//                    call
+//                )
+//            )
+//            call.respond(response)
+//        }
 
         get("oppdrag/{oppdragsId}/{oppdragslinje}") {
             val response = OppdragslinjeResponse(

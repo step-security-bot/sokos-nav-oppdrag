@@ -4,6 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Attest(
+    val oppdragsId: Int,
+    val linjeId: Int,
     val attestantId: String,
     val lopenr: Int,
     val ugyldigFom: String,
