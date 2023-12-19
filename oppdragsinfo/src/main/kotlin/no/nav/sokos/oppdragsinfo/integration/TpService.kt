@@ -4,12 +4,15 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.server.plugins.NotFoundException
+import io.ktor.http.HttpStatusCode
+import java.time.ZonedDateTime
+import no.nav.sokos.oppdragsinfo.config.ApiError
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.config.logger
+import no.nav.sokos.oppdragsinfo.integration.model.LeverandorNavn
 import no.nav.sokos.oppdragsinfo.metrics.tpCallCounter
-import no.nav.sokos.oppdragsinfo.integration.model.OrganisasjonsNavn
 import no.nav.sokos.oppdragsinfo.util.RetryException
+import no.nav.sokos.oppdragsinfo.util.TpException
 import no.nav.sokos.oppdragsinfo.util.defaultHttpClient
 import no.nav.sokos.oppdragsinfo.util.retry
 import org.slf4j.MDC
@@ -19,7 +22,7 @@ class TpService(
     private val httpClient: HttpClient = defaultHttpClient
 ) {
 
-    suspend fun hentOrganisasjonsNavnByTssId(tssId: String): OrganisasjonsNavn =
+    suspend fun hentLeverandorNavn(tssId: String): LeverandorNavn =
         retry {
             try {
                 httpClient.get("$tpHost/api/ordninger/tss/${tssId}") {
@@ -33,13 +36,32 @@ class TpService(
             tpCallCounter.labels("${response.status.value}").inc()
             when (response.status.value) {
                 200 -> {
-                    OrganisasjonsNavn(response.body<String>())
+                    LeverandorNavn(response.body<String>())
                 }
 
-                404 -> throw NotFoundException()
+                404 -> {
+                    throw TpException(
+                        ApiError(
+                            ZonedDateTime.now(),
+                            response.status.value,
+                            HttpStatusCode.NotFound.description,
+                            "Fant ingen leverandørnavn med tssId $tssId",
+                            "${tpHost}/api/ordninger/tss/{tssId}",
+                        ),
+                        response
+                    )
+                }
+
                 else -> {
-                    throw Exception(
-                        "Tp returnerte statuskode ${response.status.value} "
+                    throw TpException(
+                        ApiError(
+                            ZonedDateTime.now(),
+                            response.status.value,
+                            response.status.description,
+                            "Noe gikk galt ved oppslag av $tssId i TP",
+                            "${tpHost}/api/ordninger/tss/{tssId}",
+                        ),
+                        response
                     )
                 }
             }

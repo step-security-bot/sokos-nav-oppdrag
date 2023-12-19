@@ -10,12 +10,18 @@ import io.ktor.server.routing.route
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRequest
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.api.model.OppdragslinjeResponse
+import no.nav.sokos.oppdragsinfo.api.model.OrganisasjonsNummerRequest
+import no.nav.sokos.oppdragsinfo.api.model.TssIdRequest
+import no.nav.sokos.oppdragsinfo.integration.EregService
+import no.nav.sokos.oppdragsinfo.integration.TpService
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 
 private const val BASE_PATH = "/api/v1/oppdragsinfo"
 
 fun Route.oppdragsInfoApi(
-    oppdragsInfoService: OppdragsInfoService = OppdragsInfoService()
+    oppdragsInfoService: OppdragsInfoService = OppdragsInfoService(),
+    tpService: TpService = TpService(),
+    eregService: EregService = EregService()
 ) {
     route(BASE_PATH) {
         get("oppdrag/{oppdragsId}") {
@@ -54,6 +60,22 @@ fun Route.oppdragsInfoApi(
                     oppdragsSokRequest,
                     call
                 )
+            )
+            call.respond(response)
+        }
+
+        post("/henttss") {
+            val tssIdRequest: TssIdRequest = call.receive()
+            val response = tpService.hentLeverandorNavn(
+                tssIdRequest.tssId
+            )
+            call.respond(response)
+        }
+
+        post("/hentorg") {
+            val organisasjonsNummerRequest: OrganisasjonsNummerRequest = call.receive()
+            val response = eregService.hentOrganisasjonsNavn(
+                organisasjonsNummerRequest.organisasjonsNummer
             )
             call.respond(response)
         }

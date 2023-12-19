@@ -1,10 +1,10 @@
-val ktorVersion = "2.3.6"
+val ktorVersion = "2.3.7"
 val janionVersion = "3.1.11"
 val logbackVersion = "1.4.14"
 val logstashVersion = "7.4"
 val papertrailappVersion = "1.0.0"
 val konsistVersion = "0.13.0"
-val mockOAuth2ServerVersion = "2.0.1"
+val mockOAuth2ServerVersion = "2.1.0"
 
 dependencies {
 
@@ -17,6 +17,9 @@ dependencies {
 
     // Monitorering
     implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-core-jvm:2.3.7")
+    implementation("io.ktor:ktor-server-host-common-jvm:2.3.7")
+    implementation("io.ktor:ktor-server-status-pages-jvm:2.3.7")
 
     // Logging
     runtimeOnly("org.codehaus.janino:janino:$janionVersion")
@@ -28,7 +31,7 @@ dependencies {
     testImplementation("com.lemonappdev:konsist:$konsistVersion")
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
-
+    
     // Modules
     implementation(project(":oppdragsinfo"))
     implementation(project(":venteregister"))

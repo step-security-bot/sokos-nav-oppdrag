@@ -7,10 +7,10 @@ plugins {
 }
 
 // Ktor
-val ktorVersion = "2.3.6"
+val ktorVersion = "2.3.7"
 
 // Monitorering
-val prometheusVersion = "1.12.0"
+val prometheusVersion = "1.12.1"
 
 // Serialization
 val kotlinxSerializationVersion = "1.6.2"
@@ -45,6 +45,8 @@ allprojects {
 
         // Ktor server
         implementation("io.ktor:ktor-server-swagger:$ktorVersion")
+        implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
+        implementation("io.ktor:ktor-server-request-validation:$ktorVersion")
 
         // Ktor client
         implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")

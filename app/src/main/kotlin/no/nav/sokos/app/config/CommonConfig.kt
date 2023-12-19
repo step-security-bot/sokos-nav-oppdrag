@@ -9,6 +9,8 @@ import io.ktor.server.plugins.callid.CallId
 import io.ktor.server.plugins.callid.callIdMdc
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.requestvalidation.RequestValidation
+import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
@@ -20,6 +22,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import no.nav.sokos.app.metrics.prometheusMeterRegistryApp
+import no.nav.sokos.oppdragsinfo.config.oppdragsInfoRequestValidationConfig
+import no.nav.sokos.oppdragsinfo.config.oppdragsInfoStatusPageConfig
 import org.slf4j.event.Level
 
 private const val SECURE_LOGGER = "secureLogger"
@@ -47,6 +51,12 @@ fun Application.commonConfig() {
             explicitNulls = false
 
         })
+    }
+    install(StatusPages) {
+        oppdragsInfoStatusPageConfig()
+    }
+    install(RequestValidation) {
+        oppdragsInfoRequestValidationConfig()
     }
     install(MicrometerMetrics) {
         registry = prometheusMeterRegistryApp
