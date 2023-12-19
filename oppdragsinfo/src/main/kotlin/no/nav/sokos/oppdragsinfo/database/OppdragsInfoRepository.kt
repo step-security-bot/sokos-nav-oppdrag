@@ -159,7 +159,7 @@ object OppdragsInfoRepository {
     ): List<Korreksjon> {
         val resultSet = prepareStatement(
             """
-                SELECT LINJE_ID_KORR
+                SELECT *
                 FROM T_KORREKSJON
                 WHERE OPPDRAGS_ID = ?
                 AND LINJE_ID = ?
@@ -372,7 +372,7 @@ object OppdragsInfoRepository {
     ): List<OppdragStatus> {
         val resultSet = prepareStatement(
             """
-            SELECT OPPDRAGS_ID, KODE_STATUS, LOPENR, TIDSPKT_REG, BRUKERID 
+            SELECT * 
             FROM T_OPPDRAG_STATUS 
             WHERE OPPDRAGS_ID = ?
             """.trimIndent()
@@ -392,7 +392,7 @@ object OppdragsInfoRepository {
             WHERE OPPDRAGS_ID = ?
             """.trimIndent()
         ).withParameters(
-            param(oppdragsId),
+            param(oppdragsId)
         ).executeQuery()
         return toOppdragsenhet(resultSet)
     }
