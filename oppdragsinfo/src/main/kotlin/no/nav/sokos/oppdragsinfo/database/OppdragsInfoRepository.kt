@@ -1,5 +1,6 @@
 package no.nav.sokos.oppdragsinfo.database
 
+import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.getColumn
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
@@ -172,6 +173,25 @@ object OppdragsInfoRepository {
         return toKorreksjon(resultSet)
     }
 
+    fun Connection.eksistererKorreksjoner(
+        oppdragId: Int,
+        oppdragslinje: Int
+    ): Boolean {
+        val resultSet = prepareStatement(
+            """
+                SELECT COUNT(*) 
+                FROM T_KORREKSJON
+                WHERE OPPDRAGS_ID = ?
+                AND LINJE_ID = ?
+            """.trimIndent()
+        ).withParameters(
+            param(oppdragId),
+            param(oppdragslinje)
+        ).executeQuery()
+        resultSet.next()
+        return resultSet.getInt(1) > 0
+    }
+
     fun Connection.henKravhavere(
         oppdragId: Int,
         oppdragslinje: Int
@@ -264,6 +284,42 @@ object OppdragsInfoRepository {
         return toLinjestatus(resultSet)
     }
 
+    fun Connection.eksistererLinjestatuser(
+        oppdragId: Int,
+        oppdragslinje: Int
+    ): Boolean {
+        val resultSet = prepareStatement(
+            """
+                SELECT COUNT(*) 
+                FROM T_LINJE_STATUS LIST
+                WHERE LIST.OPPDRAGS_ID = ?
+                  AND LIST.LINJE_ID = ?
+                  AND LIST.TIDSPKT_REG = (
+                      SELECT MAX(LIS2.TIDSPKT_REG)
+                      FROM   T_LINJE_STATUS LIS2
+                      WHERE LIS2.OPPDRAGS_ID = LIST.OPPDRAGS_ID
+                          AND LIS2.LINJE_ID = LIST.LINJE_ID
+                          AND LIS2.DATO_FOM <= (
+                              SELECT MIN(KJPL.DATO_BEREGN_FOM)
+                              FROM    T_KJOREPLAN KJPL, 
+                                      T_OPPDRAG OPPD,
+                                      T_FAGOMRAADE FAGO
+                              WHERE KJPL.KODE_FAGGRUPPE 	= FAGO.KODE_FAGGRUPPE
+                                  AND FAGO.KODE_FAGOMRAADE	= OPPD.KODE_FAGOMRAADE
+                                  AND KJPL.STATUS			= 'PLAN'
+                                  AND KJPL.FREKVENS			= OPPD.FREKVENS
+                                  AND OPPD.OPPDRAGS_ID		= LIST.OPPDRAGS_ID           
+						)                                                     	
+		)
+            """.trimIndent()
+        ).withParameters(
+            param(oppdragId),
+            param(oppdragslinje)
+        ).executeQuery()
+        resultSet.next()
+        return resultSet.getInt(1) > 0
+    }
+
     fun Connection.hentAttestasjoner(
         oppdragId: Int,
         oppdragslinje: Int
@@ -294,6 +350,32 @@ object OppdragsInfoRepository {
             param(oppdragslinje)
         ).executeQuery()
         return toAttest(resultSet)
+    }
+
+    fun Connection.eksistererAttestasjoner(
+        oppdragId: Int,
+        oppdragslinje: Int
+    ): Boolean {
+        val resultSet = prepareStatement(
+            """
+                SELECT COUNT(*) 
+                FROM T_ATTESTASJON a1
+                WHERE OPPDRAGS_ID = ?
+                AND LINJE_ID = ?
+                AND DATO_UGYLDIG_FOM > current_date 
+                AND LOPENR = 
+                  ( SELECT MAX(LOPENR) 
+                  FROM T_ATTESTASJON a2 
+                  WHERE a2.OPPDRAGS_ID = a1.OPPDRAGS_ID 
+                  AND a2.LINJE_ID = a1.LINJE_ID 
+                  AND a2.ATTESTANT_ID = a1.ATTESTANT_ID ) 
+            """.trimIndent()
+        ).withParameters(
+            param(oppdragId),
+            param(oppdragslinje)
+        ).executeQuery()
+        resultSet.next()
+        return resultSet.getInt(1) > 0
     }
 
     fun Connection.hentOppdrag(
@@ -382,6 +464,22 @@ object OppdragsInfoRepository {
         return toOppdragstatus(resultSet)
     }
 
+    fun Connection.eksistererOppdragstatus(
+        oppdragsId: Int
+    ): Boolean {
+        val resultSet = prepareStatement(
+            """
+            SELECT COUNT(*)  
+            FROM T_OPPDRAG_STATUS 
+            WHERE OPPDRAGS_ID = ?
+            """.trimIndent()
+        ).withParameters(
+            param(oppdragsId)
+        ).executeQuery()
+        resultSet.next()
+        return resultSet.getInt(1) > 0
+    }
+
     fun Connection.hentOppdragsenhet(
         oppdragsId: Int
     ): List<Oppdragsenhet> {
@@ -395,6 +493,22 @@ object OppdragsInfoRepository {
             param(oppdragsId)
         ).executeQuery()
         return toOppdragsenhet(resultSet)
+    }
+
+    fun Connection.eksistererOppdragsenhet(
+        oppdragsId: Int
+    ): Boolean {
+        val resultSet = prepareStatement(
+            """
+            SELECT COUNT(*)  
+            FROM T_OPPDRAGSENHET 
+            WHERE OPPDRAGS_ID = ?
+            """.trimIndent()
+        ).withParameters(
+            param(oppdragsId)
+        ).executeQuery()
+        resultSet.next()
+        return resultSet.getInt(1) > 0
     }
 
     fun toOppdrag(rs: ResultSet) = rs.toList {

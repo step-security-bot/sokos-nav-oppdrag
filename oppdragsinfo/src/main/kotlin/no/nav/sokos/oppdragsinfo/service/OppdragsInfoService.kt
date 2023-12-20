@@ -1,8 +1,13 @@
 package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoKompaktVO
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoLinjeKompaktVO
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoLinjeVO
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoVO
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
@@ -18,6 +23,11 @@ import no.nav.sokos.oppdragsinfo.security.getSaksbehandler
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokVO
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRequest
 import no.nav.sokos.oppdragsinfo.api.model.OppdragslinjeVO
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererAttestasjoner
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererKorreksjoner
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererLinjestatuser
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererOppdragsenhet
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererOppdragstatus
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.finnOppdrag
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.henKravhavere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.henMaksdatoer
@@ -109,6 +119,68 @@ class OppdragsInfoService(
         return oppdLinje
     }
 
+    suspend fun hentOppdragKompakt(
+        oppdragsId: String,
+        applicationCall: ApplicationCall
+    ): OppdragsInfoKompaktVO {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        secureLogger.info("Henter oppdrag med id: $oppdragsId")
+        auditLogger.auditLog(
+            AuditLogg(
+                saksbehandler = saksbehandler.ident,
+                oppdragsId = oppdragsId
+            )
+        )
+        return db2DataSource.connection.useAndHandleErrors { connection ->
+            connection.setAcceleration()
+            val oppdrag = connection.hentOppdrag(oppdragsId.trim().toInt())
+            logger.info("###oppdrag={}", oppdrag)
+            val fagomraade = connection.hentFagomraade(oppdrag[0].kodeFagOmrade)
+            val oppdragslinjer = connection.hentOppdragslinjer(oppdragsId.trim().toInt())
+            logger.info("###antall oppdragslinjer={}", oppdragslinjer.size)
+
+            val oppdragsInfoKompaktLinjeInfo = coroutineScope {
+                oppdragslinjer.map {
+                    async {
+                        finnLinjeInfoForOppdragsInfoKompakt(
+                            connection,
+                            oppdragsId.trim().toInt(),
+                            it.linjeId
+                        )
+                    }
+                }.awaitAll().toList()
+            }
+            logger.info("###hentet all info for {} oppdragslinjer", oppdragsInfoKompaktLinjeInfo.size)
+            var index = 0
+            val oppdragslinjerInfo = oppdragslinjer.map {
+                OppdragsInfoLinjeKompaktVO(
+                    it.linjeId,
+                    it.sats,
+                    it.typeSats,
+                    it.vedtakFom.orEmpty(),
+                    it.vedtakTom.orEmpty(),
+                    if (it.sats < 0) "K" else "D",
+                    connection.hentKlasse(it.kodeKlasse).first(),
+                    oppdragsInfoKompaktLinjeInfo.get(index).korreksjoner,
+                    oppdragsInfoKompaktLinjeInfo.get(index).attestasjoner,
+                    oppdragsInfoKompaktLinjeInfo.get(index++).linjestatuser
+                )
+            }.toList()
+            logger.info("###bygget respons for oppdragslinjene")
+            OppdragsInfoKompaktVO(
+                oppdragsId.toInt(),
+                "TestTestesen",
+                oppdrag[0].fagsystemId,
+                fagomraade.first(),
+                oppdrag[0].kjorIdag,
+                oppdrag[0].oppdragGjelderId,
+                connection.eksistererOppdragsenhet(oppdragsId.toInt()),
+                connection.eksistererOppdragstatus(oppdragsId.toInt()),
+                oppdragslinjerInfo
+            )
+        }
+    }
+
     suspend fun hentOppdrag(
         oppdragsId: String,
         applicationCall: ApplicationCall
@@ -158,6 +230,21 @@ class OppdragsInfoService(
             )
         }
     }
+
+    fun finnLinjeInfoForOppdragsInfoKompakt(
+        connection: Connection,
+        oppdragsId: Int,
+        oppdragsLinje: Int
+    ): OppdragsInfoKompaktLinjeInfo {
+        val OppdragsInfoKompaktLinjeInfo = OppdragsInfoKompaktLinjeInfo(
+            connection.eksistererKorreksjoner(oppdragsId, oppdragsLinje),
+            connection.eksistererAttestasjoner(oppdragsId, oppdragsLinje),
+            connection.eksistererLinjestatuser(oppdragsId, oppdragsLinje)
+        )
+        logger.info("###prosessert oppdragslinje {}", oppdragsLinje)
+        return OppdragsInfoKompaktLinjeInfo
+    }
+
 
     suspend fun finnLinjeInfoForOppdragsInfo(
         connection: Connection,

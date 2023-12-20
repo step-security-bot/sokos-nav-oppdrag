@@ -32,6 +32,14 @@ fun Route.oppdragsInfoApi(
             call.respond(response)
         }
 
+        get("oppdrag/{oppdragsId}/kompakt") {
+            val response = oppdragsInfoService.hentOppdragKompakt(
+                call.parameters.get("oppdragsId").orEmpty(),
+                call
+            )
+            call.respond(response)
+        }
+
 //        get("oppdrag/{oppdragsId}/detaljer") {
 //            val response = OppdragsInfoDetaljerResponse(
 //                oppdragsInfoService.hentOppdragsdetaljer (
