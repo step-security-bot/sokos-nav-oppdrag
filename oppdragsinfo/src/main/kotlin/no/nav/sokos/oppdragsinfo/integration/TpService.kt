@@ -22,7 +22,7 @@ class TpService(
     private val httpClient: HttpClient = defaultHttpClient
 ) {
 
-    suspend fun hentLeverandorNavn(tssId: String): LeverandorNavn =
+    suspend fun getLeverandorNavn(tssId: String): LeverandorNavn =
         retry {
             try {
                 httpClient.get("$tpHost/api/ordninger/tss/${tssId}") {

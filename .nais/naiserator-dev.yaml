@@ -75,3 +75,7 @@ spec:
       value: "https://ereg-services-q1.dev.intern.nav.no"
     - name: TP_HOST
       value: "https://tp-q1.dev.intern.nav.no"
+    - name: PDL_HOST
+      value: "https://pdl-api.dev.intern.nav.no/graphql"
+    - name: PDL_SCOPE
+      value: "api://dev-fss.pdl.pdl-api/.default"

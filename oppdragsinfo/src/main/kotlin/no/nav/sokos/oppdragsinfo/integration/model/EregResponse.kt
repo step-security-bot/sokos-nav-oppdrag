@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Organisasjon(
-
     @SerialName("navn")
     val navn: Navn
 )

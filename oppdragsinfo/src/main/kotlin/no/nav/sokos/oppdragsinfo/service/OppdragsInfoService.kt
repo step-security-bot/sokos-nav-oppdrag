@@ -1,28 +1,23 @@
 package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
-import kotlinx.coroutines.Dispatchers
+import java.sql.Connection
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoKompaktVO
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoLinjeKompaktVO
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoLinjeVO
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoVO
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRequest
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokVO
+import no.nav.sokos.oppdragsinfo.api.model.OppdragslinjeVO
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
 import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.config.secureLogger
 import no.nav.sokos.oppdragsinfo.database.Db2DataSource
-import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
-import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.setAcceleration
-import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
-import no.nav.sokos.oppdragsinfo.security.getSaksbehandler
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokVO
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRequest
-import no.nav.sokos.oppdragsinfo.api.model.OppdragslinjeVO
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererAttestasjoner
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererKorreksjoner
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererLinjestatuser
@@ -40,15 +35,18 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKlasse
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKorreksjoner
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentLinjeenheter
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentLinjestatuser
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsenhet
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragslinje
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragslinjer
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragstatus
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentSkyldnere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentValutaer
+import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.setAcceleration
+import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
 import no.nav.sokos.oppdragsinfo.domain.Faggruppe
 import no.nav.sokos.oppdragsinfo.domain.Fagomraade
-import java.sql.Connection
+import no.nav.sokos.oppdragsinfo.security.getSaksbehandler
 
 class OppdragsInfoService(
     private val db2DataSource: Db2DataSource = Db2DataSource(),

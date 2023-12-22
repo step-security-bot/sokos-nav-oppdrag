@@ -1,8 +1,8 @@
-package no.nav.sokos.oppdragsinfo.api.model
+package no.nav.sokos.oppdragsinfo.integration.model
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OrganisasjonsNummerRequest(
+data class EregRequest(
     val organisasjonsNummer: String
 )

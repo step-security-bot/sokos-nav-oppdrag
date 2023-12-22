@@ -1,8 +1,8 @@
-package no.nav.sokos.oppdragsinfo.api.model
+package no.nav.sokos.oppdragsinfo.integration.model
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TssIdRequest(
+data class TssRequest(
     val tssId: String
 )

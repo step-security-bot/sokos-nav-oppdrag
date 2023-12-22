@@ -21,9 +21,7 @@ object PropertiesConfig {
             "DATABASE_NAME" to "databaseName",
             "DATABASE_SCHEMA" to "databaseSchema",
             "DATABASE_USERNAME" to "databaseUsername",
-            "DATABASE_PASSWORD" to "databasePassword",
-            "EREG_HOST" to "ereg-host",
-            "TP_HOST" to "tp-host"
+            "DATABASE_PASSWORD" to "databasePassword"
         )
     )
 
@@ -48,12 +46,24 @@ object PropertiesConfig {
         val password: String = get("DATABASE_PASSWORD"),
     )
 
+    data class AzureAdClientConfig(
+        val clientId: String = get("AZURE_APP_CLIENT_ID"),
+        val wellKnownUrl: String = get("AZURE_APP_WELL_KNOWN_URL"),
+        val tenantId: String = get("AZURE_APP_TENANT_ID"),
+        val clientSecret: String = get("AZURE_APP_CLIENT_SECRET"),
+    )
+
+    data class PdlConfig(
+        val pdlHost: String = get("PDL_HOST"),
+        val pdlScope: String = get("PDL_SCOPE")
+    )
+
     data class EksterneHost(
         val eregHost: String = get("EREG_HOST"),
         val tpHost: String = get("TP_HOST")
     )
 
     enum class Profile {
-        LOCAL, DEV, PROD
+        DEV, PROD
     }
 }

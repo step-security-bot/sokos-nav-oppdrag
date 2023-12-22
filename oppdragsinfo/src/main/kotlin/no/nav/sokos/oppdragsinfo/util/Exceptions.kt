@@ -6,3 +6,5 @@ import no.nav.sokos.oppdragsinfo.config.ApiError
 class EregException(val apiError: ApiError, val response: HttpResponse) : Exception(apiError.error)
 
 class TpException(val apiError: ApiError, val response: HttpResponse) : Exception(apiError.error)
+
+class PdlException(val apiError: ApiError, val response: HttpResponse) : Exception(apiError.error)

@@ -26,14 +26,14 @@ class EregService(
     private val httpClient: HttpClient = defaultHttpClient
 ) {
 
-    suspend fun hentOrganisasjonsNavn(organisasjonsnummer: String): Organisasjon =
+    suspend fun getOrganisasjonsNavn(organisasjonsNummer: String): Organisasjon =
         retry {
             try {
-                httpClient.get("$eregHost/v2/organisasjon/$organisasjonsnummer/noekkelinfo") {
+                httpClient.get("$eregHost/v2/organisasjon/$organisasjonsNummer/noekkelinfo") {
                     header("Nav-Call-Id", MDC.get("x-correlation-id"))
                 }
             } catch (ex: Exception) {
-                logger.error(ex) { "Feil oppstått ved oppslag av $organisasjonsnummer i Ereg." }
+                logger.error(ex) { "Feil oppstått ved oppslag av $organisasjonsNummer i Ereg." }
                 throw RetryException(ex)
             }
         }.let { response ->
@@ -49,7 +49,7 @@ class EregService(
                             ZonedDateTime.now(),
                             response.status.value,
                             HttpStatusCode.BadRequest.description,
-                            response.eregFeilmelding() ?: "",
+                            response.errorMessage() ?: "",
                             "${eregHost}/v2/organisasjon/{orgnummer}/noekkelinfo",
                         ),
                         response
@@ -62,7 +62,7 @@ class EregService(
                             ZonedDateTime.now(),
                             response.status.value,
                             HttpStatusCode.NotFound.description,
-                            response.eregFeilmelding() ?: "",
+                            response.errorMessage() ?: "",
                             "${eregHost}/v2/organisasjon/{orgnummer}/noekkelinfo",
                         ),
                         response
@@ -75,7 +75,7 @@ class EregService(
                             ZonedDateTime.now(),
                             response.status.value,
                             response.status.description,
-                            response.eregFeilmelding() ?: "",
+                            response.errorMessage() ?: "",
                             "${eregHost}/v2/organisasjon/{orgnummer}/noekkelinfo",
                         ),
                         response
@@ -85,4 +85,4 @@ class EregService(
         }
 }
 
-suspend fun HttpResponse.eregFeilmelding() = body<JsonElement>().jsonObject["melding"]?.jsonPrimitive?.content
+suspend fun HttpResponse.errorMessage() = body<JsonElement>().jsonObject["melding"]?.jsonPrimitive?.content
