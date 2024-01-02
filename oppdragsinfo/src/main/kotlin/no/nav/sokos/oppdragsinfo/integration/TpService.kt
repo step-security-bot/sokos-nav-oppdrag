@@ -9,7 +9,7 @@ import java.time.ZonedDateTime
 import no.nav.sokos.oppdragsinfo.config.ApiError
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.config.logger
-import no.nav.sokos.oppdragsinfo.integration.model.LeverandorNavn
+import no.nav.sokos.oppdragsinfo.integration.model.TssResponse
 import no.nav.sokos.oppdragsinfo.metrics.tpCallCounter
 import no.nav.sokos.oppdragsinfo.util.RetryException
 import no.nav.sokos.oppdragsinfo.util.TpException
@@ -22,7 +22,7 @@ class TpService(
     private val httpClient: HttpClient = defaultHttpClient
 ) {
 
-    suspend fun getLeverandorNavn(tssId: String): LeverandorNavn =
+    suspend fun getLeverandorNavn(tssId: String): TssResponse =
         retry {
             try {
                 httpClient.get("$tpHost/api/ordninger/tss/${tssId}") {
@@ -36,7 +36,7 @@ class TpService(
             tpCallCounter.labels("${response.status.value}").inc()
             when (response.status.value) {
                 200 -> {
-                    LeverandorNavn(response.body<String>())
+                    TssResponse(response.body<String>())
                 }
 
                 404 -> {
