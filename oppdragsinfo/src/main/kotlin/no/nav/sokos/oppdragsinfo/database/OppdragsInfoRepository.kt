@@ -43,8 +43,6 @@ object OppdragsInfoRepository {
             executeQuery().toOppdrag()
         }
 
-
-
     fun Connection.getOppdrag(
         gjelderId: String
     ): List<Oppdrag> =

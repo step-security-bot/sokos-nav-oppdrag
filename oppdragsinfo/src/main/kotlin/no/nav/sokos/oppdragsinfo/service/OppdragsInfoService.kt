@@ -1,7 +1,6 @@
 package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoSokResponse
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
@@ -35,18 +34,10 @@ class OppdragsInfoService(
                 oppdragsId = gjelderId
             )
         )
-        val oppdragsInfo = db2DataSource.connection.useAndHandleErrors { connection ->
-            connection.setAcceleration()
 
-            // TODO: Gjør en sjekk hvis du finner oppdragsinfo data og hvis du ikke finner??
-            connection.getOppdragsInfo(gjelderId).firstOrNull()!!
-        }
-
-        val oppdrag = db2DataSource.connection.useAndHandleErrors { connection ->
-            connection.setAcceleration()
-
-            connection.getOppdrag(gjelderId)
-        }
+        // TODO: Gjøre en sjekk på om gjelderId finnes eller ikke??
+        val oppdragsInfo = db2DataSource.connection.useAndHandleErrors { it.setAcceleration(); it.getOppdragsInfo(gjelderId).firstOrNull()!! }
+        val oppdrag = db2DataSource.connection.useAndHandleErrors { it.setAcceleration(); it.getOppdrag(oppdragsInfo.gjelderId) }
 
         return listOf(
             OppdragsInfo(
@@ -56,6 +47,7 @@ class OppdragsInfoService(
                 oppdrag = oppdrag
             )
         )
+
 
     }
 
