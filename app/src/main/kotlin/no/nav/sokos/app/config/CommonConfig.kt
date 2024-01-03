@@ -55,9 +55,9 @@ fun Application.commonConfig() {
     install(StatusPages) {
         oppdragsInfoStatusPageConfig()
     }
-    /*install(RequestValidation) {
+    install(RequestValidation) {
         oppdragsInfoRequestValidationConfig()
-    }*/
+    }
     install(MicrometerMetrics) {
         registry = prometheusMeterRegistryApp
         meterBinders = listOf(

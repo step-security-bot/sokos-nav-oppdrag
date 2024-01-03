@@ -6,9 +6,9 @@ import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoSokRequest
 import no.nav.sokos.oppdragsinfo.util.validateGjelderIdInput
 
 fun RequestValidationConfig.oppdragsInfoRequestValidationConfig() {
-    validate<OppdragsInfoSokRequest> { oppdragSokRequest ->
+    validate<OppdragsInfoSokRequest> { oppdragsInfoSokRequest ->
         when {
-            validateGjelderIdInput(oppdragSokRequest.gjelderId) -> ValidationResult.Invalid("GjelderId må være satt")
+            validateGjelderIdInput(oppdragsInfoSokRequest.gjelderId) -> ValidationResult.Invalid("gjelderId må være satt og tillatt format er 9 eller 11 siffer")
             else -> ValidationResult.Valid
         }
     }
