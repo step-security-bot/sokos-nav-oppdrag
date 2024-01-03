@@ -19,6 +19,7 @@ import no.nav.sokos.oppdragsinfo.domain.Linjeenhet
 import no.nav.sokos.oppdragsinfo.domain.Maksdato
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
+import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsTekst
 import no.nav.sokos.oppdragsinfo.domain.Oppdragsenhet
 import no.nav.sokos.oppdragsinfo.domain.Oppdragslinje
@@ -27,33 +28,48 @@ import no.nav.sokos.oppdragsinfo.domain.Valuta
 
 object OppdragsInfoRepository {
 
-    fun Connection.finnOppdrag(
+    fun Connection.getOppdragsInfo(
+        gjelderId: String
+    ): List<OppdragsInfo> =
+        prepareStatement(
+            """
+                SELECT OPPDRAG_GJELDER_ID
+                FROM OS231Q1.T_OPPDRAG
+                WHERE OPPDRAG_GJELDER_ID = (?)
+            """.trimIndent()
+        ).withParameters(
+            param(gjelderId)
+        ).run {
+            executeQuery().toOppdrag()
+        }
+
+
+
+    fun Connection.getOppdrag(
         gjelderId: String
     ): List<Oppdrag> =
         prepareStatement(
             """
-                SELECT op.oppdrags_id,
-                        op.fagsystem_id,
-                        fo.navn_fagomraade,
-                        op.oppdrag_gjelder_id,
-                        op.type_bilag,
-                        fg.navn_faggruppe,
-                        os.kode_status,
-                        os.tidspkt_Reg
-                FROM os231q1.t_oppdrag op,
-                    os231q1.t_fagomraade fo, 
-                    os231q1.t_faggruppe fg,
-                    os231q1.t_oppdrag_status os
-                WHERE op.oppdrag_gjelder_id = (?)
-                AND op.fagsystem_id = '0000004'
-                AND op.kode_fagomraade = 'BISYS'
-                AND fo.kode_fagomraade = op.kode_fagomraade
-                AND fg.kode_faggruppe = fo.kode_faggruppe
-                AND os.oppdrags_id = op.oppdrags_id
-                AND os.tidspkt_Reg = (
-                SELECT MAX(os2.tidspkt_Reg)
-                FROM os231q1.t_oppdrag_Status os2
-                WHERE os2.oppdrags_id = os.oppdrags_id);
+                SELECT OP.OPPDRAGS_ID,
+                        OP.FAGSYSTEM_ID,
+                        FO.NAVN_FAGOMRAADE,
+                        OP.OPPDRAG_GJELDER_ID,
+                        OP.TYPE_BILAG,
+                        FG.NAVN_FAGGRUPPE,
+                        OS.KODE_STATUS,
+                        OS.TIDSPKT_REG
+                FROM OS231Q1.T_OPPDRAG OP,
+                        OS231Q1.T_FAGOMRAADE FO, 
+                        OS231Q1.T_FAGGRUPPE FG,
+                        OS231Q1.T_OPPDRAG_STATUS OS
+                WHERE OP.OPPDRAG_GJELDER_ID = (?)
+                AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
+                AND FG.KODE_FAGGRUPPE = FO.KODE_FAGGRUPPE
+                AND OS.OPPDRAGS_ID = OP.OPPDRAGS_ID
+                AND OS.TIDSPKT_REG = (
+                SELECT MAX(OS2.TIDSPKT_REG)
+                FROM OS231Q1.T_OPPDRAG_STATUS OS2
+                WHERE OS2.OPPDRAGS_ID = OS.OPPDRAGS_ID);
             """.trimIndent()
         ).withParameters(
             param(gjelderId)
@@ -519,6 +535,12 @@ fun Connection.eksistererOppdragsenhet(
     ).executeQuery()
     resultSet.next()
     return resultSet.getInt(1) > 0
+}
+
+private fun ResultSet.toOppdrag() = toList {
+    OppdragsInfo(
+        gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
+    )
 }
 
 private fun ResultSet.toOppdragList() = toList {

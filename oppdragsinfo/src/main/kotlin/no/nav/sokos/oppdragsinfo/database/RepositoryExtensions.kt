@@ -15,6 +15,7 @@ object RepositoryExtensions {
 
     inline fun <R> Connection.useAndHandleErrors(block: (Connection) -> R): R {
         try {
+            // TODO: Kanskje sette acceleration her?
             use {
                 return block(this)
             }
