@@ -16,4 +16,4 @@ envValue=$(kubectl exec -it $(kubectl get pods | grep sokos-nav-oppdrag | cut -f
 # Set AZURE as local environment variables
 rm -f defaults.properties
 echo "$envValue" > defaults.properties
-echo "AZURE env variables stores as defaults.properties"
+echo "Environment variables stores as defaults.properties"
