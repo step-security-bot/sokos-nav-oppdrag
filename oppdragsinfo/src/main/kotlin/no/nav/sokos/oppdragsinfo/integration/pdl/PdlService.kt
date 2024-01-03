@@ -10,6 +10,7 @@ import java.net.URI
 import kotlinx.coroutines.runBlocking
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.config.logger
+import no.nav.sokos.oppdragsinfo.config.secureLogger
 import no.nav.sokos.oppdragsinfo.integration.pdl.hentperson.Person
 import no.nav.sokos.oppdragsinfo.util.defaultHttpClient
 
@@ -42,7 +43,7 @@ class PdlService(
             if (errors.isEmpty()) {
                 hentPerson(result)
             } else {
-                handleErrors(errors)
+                handleErrors(errors, ident)
             }
         } ?: hentPerson(result)
     }
@@ -53,7 +54,7 @@ private fun hentPerson(result: GraphQLClientResponse<HentPerson.Result>): Person
     return result.data?.hentPerson
 }
 
-private fun handleErrors(errors: List<GraphQLClientError>): Person? {
+private fun handleErrors(errors: List<GraphQLClientError>, ident: String): Person? {
     val errorExtensions = errors.mapNotNull { it.extensions }
     if (errorExtensions.any { it["code"] == "not_found" }) {
         return null
@@ -65,6 +66,8 @@ private fun handleErrors(errors: List<GraphQLClientError>): Person? {
         val exceptionMessage = "Feil med henting av person fra PDL: (Path: $path, Code: $errorCode, Message: $errorMessage)"
         throw Exception(exceptionMessage).also {
             logger.error { "Feil i GraphQL-responsen: (Path: $path, Code: $errorCode, Message: $errorMessage)" }
+        }.also {
+            secureLogger.error { "Feil i GraphQL-responsen: (Ident: $ident, Path: $path, Code: $errorCode, Message: $errorMessage)" }
         }
     }
 }
