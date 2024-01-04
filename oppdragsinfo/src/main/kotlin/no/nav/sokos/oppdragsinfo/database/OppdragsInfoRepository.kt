@@ -8,18 +8,18 @@ import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.withParameters
 import no.nav.sokos.oppdragsinfo.domain.Attest
 import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
-import no.nav.sokos.oppdragsinfo.domain.Oppdrag
+import no.nav.sokos.oppdragsinfo.domain.OppdragsListe
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
-import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
+import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.Oppdragslinje
 
 
 object OppdragsInfoRepository {
 
     // TODO: hent metadata hvis oppdragsinfo med gjelderid finnes
-    fun Connection.getOppdragsInfo(
+    fun Connection.getOppdrag(
         gjelderId: String
-    ): List<OppdragsInfo> =
+    ): List<Oppdrag> =
         prepareStatement(
             """
                 SELECT OPPDRAG_GJELDER_ID
@@ -32,9 +32,9 @@ object OppdragsInfoRepository {
             executeQuery().toOppdrag()
         }
 
-    fun Connection.getOppdrag(
+    fun Connection.getOppdragsListe(
         gjelderId: String
-    ): List<Oppdrag> =
+    ): List<OppdragsListe> =
         prepareStatement(
             """
                 SELECT OP.OPPDRAGS_ID,
@@ -61,7 +61,7 @@ object OppdragsInfoRepository {
         ).withParameters(
             param(gjelderId)
         ).run {
-            executeQuery().toOppdragList()
+            executeQuery().toOppdragsListe()
         }
 }
 
@@ -525,13 +525,14 @@ fun Connection.eksistererOppdragsenhet(
 }
 
 private fun ResultSet.toOppdrag() = toList {
-    OppdragsInfo(
+    Oppdrag(
         gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
+        gjelderNavn = ""
     )
 }
 
-private fun ResultSet.toOppdragList() = toList {
-    Oppdrag(
+private fun ResultSet.toOppdragsListe() = toList {
+    OppdragsListe(
         fagsystemId = getColumn("FAGSYSTEM_ID"),
         oppdragsId = getColumn("OPPDRAGS_ID"),
         fagGruppeNavn = getColumn("NAVN_FAGGRUPPE"),

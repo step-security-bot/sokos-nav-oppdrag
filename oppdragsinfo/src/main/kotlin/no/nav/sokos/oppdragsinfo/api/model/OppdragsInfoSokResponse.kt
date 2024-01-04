@@ -1,9 +1,9 @@
 package no.nav.sokos.oppdragsinfo.api.model
 
 import kotlinx.serialization.Serializable
-import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
+import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 
 @Serializable
 data class OppdragsInfoSokResponse(
-    val oppdragsInfo : List<OppdragsInfo>
+    val oppdrag : List<Oppdrag>
 )

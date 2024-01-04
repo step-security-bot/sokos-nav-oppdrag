@@ -29,6 +29,7 @@ class EregService(
     suspend fun getOrganisasjonsNavn(organisasjonsNummer: String): Organisasjon =
         retry {
             try {
+                logger.info("Henter organisasjonsnavn for $organisasjonsNummer fra Ereg.")
                 httpClient.get("$eregHost/v2/organisasjon/$organisasjonsNummer/noekkelinfo") {
                     header("Nav-Call-Id", MDC.get("x-correlation-id"))
                 }

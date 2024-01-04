@@ -25,6 +25,7 @@ class TpService(
     suspend fun getLeverandorNavn(tssId: String): TssResponse =
         retry {
             try {
+                logger.info("Henter leverandørnavn for $tssId fra TP.")
                 httpClient.get("$tpHost/api/ordninger/tss/${tssId}") {
                     header("Nav-Call-Id", MDC.get("x-correlation-id"))
                 }

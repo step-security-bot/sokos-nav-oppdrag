@@ -76,6 +76,6 @@ spec:
     - name: TP_HOST
       value: "https://tp-q1.dev.intern.nav.no"
     - name: PDL_HOST
-      value: "https://pdl-api.dev.intern.nav.no/graphql"
+      value: "https://pdl-api-q1.dev.intern.nav.no/graphql"
     - name: PDL_SCOPE
-      value: "api://dev-fss.pdl.pdl-api/.default"
+      value: "api://dev-fss.pdl.pdl-api-q1/.default"
