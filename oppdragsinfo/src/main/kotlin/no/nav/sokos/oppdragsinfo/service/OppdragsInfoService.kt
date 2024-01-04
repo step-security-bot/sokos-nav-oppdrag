@@ -9,7 +9,6 @@ import no.nav.sokos.oppdragsinfo.config.secureLogger
 import no.nav.sokos.oppdragsinfo.database.Db2DataSource
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.getOppdrag
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.getOppdragsListe
-import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.setAcceleration
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.integration.EregService
@@ -37,16 +36,16 @@ class OppdragsInfoService(
         auditLogger.auditLog(
             AuditLogg(
                 saksbehandler = saksbehandler.ident,
-                oppdragsId = gjelderId
+                gjelderId = gjelderId
             )
         )
 
         val oppdragsInfo = db2DataSource.connection.useAndHandleErrors {
-            it.setAcceleration(); it.getOppdrag(gjelderId).firstOrNull()
+            it.getOppdrag(gjelderId).firstOrNull()
         } ?: return emptyList()
 
         val oppdrag =
-            db2DataSource.connection.useAndHandleErrors { it.setAcceleration(); it.getOppdragsListe(oppdragsInfo.gjelderId) }
+            db2DataSource.connection.useAndHandleErrors { it.getOppdragsListe(oppdragsInfo.gjelderId) }
 
         val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
 

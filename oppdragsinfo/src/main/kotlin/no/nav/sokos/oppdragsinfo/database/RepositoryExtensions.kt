@@ -15,7 +15,6 @@ object RepositoryExtensions {
 
     inline fun <R> Connection.useAndHandleErrors(block: (Connection) -> R): R {
         try {
-            // TODO: Kanskje sette acceleration her?
             use {
                 return block(this)
             }
@@ -23,11 +22,6 @@ object RepositoryExtensions {
             databaseFailureCounterOppdragsInfo.labels("${ex.errorCode}", ex.sqlState).inc()
             throw ex
         }
-    }
-
-    // Må kjøres før hver query som gjør query raskere
-    fun Connection.setAcceleration() {
-        prepareStatement("SET CURRENT QUERY ACCELERATION ALL;").execute()
     }
 
     inline fun <reified T : Any?> ResultSet.getColumn(

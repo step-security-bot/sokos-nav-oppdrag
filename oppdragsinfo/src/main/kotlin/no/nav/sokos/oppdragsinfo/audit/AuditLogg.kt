@@ -2,7 +2,7 @@ package no.nav.sokos.oppdragsinfo.audit
 
 data class AuditLogg(
     val saksbehandler: String,
-    val oppdragsId: String,
+    val gjelderId: String,
 ) {
     val version = "0"
     val deviceVendor = "Okonomiportalen"
@@ -11,10 +11,10 @@ data class AuditLogg(
     val deviceEventClassId = "audit:access"
     val name = "sokos-nav-oppdrag-oppdragsinfo"
     val severity = "INFO"
-    val brukerhandling = "NAV-ansatt har hentet informasjon om oppdrag knyttet til bruker"
+    val brukerhandling = "NAV-ansatt har gjort et søk på oppdrag"
 
     fun logMessage(): String {
-        val extension = "suid=$saksbehandler duid=$oppdragsId end=${System.currentTimeMillis()} msg=$brukerhandling"
+        val extension = "suid=$saksbehandler duid=$gjelderId end=${System.currentTimeMillis()} msg=$brukerhandling"
 
         return "CEF:$version|$deviceVendor|$deviceProduct|$deviceVersion|$deviceEventClassId|$name|$severity|$extension"
     }
