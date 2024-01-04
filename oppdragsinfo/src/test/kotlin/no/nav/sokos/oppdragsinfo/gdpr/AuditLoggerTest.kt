@@ -12,7 +12,7 @@ internal class AuditLoggerTest: FunSpec({
         val expectedLogMessageEnd = " msg=NAV-ansatt har hentet informasjon om oppdrag knyttet til bruker"
         val logData = AuditLogg(
             saksbehandler = "Z12345",
-            oppdragsId = "24417337179"
+            gjelderId = "24417337179"
         )
 
         logData.logMessage() shouldStartWith expectedLogMessageStart
