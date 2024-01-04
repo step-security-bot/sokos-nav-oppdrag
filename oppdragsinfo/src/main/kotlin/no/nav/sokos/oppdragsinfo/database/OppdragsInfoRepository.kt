@@ -7,27 +7,16 @@ import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.withParameters
 import no.nav.sokos.oppdragsinfo.domain.Attest
-import no.nav.sokos.oppdragsinfo.domain.Faggruppe
-import no.nav.sokos.oppdragsinfo.domain.Fagomraade
-import no.nav.sokos.oppdragsinfo.domain.Grad
-import no.nav.sokos.oppdragsinfo.domain.Kid
-import no.nav.sokos.oppdragsinfo.domain.Klasse
-import no.nav.sokos.oppdragsinfo.domain.Korreksjon
-import no.nav.sokos.oppdragsinfo.domain.Kravhaver
 import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
-import no.nav.sokos.oppdragsinfo.domain.Linjeenhet
-import no.nav.sokos.oppdragsinfo.domain.Maksdato
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
-import no.nav.sokos.oppdragsinfo.domain.OppdragsTekst
-import no.nav.sokos.oppdragsinfo.domain.Oppdragsenhet
 import no.nav.sokos.oppdragsinfo.domain.Oppdragslinje
-import no.nav.sokos.oppdragsinfo.domain.Skyldner
-import no.nav.sokos.oppdragsinfo.domain.Valuta
+
 
 object OppdragsInfoRepository {
 
+    // TODO: hent metadata hvis oppdragsinfo med gjelderid finnes
     fun Connection.getOppdragsInfo(
         gjelderId: String
     ): List<OppdragsInfo> =
@@ -94,7 +83,7 @@ fun Connection.hentOppdragslinje(
     return toOppdragslinje(resultSet)
 }
 
-fun Connection.hentSkyldnere(
+/*fun Connection.hentSkyldnere(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<Skyldner> {
@@ -110,9 +99,9 @@ fun Connection.hentSkyldnere(
         param(oppdragslinje)
     ).executeQuery()
     return toSkyldner(resultSet)
-}
+}*/
 
-fun Connection.hentValutaer(
+/*fun Connection.hentValutaer(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<Valuta> {
@@ -128,9 +117,9 @@ fun Connection.hentValutaer(
         param(oppdragslinje)
     ).executeQuery()
     return toValuta(resultSet)
-}
+}*/
 
-fun Connection.hentLinjeenheter(
+/*fun Connection.hentLinjeenheter(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<Linjeenhet> {
@@ -146,9 +135,9 @@ fun Connection.hentLinjeenheter(
         param(oppdragslinje)
     ).executeQuery()
     return toLinjeenhet(resultSet)
-}
+}*/
 
-fun Connection.hentGrader(
+/*fun Connection.hentGrader(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<Grad> {
@@ -164,9 +153,9 @@ fun Connection.hentGrader(
         param(oppdragslinje)
     ).executeQuery()
     return toGrad(resultSet)
-}
+}*/
 
-fun Connection.hentKidlister(
+/*fun Connection.hentKidlister(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<Kid> {
@@ -182,9 +171,9 @@ fun Connection.hentKidlister(
         param(oppdragslinje)
     ).executeQuery()
     return toLKidlist(resultSet)
-}
+}*/
 
-fun Connection.henOppdragsTekster(
+/*fun Connection.henOppdragsTekster(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<OppdragsTekst> {
@@ -200,9 +189,9 @@ fun Connection.henOppdragsTekster(
         param(oppdragslinje)
     ).executeQuery()
     return toOppdragsTekst(resultSet)
-}
+}*/
 
-fun Connection.hentKorreksjoner(
+/*fun Connection.hentKorreksjoner(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<Korreksjon> {
@@ -219,7 +208,7 @@ fun Connection.hentKorreksjoner(
         param(oppdragslinje)
     ).executeQuery()
     return toKorreksjon(resultSet)
-}
+}*/
 
 fun Connection.eksistererKorreksjoner(
     oppdragId: Int,
@@ -240,7 +229,7 @@ fun Connection.eksistererKorreksjoner(
     return resultSet.getInt(1) > 0
 }
 
-fun Connection.henKravhavere(
+/*fun Connection.henKravhavere(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<Kravhaver> {
@@ -256,9 +245,9 @@ fun Connection.henKravhavere(
         param(oppdragslinje)
     ).executeQuery()
     return toKravhaver(resultSet)
-}
+}*/
 
-fun Connection.henMaksdatoer(
+/*fun Connection.henMaksdatoer(
     oppdragId: Int,
     oppdragslinje: Int
 ): List<Maksdato> {
@@ -274,9 +263,9 @@ fun Connection.henMaksdatoer(
         param(oppdragslinje)
     ).executeQuery()
     return toMaksdato(resultSet)
-}
+}*/
 
-fun Connection.hentKlasse(
+/*fun Connection.hentKlasse(
     kodeKlasse: String
 ): List<Klasse> {
     val resultSet = prepareStatement(
@@ -289,7 +278,7 @@ fun Connection.hentKlasse(
         param(kodeKlasse)
     ).executeQuery()
     return toKlasse(resultSet)
-}
+}*/
 
 fun Connection.hentLinjestatuser(
     oppdragId: Int,
@@ -457,7 +446,7 @@ fun Connection.hentOppdragslinjer(
     return toOppdragslinje(resultSet)
 }
 
-fun Connection.hentFagomraade(
+/*fun Connection.hentFagomraade(
     fagomraadenavn: String
 ): List<Fagomraade> {
     val resultSet = prepareStatement(
@@ -471,7 +460,7 @@ fun Connection.hentFagomraade(
         param(fagomraadenavn),
     ).executeQuery()
     return toFagomraade(resultSet)
-}
+}*/
 
 fun Connection.hentOppdragstatus(
     oppdragsId: Int
@@ -504,7 +493,7 @@ fun Connection.eksistererOppdragstatus(
     return resultSet.getInt(1) > 0
 }
 
-fun Connection.hentOppdragsenhet(
+/*fun Connection.hentOppdragsenhet(
     oppdragsId: Int
 ): List<Oppdragsenhet> {
     val resultSet = prepareStatement(
@@ -517,7 +506,7 @@ fun Connection.hentOppdragsenhet(
         param(oppdragsId)
     ).executeQuery()
     return toOppdragsenhet(resultSet)
-}
+}*/
 
 fun Connection.eksistererOppdragsenhet(
     oppdragsId: Int
@@ -571,115 +560,6 @@ fun toOppdragslinje(rs: ResultSet) = rs.toList {
     )
 }
 
-fun toSkyldner(rs: ResultSet) = rs.toList {
-    Skyldner(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        skyldnerId = getColumn("SKYLDNER_ID"),
-        datoFom = getColumn("DATO_FOM"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toValuta(rs: ResultSet) = rs.toList {
-    Valuta(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        nokkelId = getColumn("NOKKEL_ID"),
-        typeValuta = getColumn("TYPE_VALUTA"),
-        valuta = getColumn("VALUTA"),
-        feilreg = getColumn("FEILREG"),
-        datoFom = getColumn("DATO_FOM"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toLinjeenhet(rs: ResultSet) = rs.toList {
-    Linjeenhet(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        nokkelId = getColumn("NOKKEL_ID"),
-        typeEnhet = getColumn("TYPE_ENHET"),
-        enhet = getColumn("ENHET"),
-        datoFom = getColumn("DATO_FOM"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toGrad(rs: ResultSet) = rs.toList {
-    Grad(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        typeGrad = getColumn("TYPE_GRAD"),
-        grad = getColumn("GRAD"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toLKidlist(rs: ResultSet) = rs.toList {
-    Kid(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        kid = getColumn("KID"),
-        datoFom = getColumn("DATO_FOM"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toOppdragsTekst(rs: ResultSet) = rs.toList {
-    OppdragsTekst(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        nokkelId = getColumn("NOKKEL_ID"),
-        tekstLnr = getColumn("TEKST_LNR"),
-        tekstkode = getColumn("TEKSTKODE"),
-        tekst = getColumn("TEKST"),
-        feilreg = getColumn("FEILREG"),
-        datoTom = getColumn("DATO_TOM"),
-        datoFom = getColumn("DATO_FOM"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toKravhaver(rs: ResultSet) = rs.toList {
-    Kravhaver(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        kravhaverId = getColumn("KRAVHAVER_ID"),
-        datoFom = getColumn("DATO_FOM"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toMaksdato(rs: ResultSet) = rs.toList {
-    Maksdato(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        maksdato = getColumn("MAKS_DATO"),
-        datoFom = getColumn("DATO_FOM"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toFagomraade(rs: ResultSet) = rs.toList {
-    Fagomraade(
-        kode = getColumn("KODE_FAGOMRAADE"),
-        navn = getColumn("NAVN_FAGOMRAADE"),
-        faggruppe = Faggruppe(
-            kode = getColumn("KODE_FAGGRUPPE"),
-            navn = getColumn("NAVN_FAGGRUPPE")
-        )
-    )
-}
-
 fun toOppdragstatus(rs: ResultSet) = rs.toList {
     OppdragStatus(
         oppdragsId = getColumn("OPPDRAGS_ID"),
@@ -687,14 +567,6 @@ fun toOppdragstatus(rs: ResultSet) = rs.toList {
         lopenr = getColumn("LOPENR"),
         brukerid = getColumn("BRUKERID"),
         tidspktReg = getColumn("TIDSPKT_REG")
-    )
-}
-
-fun toOppdragsenhet(rs: ResultSet) = rs.toList {
-    Oppdragsenhet(
-        type = getColumn("TYPE_ENHET"),
-        enhet = getColumn("ENHET"),
-        datoFom = getColumn("DATO_FOM")
     )
 }
 
@@ -710,15 +582,6 @@ fun toAttest(rs: ResultSet) = rs.toList {
     )
 }
 
-fun toKorreksjon(rs: ResultSet) = rs.toList {
-    Korreksjon(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
-        linjeId = getColumn("LINJE_ID"),
-        oppdragsIdKorr = getColumn("OPPDRAGS_ID_KORR"),
-        linjeIdKorr = getColumn("LINJE_ID_KORR")
-    )
-}
-
 fun toLinjestatus(rs: ResultSet) = rs.toList {
     LinjeStatus(
         oppdragsId = getColumn("OPPDRAGS_ID"),
@@ -729,10 +592,5 @@ fun toLinjestatus(rs: ResultSet) = rs.toList {
     )
 }
 
-fun toKlasse(rs: ResultSet) = rs.toList {
-    Klasse(
-        kode = getColumn("KODE_KLASSE"),
-        beskrivelse = getColumn("BESKR_KLASSE")
-    )
-}
+
 

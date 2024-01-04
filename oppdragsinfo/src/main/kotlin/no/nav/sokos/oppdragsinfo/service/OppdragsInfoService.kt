@@ -43,7 +43,6 @@ class OppdragsInfoService(
             OppdragsInfo(
                 gjelderId = oppdragsInfo.gjelderId,
                 gjelderNavn = oppdragsInfo.gjelderNavn,
-                datoFom = oppdragsInfo.datoFom,
                 oppdrag = oppdrag
             )
         )
