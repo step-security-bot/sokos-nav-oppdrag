@@ -140,9 +140,8 @@ components:
     Bearer:
       type: apiKey
       description: |-
-        OIDC-token (JWT via OAuth2.0).<br> 
+        OBO-token (JWT via OAuth2.0).<br> 
           Følgende format må brukes i input-feltet "Value" under: <strong>\"Bearer {token}\"</strong>.<br> 
           Eksempel på verdi i input-felt: <strong>Bearer eYdmifml0ejugm</strong>
-          Benytt OBO-token
       name: Authorization
       in: header
