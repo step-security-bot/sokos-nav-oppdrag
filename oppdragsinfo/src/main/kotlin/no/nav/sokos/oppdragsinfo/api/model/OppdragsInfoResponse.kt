@@ -5,5 +5,5 @@ import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 
 @Serializable
 data class OppdragsInfoResponse(
-    val oppdragsInfo : List<OppdragsInfo>
+    val data : List<OppdragsInfo>
 )

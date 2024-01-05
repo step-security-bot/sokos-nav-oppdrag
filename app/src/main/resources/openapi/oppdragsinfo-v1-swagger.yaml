@@ -3,7 +3,7 @@ openapi: '3.0.3'
 info:
   version: 1.0.0
   title: OppdragsInfo API (sokos-nav-oppdrag)
-  description: API-tjeneste for å presentere og administrere informasjon som benyttes av Utbetalingsportalen
+  description: API-tjeneste for å hente og presentere oppdragsinformasjon tilknyttet person eller foretak
   contact:
     name: PO Utbetaling
     email: okonomi@nav.no
@@ -73,7 +73,7 @@ components:
     OppdragsInfoResponse:
       type: object
       properties:
-        oppdragsInfo:
+        data:
           type: array
           items:
             $ref: '#/components/schemas/OppdragsInfo'

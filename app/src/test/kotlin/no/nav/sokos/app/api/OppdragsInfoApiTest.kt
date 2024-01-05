@@ -65,7 +65,7 @@ internal class OppdragsInfoApiTest : FunSpec({
 
         val oppdragsInfoResponse = OppdragsInfoResponse(listOf(oppdragsInfo))
 
-        coEvery { oppdragsInfoService.hentOppdrag(any(), any()) } returns oppdragsInfoResponse.oppdragsInfo
+        coEvery { oppdragsInfoService.hentOppdrag(any(), any()) } returns oppdragsInfoResponse.data
 
         val response = RestAssured.given()
             .filter(validationFilter)
