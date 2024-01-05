@@ -1,0 +1,148 @@
+openapi: '3.0.3'
+
+info:
+  version: 1.0.0
+  title: OppdragsInfo API (sokos-nav-oppdrag)
+  description: API-tjeneste for å presentere og administrere informasjon som benyttes av Utbetalingsportalen
+  contact:
+    name: PO Utbetaling
+    email: okonomi@nav.no
+    url: https://nav-it.slack.com/archives/CKZADNFBP
+
+tags:
+  - name: oppdragsinfo
+    description: Hovedinformasjon om oppdrag tilknyttet person eller foretak
+  - name: oppdragsdetaljer
+    description: Detaljert informasjon om oppdrag tilknyttet person eller foretak
+  - name: oppdragsdetaljertillegg
+    description: Tilleggsopplysninger til oppdrag tilknyttet person eller foretak
+  - name: oppdragslinje
+    description: Linjeinformasjon til oppdrag tilknyttet person eller foretak
+
+paths:
+  /api/v1/oppdragsinfo/hentOppdrag:
+    post:
+      tags:
+        - oppdragsinfo
+      summary: Henter oppdragsdata tilknyttet person eller foretak
+      description: Oppdragsopplysninger kan begrenses til faggruppekode, fagsystemId og vedtaksdato
+      operationId: oppdrag
+
+      requestBody:
+        description: OppdragsInfoRequest
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OppdragsInfoRequest'
+        required: true
+
+      responses:
+        200:
+          description: OK - Hvis oppdrag ikke finnes, returneres tom liste
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OppdragsInfoResponse'
+        400:
+          description: Ugyldig request, oppfyller ikke swagger-kontrakt
+        401:
+          description: Ingen tilgang
+        500:
+          description: Annen feil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+      security:
+        - Bearer: []
+
+components:
+  schemas:
+
+    OppdragsInfoRequest:
+      type: object
+      required:
+        - gjelderId
+      properties:
+        gjelderId:
+          type: string
+          example: "9 eller 11 siffer"
+          description: 9 eller 11 siffer
+
+    OppdragsInfoResponse:
+      type: object
+      properties:
+        oppdragsInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/OppdragsInfo'
+
+    OppdragsInfo:
+      type: object
+      properties:
+        gjelderId:
+          type: string
+        gjelderNavn:
+          type: string
+        oppdragsListe:
+          type: array
+          items:
+            $ref: '#/components/schemas/Oppdrag'
+
+    Oppdrag:
+      type: object
+      properties:
+        fagsystemId:
+          type: string
+        oppdragsId:
+          type: integer
+        faggruppeNavn:
+          type: string
+        fagomraadeNavn:
+          type: string
+        bilagsType:
+          type: string
+        status:
+          type: string
+
+    ApiError:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Tidspunkt feilen oppsto
+        status:
+          type: integer
+          example: 4xx
+          description: HTTP status kode
+        error:
+          type: string
+          example: Error type
+          description: En kort, lesbar oppsummering av problemet
+        message:
+          type: string
+          example: Error message, invalid value
+          description: En lesbar forklaring som er spesifikk for denne forekomsten av problemet
+        path:
+          type: string
+          example: /api/v1/oppdragsinfo/hentOppdrag
+          description: Endepunktet hvor feilen oppstå
+
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: |-
+        OIDC-token (JWT via OAuth2.0).<br> 
+          Følgende format må brukes i input-feltet "Value" under: <strong>\"Bearer {token}\"</strong>.<br> 
+          Eksempel på verdi i input-felt: <strong>Bearer eYdmifml0ejugm</strong>
+          Benytt OBO-token
+      name: Authorization
+      in: header

@@ -1,10 +1,10 @@
-package no.nav.sokos.oppdragsinfo.api
+package no.nav.sokos.app.api.swagger
 
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.routing.Routing
 
 fun Routing.oppdragsInfoSwaggerApi() {
     swaggerUI(
-        path = "api/v1/oppdragsinfo/docs", swaggerFile = "openapi/sokos-nav-oppdrag-v1-swagger.yaml"
+        path = "api/v1/oppdragsinfo/docs", swaggerFile = "openapi/oppdragsinfo-v1-swagger.yaml"
     )
 }

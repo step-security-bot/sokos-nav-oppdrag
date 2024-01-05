@@ -13,8 +13,8 @@ import io.ktor.server.auth.jwt.jwt
 import java.net.URI
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import no.nav.sokos.app.util.httpClient
 

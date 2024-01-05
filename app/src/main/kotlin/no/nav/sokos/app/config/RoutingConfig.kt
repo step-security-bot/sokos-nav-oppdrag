@@ -9,8 +9,8 @@ import io.ktor.server.routing.routing
 import no.nav.sokos.app.ApplicationState
 import no.nav.sokos.app.api.metricsApi
 import no.nav.sokos.app.api.naisApi
+import no.nav.sokos.app.api.swagger.oppdragsInfoSwaggerApi
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
-import no.nav.sokos.oppdragsinfo.api.oppdragsInfoSwaggerApi
 import no.nav.sokos.venteregister.api.venteregisterApi
 
 fun Application.routingConfig(

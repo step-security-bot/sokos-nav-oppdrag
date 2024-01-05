@@ -1,7 +1,5 @@
 package no.nav.sokos.app.security
 
-import OPPDRAGSINFO_BASE_API_PATH
-import configureTestApplication
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.post
@@ -11,10 +9,13 @@ import io.ktor.server.testing.testApplication
 import io.mockk.mockk
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.withMockOAuth2Server
+import no.nav.sokos.app.BASE_API_PATH
+import no.nav.sokos.app.OPPDRAGSINFO_API_PATH
 import no.nav.sokos.app.config.AUTHENTICATION_NAME
 import no.nav.sokos.app.config.PropertiesConfig
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.securityConfig
+import no.nav.sokos.app.configureTestApplication
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 
@@ -34,7 +35,7 @@ class SecurityTest : FunSpec({
                         }
                     }
                 }
-                val response = client.post("$OPPDRAGSINFO_BASE_API_PATH/oppdrag")
+                val response = client.post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/hentOppdrag")
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
