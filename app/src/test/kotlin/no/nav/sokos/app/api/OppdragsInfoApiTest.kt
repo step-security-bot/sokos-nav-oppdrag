@@ -53,6 +53,7 @@ internal class OppdragsInfoApiTest : FunSpec({
             oppdragsId = 1234556,
             faggruppeNavn = "faggruppeNavn",
             fagomraadeNavn = "fagomraadeNavn",
+            kjorIdag = "kjorIdag",
             bilagsType = "bilagsType",
             status = "PASS",
         )
@@ -81,6 +82,7 @@ internal class OppdragsInfoApiTest : FunSpec({
             .response()
 
         response.body().`as`(OppdragsInfoResponse::class.java) shouldBe oppdragsInfoResponse
+        response.body().`as`(OppdragsInfoResponse::class.java).data[0].gjelderId shouldBe "12345678901"
 
     }
 

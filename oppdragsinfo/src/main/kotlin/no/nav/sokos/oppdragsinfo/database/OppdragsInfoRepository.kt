@@ -35,6 +35,7 @@ object OppdragsInfoRepository {
                         OP.FAGSYSTEM_ID,
                         FO.NAVN_FAGOMRAADE,
                         OP.OPPDRAG_GJELDER_ID,
+                        OP.KJOR_IDAG,
                         OP.TYPE_BILAG,
                         FG.NAVN_FAGGRUPPE,
                         OS.KODE_STATUS,
@@ -72,6 +73,7 @@ private fun ResultSet.toOppdragsListe() = toList {
         oppdragsId = getColumn("OPPDRAGS_ID"),
         faggruppeNavn = getColumn("NAVN_FAGGRUPPE"),
         fagomraadeNavn = getColumn("NAVN_FAGOMRAADE"),
+        kjorIdag = getColumn("KJOR_IDAG"),
         bilagsType = getColumn("TYPE_BILAG"),
         status = getColumn("KODE_STATUS")
     )

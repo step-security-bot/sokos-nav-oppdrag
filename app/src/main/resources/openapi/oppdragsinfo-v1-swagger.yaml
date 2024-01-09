@@ -101,6 +101,8 @@ components:
           type: string
         fagomraadeNavn:
           type: string
+        kjorIdag:
+          type: string
         bilagsType:
           type: string
         status:
