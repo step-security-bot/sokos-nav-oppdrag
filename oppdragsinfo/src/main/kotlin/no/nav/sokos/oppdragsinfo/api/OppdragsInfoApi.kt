@@ -19,37 +19,41 @@ fun Route.oppdragsInfoApi(
 
         post("sokOppdrag") {
             val oppdragsInfoRequest: OppdragsInfoRequest = call.receive()
-            val response = oppdragsInfoService.sokOppdrag(
-                oppdragsInfoRequest.gjelderId,
-                call
+            call.respond(
+                oppdragsInfoService.sokOppdrag(
+                    oppdragsInfoRequest.gjelderId,
+                    call
+                )
             )
-            call.respond(response)
         }
 
         get("oppdrag/{oppdragsId}") {
-            val response = oppdragsInfoService.hentOppdragsLinjer(
-                call.parameters["oppdragsId"].orEmpty(),
-                call
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjer(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call
+                )
             )
-            call.respond(response)
         }
 
         get("oppdrag/{oppdragsId}/{linjeId}/statuser") {
-            val response = oppdragsInfoService.hentOppdragLinjeStatuser(
-                call.parameters["oppdragsId"].orEmpty(),
-                call.parameters["linjeId"].orEmpty(),
-                call
+            call.respond(
+                oppdragsInfoService.hentOppdragLinjeStatuser(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
             )
-            call.respond(response)
         }
 
         get("oppdrag/{oppdragsId}/{linjeId}/attestanter") {
-            val response = oppdragsInfoService.hentOppdragsLinjeAttestanter(
-                call.parameters["oppdragsId"].orEmpty(),
-                call.parameters["linjeId"].orEmpty(),
-                call
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeAttestanter(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
             )
-            call.respond(response)
         }
     }
 }

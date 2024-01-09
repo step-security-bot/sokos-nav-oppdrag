@@ -64,15 +64,6 @@ class OppdragsInfoService(
         )
     }
 
-    private suspend fun getGjelderIdNavn(gjelderId: String): String =
-        when {
-            gjelderId.toLong() > 80000000000 -> tpService.getLeverandorNavn(gjelderId).navn
-            gjelderId.toLong() < 80000000000 -> pdlService.getPersonNavn(gjelderId)?.navn?.firstOrNull()
-                ?.run { "$fornavn $mellomnavn $etternavn" } ?: ""
-
-            else -> eregService.getOrganisasjonsNavn(gjelderId).navn.sammensattnavn
-        }
-
     fun hentOppdragsLinjer(
         oppdragsId: String,
         applicationCall: ApplicationCall
@@ -105,7 +96,7 @@ class OppdragsInfoService(
             )
         )
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentOppdragsLinjeStatuser(oppdragsId.toInt(), linjeId.toInt() ).toList()
+            it.hentOppdragsLinjeStatuser(oppdragsId.toInt(), linjeId.toInt()).toList()
         }
 
     }
@@ -124,9 +115,18 @@ class OppdragsInfoService(
             )
         )
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentOppdragsLinjeAttestanter(oppdragsId.toInt(), linjeId.toInt() ).toList()
+            it.hentOppdragsLinjeAttestanter(oppdragsId.toInt(), linjeId.toInt()).toList()
         }
     }
+
+    private suspend fun getGjelderIdNavn(gjelderId: String): String =
+        when {
+            gjelderId.toLong() > 80000000000 -> tpService.getLeverandorNavn(gjelderId).navn
+            gjelderId.toLong() < 80000000000 -> pdlService.getPersonNavn(gjelderId)?.navn?.firstOrNull()
+                ?.run { "$fornavn $mellomnavn $etternavn" } ?: ""
+
+            else -> eregService.getOrganisasjonsNavn(gjelderId).navn.sammensattnavn
+        }
 
     private fun hentSaksbehandler(call: ApplicationCall): Saksbehandler {
         return getSaksbehandler(call)

@@ -13,7 +13,6 @@ import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 
-
 object OppdragsInfoRepository {
 
     fun Connection.getOppdrag(
@@ -71,57 +70,46 @@ fun Connection.hentOppdragsLinjer(
 ): List<OppdragsLinje> =
     prepareStatement(
         """
-        SELECT B.LINJE_ID,
-       D.KODE_KLASSE,
-       D.DATO_VEDTAK_FOM,
-       D.DATO_VEDTAK_TOM,
-       D.SATS,
-       D.TYPE_SATS,
-       C.KODE_STATUS,
-       C.DATO_FOM,
-       A.LINJE_ID_KORR,
-       D.ATTESTERT
-FROM (SELECT *
-      FROM OS231Q1.T_KORREKSJON
-      WHERE OPPDRAGS_ID = (?)) A
-         FULL JOIN (SELECT *
-                    FROM OS231Q1.T_ATTESTASJON a1
-                    WHERE OPPDRAGS_ID = (?)
-                      AND DATO_UGYLDIG_FOM > current_date
-                      AND LOPENR =
-                          (SELECT MAX(LOPENR)
-                           FROM OS231Q1.T_ATTESTASJON a2
-                           WHERE a2.OPPDRAGS_ID = a1.OPPDRAGS_ID
-                             AND a2.LINJE_ID = a1.LINJE_ID
-                             AND a2.ATTESTANT_ID = a1.ATTESTANT_ID)) B
-                   ON A.OPPDRAGS_ID = B.OPPDRAGS_ID
-                       AND A.LINJE_ID = B.LINJE_ID
-         FULL JOIN (SELECT *
-                    FROM OS231Q1.T_LINJE_STATUS LIST
-                    WHERE LIST.OPPDRAGS_ID = (?)
-                      AND LIST.TIDSPKT_REG = (SELECT MAX(LIS2.TIDSPKT_REG)
-                                              FROM OS231Q1.T_LINJE_STATUS LIS2
-                                              WHERE LIS2.OPPDRAGS_ID = LIST.OPPDRAGS_ID
-                                                AND LIS2.LINJE_ID = LIST.LINJE_ID
-                                                AND LIS2.DATO_FOM <= (SELECT MIN(KJPL.DATO_BEREGN_FOM)
-                                                                      FROM OS231Q1.T_KJOREPLAN KJPL,
-                                                                           OS231Q1.T_OPPDRAG OPPD,
-                                                                           OS231Q1.T_FAGOMRAADE FAGO
-                                                                      WHERE KJPL.KODE_FAGGRUPPE = FAGO.KODE_FAGGRUPPE
-                                                                        AND FAGO.KODE_FAGOMRAADE = OPPD.KODE_FAGOMRAADE
-                                                                        AND KJPL.STATUS = 'PLAN'
-                                                                        AND KJPL.FREKVENS = OPPD.FREKVENS
-                                                                        AND OPPD.OPPDRAGS_ID = LIST.OPPDRAGS_ID))) C
-                   ON B.OPPDRAGS_ID = C.OPPDRAGS_ID
-                       AND B.LINJE_ID = C.LINJE_ID
-         FULL JOIN (SELECT *
-                    FROM OS231Q1.T_OPPDRAGSLINJE
-                    WHERE OPPDRAGS_ID = (?)) D
-                   ON C.OPPDRAGS_ID = D.OPPDRAGS_ID
-                       AND C.LINJE_ID = D.LINJE_ID
+        SELECT 
+            OPLI.LINJE_ID,
+            OPLI.KODE_KLASSE,
+            OPLI.DATO_VEDTAK_FOM,
+            OPLI.DATO_VEDTAK_TOM,
+            OPLI.SATS,
+            OPLI.TYPE_SATS,
+            LIST.KODE_STATUS,
+            LIST.DATO_FOM,
+            OPLI.ATTESTERT,
+            KORR.LINJE_ID_KORR
+        FROM OS231Q1.T_KJOREDATO KJDA, OS231Q1.T_OPPDRAGSLINJE OPLI, OS231Q1.T_LINJE_STATUS LIST
+        LEFT OUTER JOIN OS231Q1.T_KORREKSJON KORR
+            ON LIST.OPPDRAGS_ID = KORR.OPPDRAGS_ID
+            AND LIST.LINJE_ID = KORR.LINJE_ID
+            WHERE OPLI.OPPDRAGS_ID = (?)
+            AND LIST.OPPDRAGS_ID = OPLI.OPPDRAGS_ID
+            AND LIST.LINJE_ID = OPLI.LINJE_ID
+            AND LIST.TIDSPKT_REG = (SELECT MAX(LIS1.TIDSPKT_REG)
+                                    FROM OS231Q1.T_LINJE_STATUS LIS1
+                                    WHERE LIS1.OPPDRAGS_ID = LIST.OPPDRAGS_ID
+                                    AND LIS1.LINJE_ID = LIST.LINJE_ID
+                                    AND (CASE WHEN KJDA.KJOREDATO <= LIS1.DATO_FOM
+                                    THEN (SELECT MIN(LIS2.DATO_FOM)
+                                            FROM OS231Q1.T_LINJE_STATUS LIS2
+                                            WHERE  LIS2.OPPDRAGS_ID = LIST.OPPDRAGS_ID
+                                            AND LIS2.LINJE_ID = LIST.LINJE_ID)
+                                            WHEN 1 < (SELECT COUNT(*)
+                                                        FROM OS231Q1.T_LINJE_STATUS LIS3
+                                                        WHERE LIS3.OPPDRAGS_ID = LIST.OPPDRAGS_ID
+                                                        AND LIS3.LINJE_ID = LIST.LINJE_ID
+                                                        AND LIS3.KODE_STATUS = 'KORR')
+                                                        THEN LIS1.DATO_FOM
+                                                        ELSE (SELECT MAX(LIS4.DATO_FOM)
+                                                                FROM OS231Q1.T_LINJE_STATUS LIS4
+                                                                WHERE LIS4.OPPDRAGS_ID = LIST.OPPDRAGS_ID
+                                                                AND LIS4.LINJE_ID = LIST.LINJE_ID) END) = LIS1.DATO_FOM)
         """.trimIndent()
     ).withParameters(
-        param(oppdragId), param(oppdragId), param(oppdragId), param(oppdragId)
+        param(oppdragId)
     ).run {
         executeQuery().toOppdragsLinjer()
     }
@@ -174,32 +162,8 @@ fun Connection.hentOppdragsEnheter (
     ).withParameters(
         param(oppdragsId)
     ).run {
-        executeQuery().toOppdragsenhet()
+        executeQuery().toOppdragsEnhet()
     }
-
-private fun ResultSet.toOppdragsLinjeStatuser() = toList {
-    LinjeStatus(
-        status = getColumn("KODE_STATUS"),
-        datoFom = getColumn("DATO_FOM"),
-        tidspktReg = getColumn("TIDSPKT_REG"),
-        brukerid = getColumn("BRUKERID")
-    )
-}
-
-private fun ResultSet.toOppdragsLinjeAttestanter() = toList {
-    Attestant(
-        attestantId = getColumn("ATTESTANT_ID"),
-        ugyldigFom = getColumn("DATO_UGYLDIG_FOM")
-    )
-}
-
-private fun ResultSet.toOppdragsenhet() = toList {
-    OppdragsEnhet(
-        type = getColumn("TYPE_ENHET"),
-        enhet = getColumn("ENHET"),
-        datoFom = getColumn("DATO_FOM")
-    )
-}
 
 private fun ResultSet.toOppdrag() = toList {
     OppdragsInfo(
@@ -232,6 +196,29 @@ private fun ResultSet.toOppdragsLinjer() = toList {
         datoFom = getColumn("DATO_FOM"),
         linjeIdKorr = getColumn("LINJE_ID_KORR"),
         attestert = getColumn("ATTESTERT")
+    )
+}
+private fun ResultSet.toOppdragsLinjeStatuser() = toList {
+    LinjeStatus(
+        status = getColumn("KODE_STATUS"),
+        datoFom = getColumn("DATO_FOM"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
+
+private fun ResultSet.toOppdragsLinjeAttestanter() = toList {
+    Attestant(
+        attestantId = getColumn("ATTESTANT_ID"),
+        ugyldigFom = getColumn("DATO_UGYLDIG_FOM")
+    )
+}
+
+private fun ResultSet.toOppdragsEnhet() = toList {
+    OppdragsEnhet(
+        type = getColumn("TYPE_ENHET"),
+        enhet = getColumn("ENHET"),
+        datoFom = getColumn("DATO_FOM")
     )
 }
 
