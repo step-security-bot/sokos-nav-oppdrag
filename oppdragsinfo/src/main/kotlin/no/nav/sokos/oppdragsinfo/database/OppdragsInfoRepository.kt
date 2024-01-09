@@ -6,6 +6,8 @@ import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.getColumn
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.withParameters
+import no.nav.sokos.oppdragsinfo.domain.Attestant
+import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
@@ -69,7 +71,7 @@ fun Connection.hentOppdragsLinjer(
 ): List<OppdragsLinje> =
     prepareStatement(
         """
-            SELECT B.LINJE_ID,
+        SELECT B.LINJE_ID,
        D.KODE_KLASSE,
        D.DATO_VEDTAK_FOM,
        D.DATO_VEDTAK_TOM,
@@ -124,6 +126,41 @@ FROM (SELECT *
         executeQuery().toOppdragsLinjer()
     }
 
+fun Connection.hentOppdragsLinjeStatuser (
+    oppdragsId: Int,
+    linjeId: Int
+): List<LinjeStatus> =
+    prepareStatement (
+        """
+            SELECT KODE_STATUS, DATO_FOM, TIDSPKT_REG, BRUKERID
+            FROM T_LINJE_STATUS 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            ORDER BY DATO_FOM
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toOppdragsLinjeStatuser()
+    }
+
+fun Connection.hentOppdragsLinjeAttestanter (
+    oppdragsId: Int,
+    linjeId: Int
+): List<Attestant> =
+    prepareStatement (
+        """
+            SELECT ATTESTANT_ID, DATO_UGYLDIG_FOM
+            FROM T_ATTESTASJON 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            ORDER BY DATO_UGYLDIG_FOM
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toOppdragsLinjeAttestanter()
+    }
 
 fun Connection.hentOppdragsEnheter (
     oppdragsId: Int
@@ -139,6 +176,22 @@ fun Connection.hentOppdragsEnheter (
     ).run {
         executeQuery().toOppdragsenhet()
     }
+
+private fun ResultSet.toOppdragsLinjeStatuser() = toList {
+    LinjeStatus(
+        status = getColumn("KODE_STATUS"),
+        datoFom = getColumn("DATO_FOM"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
+
+private fun ResultSet.toOppdragsLinjeAttestanter() = toList {
+    Attestant(
+        attestantId = getColumn("ATTESTANT_ID"),
+        ugyldigFom = getColumn("DATO_UGYLDIG_FOM")
+    )
+}
 
 private fun ResultSet.toOppdragsenhet() = toList {
     OppdragsEnhet(

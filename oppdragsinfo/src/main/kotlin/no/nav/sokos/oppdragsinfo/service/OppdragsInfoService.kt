@@ -10,7 +10,11 @@ import no.nav.sokos.oppdragsinfo.database.Db2DataSource
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.getOppdrag
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.getOppdragsListe
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
+import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjeAttestanter
+import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjeStatuser
 import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjer
+import no.nav.sokos.oppdragsinfo.domain.Attestant
+import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.integration.EregService
@@ -87,11 +91,46 @@ class OppdragsInfoService(
 
     }
 
+    fun hentOppdragLinjeStatuser(
+        oppdragsId: String,
+        linjeId: String,
+        applicationCall: ApplicationCall
+    ): List<LinjeStatus> {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        secureLogger.info("Henter oppdragslinjstatuser for oppdrag : $oppdragsId, linje : $linjeId")
+        auditLogger.auditLog(
+            AuditLogg(
+                saksbehandler = saksbehandler.ident,
+                gjelderId = oppdragsId
+            )
+        )
+        return db2DataSource.connection.useAndHandleErrors {
+            it.hentOppdragsLinjeStatuser(oppdragsId.toInt(), linjeId.toInt() ).toList()
+        }
+
+    }
+
+    fun hentOppdragsLinjeAttestanter(
+        oppdragsId: String,
+        linjeId: String,
+        applicationCall: ApplicationCall
+    ): List<Attestant> {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        secureLogger.info("Henter oppdragslinjstatuser for oppdrag : $oppdragsId, linje : $linjeId")
+        auditLogger.auditLog(
+            AuditLogg(
+                saksbehandler = saksbehandler.ident,
+                gjelderId = oppdragsId
+            )
+        )
+        return db2DataSource.connection.useAndHandleErrors {
+            it.hentOppdragsLinjeAttestanter(oppdragsId.toInt(), linjeId.toInt() ).toList()
+        }
+    }
+
     private fun hentSaksbehandler(call: ApplicationCall): Saksbehandler {
         return getSaksbehandler(call)
     }
-
-
 }
 
 /*    suspend fun hentOppdragslinje(

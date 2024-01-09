@@ -34,5 +34,23 @@ fun Route.oppdragsInfoApi(
             )
             call.respond(response)
         }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/statuser") {
+            val response = oppdragsInfoService.hentOppdragLinjeStatuser(
+                call.parameters["oppdragsId"].orEmpty(),
+                call.parameters["linjeId"].orEmpty(),
+                call
+            )
+            call.respond(response)
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/attestanter") {
+            val response = oppdragsInfoService.hentOppdragsLinjeAttestanter(
+                call.parameters["oppdragsId"].orEmpty(),
+                call.parameters["linjeId"].orEmpty(),
+                call
+            )
+            call.respond(response)
+        }
     }
 }
