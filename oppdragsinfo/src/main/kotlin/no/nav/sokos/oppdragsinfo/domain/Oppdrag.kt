@@ -8,6 +8,6 @@ data class Oppdrag(
     val faggruppeNavn: String,
     val fagomraadeNavn: String,
     val kjorIdag: String,
-    val bilagsType: String,
+    val bilagsType: String? = null,
     val status: String
 )

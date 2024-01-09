@@ -50,7 +50,7 @@ class SecurityTest : FunSpec({
                         }
                     }
                 }
-                val response = client.post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/hentOppdrag")
+                val response = client.post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/sokOppdrag")
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
@@ -69,7 +69,7 @@ class SecurityTest : FunSpec({
                     }
                 }
 
-                coEvery { oppdragsInfoService.hentOppdrag(any(), any()) } returns emptyList()
+                coEvery { oppdragsInfoService.sokOppdrag(any(), any()) } returns emptyList()
 
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -77,7 +77,7 @@ class SecurityTest : FunSpec({
                     }
                 }
 
-                val response = client.post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/hentOppdrag") {
+                val response = client.post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/sokOppdrag") {
                     header(HttpHeaders.Authorization, "Bearer ${tokenFromDefaultProvider()}")
                     header(HttpHeaders.ContentType, APPLICATION_JSON)
                     setBody(OppdragsInfoRequest(gjelderId = "12345678901"))
