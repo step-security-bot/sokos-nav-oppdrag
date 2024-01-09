@@ -5,12 +5,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class OppdragsLinje (
     val linjeId: Int,
-    val klasseKode: String,
-    val vedtakFom: String,
-    val vedtakTom: String? = null,
+    val kodeKlasse: String,
+    val datoVedtakFom: String,
+    val datoVedtakTom: String? = null,
     val sats: Double,
-    val satsType: String,
-    val status: String,
-    val linjeIdKorreksjon: Int? = null,
+    val typeSats: String,
+    val kodeStatus: String,
+    val datoFom: String,
+    val linjeIdKorr: Int? = null,
     val attestert: String?,
 )

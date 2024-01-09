@@ -42,7 +42,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OppdragsInfoResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/OppdragsInfo'
         400:
           description: Ugyldig request, oppfyller ikke swagger-kontrakt
         401:
@@ -70,14 +72,6 @@ components:
           example: "9 eller 11 siffer"
           description: 9 eller 11 siffer
 
-    OppdragsInfoResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/OppdragsInfo'
-
     OppdragsInfo:
       type: object
       properties:
@@ -97,15 +91,15 @@ components:
           type: string
         oppdragsId:
           type: integer
-        faggruppeNavn:
+        navnFagGruppe:
           type: string
-        fagomraadeNavn:
+        navnFagOmraade:
           type: string
         kjorIdag:
           type: string
-        bilagsType:
+        typeBilag:
           type: string
-        status:
+        kodeStatus:
           type: string
 
     ApiError:

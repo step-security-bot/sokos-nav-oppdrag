@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 data class Oppdrag(
     val fagsystemId: String,
     val oppdragsId: Int,
-    val faggruppeNavn: String,
-    val fagomraadeNavn: String,
+    val navnFagGruppe: String,
+    val navnFagOmraade: String,
     val kjorIdag: String,
-    val bilagsType: String? = null,
-    val status: String
+    val typeBilag: String? = null,
+    val kodeStatus: String
 )

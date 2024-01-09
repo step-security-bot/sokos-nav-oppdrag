@@ -2,6 +2,7 @@ package no.nav.sokos.app.api
 
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -22,7 +23,6 @@ import no.nav.sokos.app.config.AUTHENTICATION_NAME
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.commonConfig
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoRequest
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoResponse
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
@@ -51,11 +51,11 @@ internal class OppdragsInfoApiTest : FunSpec({
         val oppdrag = Oppdrag(
             fagsystemId = "12345678901",
             oppdragsId = 1234556,
-            faggruppeNavn = "faggruppeNavn",
-            fagomraadeNavn = "fagomraadeNavn",
+            navnFagGruppe = "faggruppeNavn",
+            navnFagOmraade = "fagomraadeNavn",
             kjorIdag = "kjorIdag",
-            bilagsType = "bilagsType",
-            status = "PASS",
+            typeBilag = "bilagsType",
+            kodeStatus = "PASS",
         )
 
         val oppdragsInfo = OppdragsInfo(
@@ -64,9 +64,9 @@ internal class OppdragsInfoApiTest : FunSpec({
             oppdragsListe = listOf(oppdrag)
         )
 
-        val oppdragsInfoResponse = OppdragsInfoResponse(listOf(oppdragsInfo))
+        val oppdragsInfoResponse = (listOf(oppdragsInfo))
 
-        coEvery { oppdragsInfoService.sokOppdrag(any(), any()) } returns oppdragsInfoResponse.data
+        coEvery { oppdragsInfoService.sokOppdrag(any(), any()) } returns oppdragsInfoResponse
 
         val response = RestAssured.given()
             .filter(validationFilter)
@@ -81,9 +81,9 @@ internal class OppdragsInfoApiTest : FunSpec({
             .extract()
             .response()
 
-        response.body().`as`(OppdragsInfoResponse::class.java) shouldBe oppdragsInfoResponse
-        response.body().`as`(OppdragsInfoResponse::class.java).data[0].gjelderId shouldBe "12345678901"
-
+        response.jsonPath().getList<OppdragsInfo>("gjelderId").first().shouldBe("12345678901")
+        response.jsonPath().getList<OppdragsInfo>("gjelderNavn").first().shouldBe("Test Testesen")
+        response.jsonPath().getList<Oppdrag>("oppdragsListe").shouldHaveSize(1)
     }
 
 })

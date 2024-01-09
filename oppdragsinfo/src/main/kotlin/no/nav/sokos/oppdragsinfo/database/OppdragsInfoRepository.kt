@@ -212,24 +212,25 @@ private fun ResultSet.toOppdragsListe() = toList {
     Oppdrag(
         fagsystemId = getColumn("FAGSYSTEM_ID"),
         oppdragsId = getColumn("OPPDRAGS_ID"),
-        faggruppeNavn = getColumn("NAVN_FAGGRUPPE"),
-        fagomraadeNavn = getColumn("NAVN_FAGOMRAADE"),
+        navnFagGruppe = getColumn("NAVN_FAGGRUPPE"),
+        navnFagOmraade = getColumn("NAVN_FAGOMRAADE"),
         kjorIdag = getColumn("KJOR_IDAG"),
-        bilagsType = getColumn("TYPE_BILAG"),
-        status = getColumn("KODE_STATUS")
+        typeBilag = getColumn("TYPE_BILAG"),
+        kodeStatus = getColumn("KODE_STATUS")
     )
 }
 
 private fun ResultSet.toOppdragsLinjer() = toList {
     OppdragsLinje(
         linjeId = getColumn("LINJE_ID"),
-        klasseKode = getColumn("KODE_KLASSE"),
-        vedtakFom = getColumn("DATO_VEDTAK_FOM"),
-        vedtakTom = getColumn("DATO_VEDTAK_TOM"),
+        kodeKlasse = getColumn("KODE_KLASSE"),
+        datoVedtakFom = getColumn("DATO_VEDTAK_FOM"),
+        datoVedtakTom = getColumn("DATO_VEDTAK_TOM"),
         sats = getColumn("SATS"),
-        satsType = getColumn("TYPE_SATS"),
-        status = getColumn("KODE_STATUS"),
-        linjeIdKorreksjon = getColumn("LINJE_ID_KORR"),
+        typeSats = getColumn("TYPE_SATS"),
+        kodeStatus = getColumn("KODE_STATUS"),
+        datoFom = getColumn("DATO_FOM"),
+        linjeIdKorr = getColumn("LINJE_ID_KORR"),
         attestert = getColumn("ATTESTERT")
     )
 }
