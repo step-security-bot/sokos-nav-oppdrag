@@ -27,7 +27,7 @@ val db2JccVersion = "11.5.9.0"
 
 // Test
 val kotestVersion = "5.8.0"
-val mockkVersion = "1.13.8"
+val mockkVersion = "1.13.9"
 
 allprojects {
     group = "no.nav.sokos"
