@@ -29,7 +29,7 @@ paths:
       operationId: oppdrag
 
       requestBody:
-        description: OppdragsInfoRequest
+        description: gjelderId som skal søkes på
         content:
           application/json:
             schema:
