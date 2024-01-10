@@ -65,5 +65,85 @@ fun Route.oppdragsInfoApi(
                 )
             )
         }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/valuta") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeValuta(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/skyldner") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeSkyldner(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/kravhaver") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeKravhaver(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/linjeenheter") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeEnheter(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/grad") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeGrad(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/tekst") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeTekst(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/kidliste") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeKidListe(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/maksdato") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeMaksdato(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
     }
 }
