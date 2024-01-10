@@ -14,4 +14,9 @@ data class OppdragsLinje (
     val datoFom: String,
     val linjeIdKorr: Int? = null,
     val attestert: String?,
+    val delytelseId: String,
+    val utbetalesTilId: String,
+    val refunderesOrgnr: String? = null,
+    val brukerid: String,
+    val tidspktReg: String
 )

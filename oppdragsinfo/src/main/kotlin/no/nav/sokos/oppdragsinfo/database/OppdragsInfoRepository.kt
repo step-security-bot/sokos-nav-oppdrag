@@ -12,6 +12,7 @@ import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
+import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
 
 object OppdragsInfoRepository {
 
@@ -80,7 +81,12 @@ fun Connection.hentOppdragsLinjer(
             LIST.KODE_STATUS,
             LIST.DATO_FOM,
             OPLI.ATTESTERT,
-            KORR.LINJE_ID_KORR
+            KORR.LINJE_ID_KORR,
+            OPLI.DELYTELSE_ID,
+            OPLI.UTBETALES_TIL_ID,
+            OPLI.REFUNDERES_ID,
+            OPLI.BRUKERID,
+            OPLI.TIDSPKT_REG,
         FROM OS231Q1.T_KJOREDATO KJDA, OS231Q1.T_OPPDRAGSLINJE OPLI, OS231Q1.T_LINJE_STATUS LIST
         LEFT OUTER JOIN OS231Q1.T_KORREKSJON KORR
             ON LIST.OPPDRAGS_ID = KORR.OPPDRAGS_ID
@@ -150,6 +156,151 @@ fun Connection.hentOppdragsLinjeAttestanter (
         executeQuery().toOppdragsLinjeAttestanter()
     }
 
+
+fun Connection.eksistererValutaer(
+    oppdragsId: Int,
+    linjeId: Int
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT COUNT(*)  
+            FROM T_VALUTA 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
+fun Connection.eksistererSkyldnere(
+    oppdragsId: Int,
+    linjeId: Int
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT COUNT(*)  
+            FROM T_SKYLDNER 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
+fun Connection.eksistererKravhavere(
+    oppdragsId: Int,
+    linjeId: Int
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT COUNT(*)  
+            FROM T_KRAVHAVER 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
+fun Connection.eksistererEnheter(
+    oppdragsId: Int,
+    linjeId: Int
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT COUNT(*)  
+            FROM T_LINJEENHET 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
+fun Connection.eksistererGrader(
+    oppdragsId: Int,
+    linjeId: Int
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT COUNT(*)  
+            FROM T_GRAD 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
+fun Connection.eksistererTekster(
+    oppdragsId: Int,
+    linjeId: Int
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT COUNT(*)  
+            FROM T_TEKST 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
+fun Connection.eksistererKidliste(
+    oppdragsId: Int,
+    linjeId: Int
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT COUNT(*)  
+            FROM T_KID 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
+fun Connection.eksistererMaksdatoer(
+    oppdragsId: Int,
+    linjeId: Int
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT COUNT(*)  
+            FROM T_MAKS_DATO  
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
 fun Connection.hentOppdragsEnheter (
     oppdragsId: Int
 ): List<OppdragsEnhet> =
@@ -195,7 +346,12 @@ private fun ResultSet.toOppdragsLinjer() = toList {
         kodeStatus = getColumn("KODE_STATUS"),
         datoFom = getColumn("DATO_FOM"),
         linjeIdKorr = getColumn("LINJE_ID_KORR"),
-        attestert = getColumn("ATTESTERT")
+        attestert = getColumn("ATTESTERT"),
+        delytelseId = getColumn("DELYTELSE_ID"),
+        utbetalesTilId = getColumn("UTBETALES_TIL_ID"),
+        refunderesOrgnr = getColumn("REFUNDERES_ID"),
+        brukerid = getColumn("BRUKERID"),
+        tidspktReg = getColumn("TIDSPKT_REG")
     )
 }
 private fun ResultSet.toOppdragsLinjeStatuser() = toList {
@@ -221,6 +377,7 @@ private fun ResultSet.toOppdragsEnhet() = toList {
         datoFom = getColumn("DATO_FOM")
     )
 }
+
 
 /*fun ResultSet.toOppdragslinjeDetaljer() = toList {
     OppdragsLinje(

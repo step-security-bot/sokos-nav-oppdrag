@@ -55,5 +55,15 @@ fun Route.oppdragsInfoApi(
                 )
             )
         }
+
+        get("oppdrag/{oppdragsId}/{linjeId}") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeDetaljer(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
     }
 }
