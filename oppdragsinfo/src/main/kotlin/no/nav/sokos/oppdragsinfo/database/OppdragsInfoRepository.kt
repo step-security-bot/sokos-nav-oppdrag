@@ -7,12 +7,19 @@ import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.withParameters
 import no.nav.sokos.oppdragsinfo.domain.Attestant
+import no.nav.sokos.oppdragsinfo.domain.Grad
+import no.nav.sokos.oppdragsinfo.domain.Kid
+import no.nav.sokos.oppdragsinfo.domain.Kravhaver
+import no.nav.sokos.oppdragsinfo.domain.LinjeEnhet
 import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
-import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
+import no.nav.sokos.oppdragsinfo.domain.Skyldner
+import no.nav.sokos.oppdragsinfo.domain.Valuta
+import no.nav.sokos.oppdragsinfo.domain.Maksdato
+import no.nav.sokos.oppdragsinfo.domain.Tekst
 
 object OppdragsInfoRepository {
 
@@ -86,7 +93,7 @@ fun Connection.hentOppdragsLinjer(
             OPLI.UTBETALES_TIL_ID,
             OPLI.REFUNDERES_ID,
             OPLI.BRUKERID,
-            OPLI.TIDSPKT_REG,
+            OPLI.TIDSPKT_REG
         FROM OS231Q1.T_KJOREDATO KJDA, OS231Q1.T_OPPDRAGSLINJE OPLI, OS231Q1.T_LINJE_STATUS LIST
         LEFT OUTER JOIN OS231Q1.T_KORREKSJON KORR
             ON LIST.OPPDRAGS_ID = KORR.OPPDRAGS_ID
@@ -120,11 +127,11 @@ fun Connection.hentOppdragsLinjer(
         executeQuery().toOppdragsLinjer()
     }
 
-fun Connection.hentOppdragsLinjeStatuser (
+fun Connection.hentOppdragsLinjeStatuser(
     oppdragsId: Int,
     linjeId: Int
 ): List<LinjeStatus> =
-    prepareStatement (
+    prepareStatement(
         """
             SELECT KODE_STATUS, DATO_FOM, TIDSPKT_REG, BRUKERID
             FROM T_LINJE_STATUS 
@@ -138,11 +145,11 @@ fun Connection.hentOppdragsLinjeStatuser (
         executeQuery().toOppdragsLinjeStatuser()
     }
 
-fun Connection.hentOppdragsLinjeAttestanter (
+fun Connection.hentOppdragsLinjeAttestanter(
     oppdragsId: Int,
     linjeId: Int
 ): List<Attestant> =
-    prepareStatement (
+    prepareStatement(
         """
             SELECT ATTESTANT_ID, DATO_UGYLDIG_FOM
             FROM T_ATTESTASJON 
@@ -301,21 +308,140 @@ fun Connection.eksistererMaksdatoer(
     return resultSet.getInt(1) > 0
 }
 
-fun Connection.hentOppdragsEnheter (
-    oppdragsId: Int
-): List<OppdragsEnhet> =
-    prepareStatement (
+fun Connection.hentValutaer(
+    oppdragsId: Int,
+    linjeId: Int
+): List<Valuta> =
+    prepareStatement(
         """
-            SELECT * 
-            FROM T_OPPDRAGSENHET 
+            SELECT LINJE_ID, TYPE_VALUTA, DATO_FOM, NOKKEL_ID, VALUTA, FEILREG, TIDSPKT_REG, BRUKERID
+            FROM T_VALUTA 
             WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
             """.trimIndent()
     ).withParameters(
-        param(oppdragsId)
+        param(oppdragsId), param(linjeId)
     ).run {
-        executeQuery().toOppdragsEnhet()
+        executeQuery().toValuta()
     }
 
+fun Connection.hentSkyldnere(
+    oppdragsId: Int,
+    linjeId: Int
+): List<Skyldner> =
+    prepareStatement(
+        """
+            SELECT LINJE_ID, SKYLDNER_ID, DATO_FOM, TIDSPKT_REG, BRUKERID
+            FROM T_SKYLDNER 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toSkyldner()
+    }
+
+fun Connection.hentKravhavere(
+    oppdragsId: Int,
+    linjeId: Int
+): List<Kravhaver> =
+    prepareStatement(
+        """
+            SELECT LINJE_ID, KRAVHAVER_ID, DATO_FOM, TIDSPKT_REG, BRUKERID
+            FROM T_KRAVHAVER 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toKravhaver()
+    }
+
+fun Connection.hentEnheter(
+    oppdragsId: Int,
+    linjeId: Int
+): List<LinjeEnhet> =
+    prepareStatement(
+        """
+            SELECT LINJE_ID, TYPE_ENHET, ENHET, DATO_FOM, NOKKEL_ID, TIDSPKT_REG, BRUKERID
+            FROM T_LINJEENHET 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toLinjeenhet()
+    }
+fun Connection.hentGrader(
+    oppdragsId: Int,
+    linjeId: Int
+): List<Grad> =
+    prepareStatement(
+        """
+            SELECT LINJE_ID, TYPE_GRAD, GRAD, TIDSPKT_REG, BRUKERID
+            FROM T_GRAD 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toGrad()
+    }
+
+fun Connection.hentTekster(
+    oppdragsId: Int,
+    linjeId: Int
+): List<Tekst> =
+    prepareStatement(
+        """
+            SELECT  LINJE_ID, TEKST
+            FROM T_TEKST 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toOppdragsTekst()
+    }
+
+fun Connection.hentKidliste(
+    oppdragsId: Int,
+    linjeId: Int
+): List<Kid> =
+    prepareStatement(
+        """
+            SELECT LINJE_ID, KID, DATO_FOM, TIDSPKT_REG, BRUKERID
+            FROM T_KID 
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toLKidlist()
+    }
+
+fun Connection.hentMaksdatoer(
+    oppdragsId: Int,
+    linjeId: Int
+): List<Maksdato> =
+    prepareStatement(
+        """
+            SELECT LINJE_ID, MAKS_DATO, DATO_FOM, TIDSPKT_REG, BRUKERID
+            FROM T_MAKS_DATO  
+            WHERE OPPDRAGS_ID = (?)
+            AND LINJE_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId), param(linjeId)
+    ).run {
+        executeQuery().toMaksdato()
+    }
 private fun ResultSet.toOppdrag() = toList {
     OppdragsInfo(
         gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
@@ -354,6 +480,7 @@ private fun ResultSet.toOppdragsLinjer() = toList {
         tidspktReg = getColumn("TIDSPKT_REG")
     )
 }
+
 private fun ResultSet.toOppdragsLinjeStatuser() = toList {
     LinjeStatus(
         status = getColumn("KODE_STATUS"),
@@ -378,25 +505,87 @@ private fun ResultSet.toOppdragsEnhet() = toList {
     )
 }
 
-
-/*fun ResultSet.toOppdragslinjeDetaljer() = toList {
-    OppdragsLinje(
-        oppdragsId = getColumn("OPPDRAGS_ID"),
+fun ResultSet.toSkyldner() = toList {
+    Skyldner(
         linjeId = getColumn("LINJE_ID"),
-        delytelseId = getColumn("DELYTELSE_ID"),
-        sats = getColumn("SATS"),
-        typeSats = getColumn("TYPE_SATS"),
-        vedtakFom = getColumn("DATO_VEDTAK_FOM"),
-        vedtakTom = getColumn("DATO_VEDTAK_TOM"),
-        kodeKlasse = getColumn("KODE_KLASSE"),
-        attestert = getColumn("ATTESTERT"),
-        vedtaksId = getColumn("VEDTAK_ID"),
-        utbetalesTilId = getColumn("UTBETALES_TIL_ID"),
-        refunderesOrgnr = getColumn("REFUNDERES_ID"),
-        brukerid = getColumn("BRUKERID"),
-        tidspktReg = getColumn("TIDSPKT_REG")
+        skyldnerId = getColumn("SKYLDNER_ID"),
+        datoFom = getColumn("DATO_FOM"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
     )
-}*/
+}
+
+fun ResultSet.toValuta() = toList {
+    Valuta(
+        linjeId = getColumn("LINJE_ID"),
+        type = getColumn("TYPE_VALUTA"),
+        datoFom = getColumn("DATO_FOM"),
+        nokkelId = getColumn("NOKKEL_ID"),
+        valuta = getColumn("VALUTA"),
+        feilreg = getColumn("FEILREG"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
+
+fun ResultSet.toLinjeenhet() = toList {
+    LinjeEnhet(
+        linjeId = getColumn("LINJE_ID"),
+        typeEnhet = getColumn("TYPE_ENHET"),
+        enhet = getColumn("ENHET"),
+        datoFom = getColumn("DATO_FOM"),
+        nokkelId = getColumn("NOKKEL_ID"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
+
+fun ResultSet.toGrad() = toList {
+    Grad(
+        linjeId = getColumn("LINJE_ID"),
+        typeGrad = getColumn("TYPE_GRAD"),
+        grad = getColumn("GRAD"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
+
+fun ResultSet.toLKidlist() = toList {
+    Kid(
+        linjeId = getColumn("LINJE_ID"),
+        kid = getColumn("KID"),
+        datoFom = getColumn("DATO_FOM"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
+
+fun ResultSet.toOppdragsTekst() = toList {
+    Tekst(
+        linjeId = getColumn("LINJE_ID"),
+        tekst = getColumn("TEKST")
+    )
+}
+
+fun ResultSet.toKravhaver() = toList {
+    Kravhaver(
+        linjeId = getColumn("LINJE_ID"),
+        kravhaverId = getColumn("KRAVHAVER_ID"),
+        datoFom = getColumn("DATO_FOM"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
+
+fun ResultSet.toMaksdato() = toList {
+    Maksdato(
+        linjeId = getColumn("LINJE_ID"),
+        maksdato = getColumn("MAKS_DATO"),
+        datoFom = getColumn("DATO_FOM"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
 
 
 

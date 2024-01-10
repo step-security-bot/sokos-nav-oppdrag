@@ -37,6 +37,7 @@ dependencies {
     // Modules
     implementation(project(":oppdragsinfo"))
     implementation(project(":venteregister"))
+
 }
 
 tasks {
