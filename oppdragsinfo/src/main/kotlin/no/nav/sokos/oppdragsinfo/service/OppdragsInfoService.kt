@@ -15,6 +15,7 @@ import no.nav.sokos.oppdragsinfo.database.eksistererGrader
 import no.nav.sokos.oppdragsinfo.database.eksistererKidliste
 import no.nav.sokos.oppdragsinfo.database.eksistererKravhavere
 import no.nav.sokos.oppdragsinfo.database.eksistererMaksdatoer
+import no.nav.sokos.oppdragsinfo.database.eksistererOmposteringer
 import no.nav.sokos.oppdragsinfo.database.eksistererSkyldnere
 import no.nav.sokos.oppdragsinfo.database.eksistererTekster
 import no.nav.sokos.oppdragsinfo.database.eksistererValutaer
@@ -81,15 +82,17 @@ class OppdragsInfoService(
             it.getOppdrag(gjelderId).firstOrNull()
         } ?: return emptyList()
 
-        val oppdrag =
-            db2DataSource.connection.useAndHandleErrors { it.getOppdragsListe(oppdragsInfo.gjelderId) }
+        val oppdrag = db2DataSource.connection.useAndHandleErrors { it.getOppdragsListe(oppdragsInfo.gjelderId) }
 
         val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
+
+        val harOmposteringer = db2DataSource.connection.useAndHandleErrors { it.eksistererOmposteringer(oppdragsInfo.gjelderId) }
 
         return listOf(
             OppdragsInfo(
                 gjelderId = oppdragsInfo.gjelderId,
                 gjelderNavn = gjelderNavn,
+                harOmposteringer = harOmposteringer,
                 oppdragsListe = oppdrag
             )
         )
