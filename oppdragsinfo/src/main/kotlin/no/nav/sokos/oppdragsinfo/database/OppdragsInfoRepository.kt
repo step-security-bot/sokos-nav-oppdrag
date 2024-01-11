@@ -12,16 +12,16 @@ import no.nav.sokos.oppdragsinfo.domain.Kid
 import no.nav.sokos.oppdragsinfo.domain.Kravhaver
 import no.nav.sokos.oppdragsinfo.domain.LinjeEnhet
 import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
+import no.nav.sokos.oppdragsinfo.domain.Maksdato
+import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
+import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
-import no.nav.sokos.oppdragsinfo.domain.Valuta
-import no.nav.sokos.oppdragsinfo.domain.Maksdato
-import no.nav.sokos.oppdragsinfo.domain.Ompostering
-import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.Tekst
+import no.nav.sokos.oppdragsinfo.domain.Valuta
 
 object OppdragsInfoRepository {
 

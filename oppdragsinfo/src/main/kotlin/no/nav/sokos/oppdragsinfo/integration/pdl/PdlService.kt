@@ -63,7 +63,8 @@ private fun handleErrors(errors: List<GraphQLClientError>, ident: String): Perso
         val errorCode = errorExtensions.map { it["code"] }
         val errorMessage = errorExtensions.map { it["id"] }
 
-        val exceptionMessage = "Feil med henting av person fra PDL: (Path: $path, Code: $errorCode, Message: $errorMessage)"
+        val exceptionMessage =
+            "Feil med henting av person fra PDL: (Path: $path, Code: $errorCode, Message: $errorMessage)"
         throw Exception(exceptionMessage).also {
             logger.error { "Feil i GraphQL-responsen: (Path: $path, Code: $errorCode, Message: $errorMessage)" }
         }.also {

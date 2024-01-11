@@ -84,9 +84,10 @@ class OppdragsInfoService(
 
         val oppdrag = db2DataSource.connection.useAndHandleErrors { it.getOppdragsListe(oppdragsInfo.gjelderId) }
 
-        val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
+        val harOmposteringer =
+            db2DataSource.connection.useAndHandleErrors { it.eksistererOmposteringer(oppdragsInfo.gjelderId) }
 
-        val harOmposteringer = db2DataSource.connection.useAndHandleErrors { it.eksistererOmposteringer(oppdragsInfo.gjelderId) }
+        val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
 
         return listOf(
             OppdragsInfo(

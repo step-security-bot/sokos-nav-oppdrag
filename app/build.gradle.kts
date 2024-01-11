@@ -18,9 +18,9 @@ dependencies {
 
     // Monitorering
     implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-core-jvm:2.3.7")
-    implementation("io.ktor:ktor-server-host-common-jvm:2.3.7")
-    implementation("io.ktor:ktor-server-status-pages-jvm:2.3.7")
+    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-host-common-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-status-pages-jvm:$ktorVersion")
 
     // Logging
     runtimeOnly("org.codehaus.janino:janino:$janionVersion")
@@ -33,7 +33,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
     testImplementation("com.atlassian.oai:swagger-request-validator-restassured:$swaggerRequestValidatorVersion")
-    
+
     // Modules
     implementation(project(":oppdragsinfo"))
     implementation(project(":venteregister"))

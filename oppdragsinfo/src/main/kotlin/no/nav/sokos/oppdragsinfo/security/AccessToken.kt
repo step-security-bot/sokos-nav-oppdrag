@@ -9,7 +9,7 @@ const val JWT_CLAIM_NAVIDENT = "NAVident"
 
 fun getSaksbehandler(call: ApplicationCall): Saksbehandler {
     val oboToken = call.request.headers["Authorization"]?.removePrefix("Bearer ")
-            ?: throw IllegalStateException("Could not get token from request header")
+        ?: throw IllegalStateException("Could not get token from request header")
     val navIdent = getNAVIdentFromToken(oboToken)
 
     return Saksbehandler(navIdent)
@@ -18,5 +18,5 @@ fun getSaksbehandler(call: ApplicationCall): Saksbehandler {
 private fun getNAVIdentFromToken(token: String): String {
     val decodedJWT = JWT.decode(token)
     return decodedJWT.claims[JWT_CLAIM_NAVIDENT]?.asString()
-            ?: throw RuntimeException("Missing NAVident in private claims")
+        ?: throw RuntimeException("Missing NAVident in private claims")
 }

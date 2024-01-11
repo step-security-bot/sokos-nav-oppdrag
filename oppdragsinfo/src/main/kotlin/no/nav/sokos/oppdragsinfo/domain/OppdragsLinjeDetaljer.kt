@@ -3,7 +3,7 @@ package no.nav.sokos.oppdragsinfo.domain
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OppdragsLinjeDetaljer (
+data class OppdragsLinjeDetaljer(
     val harValutaer: Boolean,
     val harSkyldnere: Boolean,
     val harKravhavere: Boolean,

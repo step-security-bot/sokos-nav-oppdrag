@@ -3,7 +3,7 @@ package no.nav.sokos.oppdragsinfo.domain
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Ompostering (
+data class Ompostering(
     val id: String,
     val kodeFaggruppe: String,
     val lopenr: Int,

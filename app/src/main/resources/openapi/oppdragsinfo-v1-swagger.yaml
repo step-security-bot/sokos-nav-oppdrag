@@ -57,7 +57,7 @@ paths:
                 $ref: '#/components/schemas/ApiError'
 
       security:
-        - Bearer: []
+        - Bearer: [ ]
 
 components:
   schemas:

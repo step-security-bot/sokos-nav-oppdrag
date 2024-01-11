@@ -3,7 +3,7 @@ package no.nav.sokos.oppdragsinfo.domain
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OppdragsLinje (
+data class OppdragsLinje(
     val linjeId: Int,
     val kodeKlasse: String,
     val datoVedtakFom: String,
