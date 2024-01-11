@@ -36,6 +36,34 @@ fun Route.oppdragsInfoApi(
             )
         }
 
+        post("oppdrag/omposteringer") {
+            val oppdragsInfoRequest: OppdragsInfoRequest = call.receive()
+            call.respond(
+                oppdragsInfoService.hentOppdragsOmposteringer(
+                    oppdragsInfoRequest.gjelderId,
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/enhetshistorikk") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsEnhetsHistorikk(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/statushistorikk") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsStatusHistorikk(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
         get("oppdrag/{oppdragsId}/{linjeId}/statuser") {
             call.respond(
                 oppdragsInfoService.hentOppdragLinjeStatuser(

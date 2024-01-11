@@ -23,9 +23,12 @@ import no.nav.sokos.oppdragsinfo.database.hentGrader
 import no.nav.sokos.oppdragsinfo.database.hentKidliste
 import no.nav.sokos.oppdragsinfo.database.hentKravhavere
 import no.nav.sokos.oppdragsinfo.database.hentMaksdatoer
+import no.nav.sokos.oppdragsinfo.database.hentOppdragsEnhetsHistorikk
 import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjeAttestanter
 import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjeStatuser
 import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjer
+import no.nav.sokos.oppdragsinfo.database.hentOppdragsOmposteringer
+import no.nav.sokos.oppdragsinfo.database.hentOppdragsStatusHistorikk
 import no.nav.sokos.oppdragsinfo.database.hentSkyldnere
 import no.nav.sokos.oppdragsinfo.database.hentTekster
 import no.nav.sokos.oppdragsinfo.database.hentValutaer
@@ -36,6 +39,9 @@ import no.nav.sokos.oppdragsinfo.domain.Kravhaver
 import no.nav.sokos.oppdragsinfo.domain.LinjeEnhet
 import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
 import no.nav.sokos.oppdragsinfo.domain.Maksdato
+import no.nav.sokos.oppdragsinfo.domain.Ompostering
+import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
+import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
@@ -106,6 +112,57 @@ class OppdragsInfoService(
         }
     }
 
+    fun hentOppdragsOmposteringer(
+        gjelderId: String,
+        applicationCall: ApplicationCall
+    ): List<Ompostering> {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        secureLogger.info("Henter omposteringer for gjelderId: $gjelderId")
+        auditLogger.auditLog(
+            AuditLogg(
+                saksbehandler = saksbehandler.ident,
+                gjelderId = gjelderId
+            )
+        )
+        return db2DataSource.connection.useAndHandleErrors {
+            it.hentOppdragsOmposteringer(gjelderId).toList()
+        }
+    }
+
+    fun hentOppdragsEnhetsHistorikk(
+        oppdragsId: String,
+        applicationCall: ApplicationCall
+    ): List<OppdragsEnhet> {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        secureLogger.info("Henter oppdragsEnhetsHistorikk for oppdrag: $oppdragsId")
+        auditLogger.auditLog(
+            AuditLogg(
+                saksbehandler = saksbehandler.ident,
+                gjelderId = oppdragsId
+            )
+        )
+        return db2DataSource.connection.useAndHandleErrors {
+            it.hentOppdragsEnhetsHistorikk(oppdragsId.toInt()).toList()
+        }
+    }
+
+    fun hentOppdragsStatusHistorikk(
+        oppdragsId: String,
+        applicationCall: ApplicationCall
+    ): List<OppdragStatus> {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        secureLogger.info("Henter oppdragsStatusHistorikk for oppdrag: $oppdragsId")
+        auditLogger.auditLog(
+            AuditLogg(
+                saksbehandler = saksbehandler.ident,
+                gjelderId = oppdragsId
+            )
+        )
+        return db2DataSource.connection.useAndHandleErrors {
+            it.hentOppdragsStatusHistorikk(oppdragsId.toInt()).toList()
+        }
+    }
+
     fun hentOppdragLinjeStatuser(
         oppdragsId: String,
         linjeId: String,
@@ -156,16 +213,18 @@ class OppdragsInfoService(
             )
         )
         return db2DataSource.connection.useAndHandleErrors {
-            listOf(OppdragsLinjeDetaljer(
-                harValutaer = it.eksistererValutaer(oppdragsId.toInt(), linjeId.toInt()),
-                harSkyldnere = it.eksistererSkyldnere(oppdragsId.toInt(), linjeId.toInt()),
-                harKravhavere = it.eksistererKravhavere(oppdragsId.toInt(), linjeId.toInt()),
-                harEnheter = it.eksistererEnheter(oppdragsId.toInt(), linjeId.toInt()),
-                harGrader = it.eksistererGrader(oppdragsId.toInt(), linjeId.toInt()),
-                harTekster = it.eksistererTekster(oppdragsId.toInt(), linjeId.toInt()),
-                harKidliste = it.eksistererKidliste(oppdragsId.toInt(), linjeId.toInt()),
-                harMaksdatoer = it.eksistererMaksdatoer(oppdragsId.toInt(), linjeId.toInt())
-            ))
+            listOf(
+                OppdragsLinjeDetaljer(
+                    harValutaer = it.eksistererValutaer(oppdragsId.toInt(), linjeId.toInt()),
+                    harSkyldnere = it.eksistererSkyldnere(oppdragsId.toInt(), linjeId.toInt()),
+                    harKravhavere = it.eksistererKravhavere(oppdragsId.toInt(), linjeId.toInt()),
+                    harEnheter = it.eksistererEnheter(oppdragsId.toInt(), linjeId.toInt()),
+                    harGrader = it.eksistererGrader(oppdragsId.toInt(), linjeId.toInt()),
+                    harTekster = it.eksistererTekster(oppdragsId.toInt(), linjeId.toInt()),
+                    harKidliste = it.eksistererKidliste(oppdragsId.toInt(), linjeId.toInt()),
+                    harMaksdatoer = it.eksistererMaksdatoer(oppdragsId.toInt(), linjeId.toInt())
+                )
+            )
         }
     }
 
@@ -296,9 +355,9 @@ class OppdragsInfoService(
     }
 
     fun hentOppdragsLinjeMaksdato(
-    oppdragsId: String,
-    linjeId: String,
-    applicationCall: ApplicationCall
+        oppdragsId: String,
+        linjeId: String,
+        applicationCall: ApplicationCall
     ): List<Maksdato> {
         val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeMaksdato for oppdrag : $oppdragsId, linje : $linjeId")
@@ -318,6 +377,7 @@ class OppdragsInfoService(
             gjelderId.toLong() > 80000000000 -> tpService.getLeverandorNavn(gjelderId).navn
             gjelderId.toLong() < 80000000000 -> pdlService.getPersonNavn(gjelderId)?.navn?.firstOrNull()
                 ?.run { mellomnavn?.let { "$fornavn $mellomnavn $etternavn" } ?: "$fornavn $etternavn" } ?: ""
+
             else -> eregService.getOrganisasjonsNavn(gjelderId).navn.sammensattnavn
         }
 

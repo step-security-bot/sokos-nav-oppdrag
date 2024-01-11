@@ -4,9 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OppdragStatus(
-    val oppdragsId: Int,
-    val kode: String,
-    val lopenr: Int,
-    val brukerid: String,
-    val tidspktReg: String
+    val kodeStatus: String,
+    val tidspktReg: String,
+    val brukerid: String
 )
