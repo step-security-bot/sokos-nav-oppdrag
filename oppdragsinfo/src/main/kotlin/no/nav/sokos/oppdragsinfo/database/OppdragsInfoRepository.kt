@@ -129,6 +129,22 @@ fun Connection.hentOppdragsLinjer(
         executeQuery().toOppdragsLinjer()
     }
 
+fun Connection.eksistererOmposteringer(
+    gjelderId: String
+): Boolean {
+    val resultSet = prepareStatement(
+        """
+            SELECT * 
+            FROM T_OMPOSTERING 
+            WHERE GJELDER_ID = (?)
+            """.trimIndent()
+    ).withParameters(
+        param(gjelderId)
+    ).executeQuery()
+    resultSet.next()
+    return resultSet.getInt(1) > 0
+}
+
 fun Connection.hentOppdragsOmposteringer(
     gjelderId: String
 ): List<Ompostering> =

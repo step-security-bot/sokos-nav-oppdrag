@@ -61,6 +61,7 @@ internal class OppdragsInfoApiTest : FunSpec({
         val oppdragsInfo = OppdragsInfo(
             gjelderId = "12345678901",
             gjelderNavn = "Test Testesen",
+            harOmposteringer = true,
             oppdragsListe = listOf(oppdrag)
         )
 
@@ -83,6 +84,7 @@ internal class OppdragsInfoApiTest : FunSpec({
 
         response.jsonPath().getList<OppdragsInfo>("gjelderId").first().shouldBe("12345678901")
         response.jsonPath().getList<OppdragsInfo>("gjelderNavn").first().shouldBe("Test Testesen")
+        response.jsonPath().getList<OppdragsInfo>("harOmposteringer").first().shouldBe(true)
         response.jsonPath().getList<Oppdrag>("oppdragsListe").shouldHaveSize(1)
     }
 
