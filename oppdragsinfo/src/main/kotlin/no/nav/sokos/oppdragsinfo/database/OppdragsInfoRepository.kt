@@ -19,6 +19,8 @@ import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
 import no.nav.sokos.oppdragsinfo.domain.Valuta
 import no.nav.sokos.oppdragsinfo.domain.Maksdato
+import no.nav.sokos.oppdragsinfo.domain.Ompostering
+import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.Tekst
 
 object OppdragsInfoRepository {
@@ -126,6 +128,55 @@ fun Connection.hentOppdragsLinjer(
     ).run {
         executeQuery().toOppdragsLinjer()
     }
+
+fun Connection.hentOppdragsOmposteringer(
+    gjelderId: String
+): List<Ompostering> =
+    prepareStatement(
+        """
+            SELECT * 
+            FROM T_OMPOSTERING 
+            WHERE GJELDER_ID = (?)
+            ORDER BY DATO_OMPOSTER_FOM
+            """.trimIndent()
+    ).withParameters(
+        param(gjelderId)
+    ).run {
+        executeQuery().toOppdragsOmposteringer()
+    }
+
+fun Connection.hentOppdragsEnhetsHistorikk(
+    oppdragsId: Int
+): List<OppdragsEnhet> =
+    prepareStatement(
+        """
+            SELECT TYPE_ENHET, DATO_FOM, ENHET 
+            FROM T_OPPDRAGSENHET 
+            WHERE OPPDRAGS_ID = (?)
+            ORDER BY DATO_FOM
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId)
+    ).run {
+        executeQuery().toOppdragsEnhetsHistorikk()
+    }
+
+fun Connection.hentOppdragsStatusHistorikk(
+    oppdragsId: Int
+): List<OppdragStatus> =
+    prepareStatement(
+        """
+            SELECT KODE_STATUS, TIDSPKT_REG, BRUKERID
+            FROM T_OPPDRAG_STATUS 
+            WHERE OPPDRAGS_ID = (?)
+            ORDER BY TIDSPKT_REG
+            """.trimIndent()
+    ).withParameters(
+        param(oppdragsId)
+    ).run {
+        executeQuery().toOppdragsStatusHistorikk()
+    }
+
 
 fun Connection.hentOppdragsLinjeStatuser(
     oppdragsId: Int,
@@ -375,6 +426,7 @@ fun Connection.hentEnheter(
     ).run {
         executeQuery().toLinjeenhet()
     }
+
 fun Connection.hentGrader(
     oppdragsId: Int,
     linjeId: Int
@@ -442,6 +494,38 @@ fun Connection.hentMaksdatoer(
     ).run {
         executeQuery().toMaksdato()
     }
+
+private fun ResultSet.toOppdragsOmposteringer() = toList {
+    Ompostering(
+        id = getColumn("GJELDER_ID"),
+        kodeFaggruppe = getColumn("KODE_FAGGRUPPE"),
+        lopenr = getColumn("LOPENR"),
+        ompostering = getColumn("OMPOSTERING"),
+        omposteringFom = getColumn("DATO_OMPOSTER_FOM"),
+        feilReg = getColumn("FEILREG"),
+        beregningsId = getColumn("BEREGNINGS_ID"),
+        utfort = getColumn("UTFORT"),
+        brukerid = getColumn("BRUKERID"),
+        tidspktReg = getColumn("TIDSPKT_REG")
+    )
+}
+
+private fun ResultSet.toOppdragsEnhetsHistorikk() = toList {
+    OppdragsEnhet(
+        type = getColumn("TYPE_ENHET"),
+        datoFom = getColumn("DATO_FOM"),
+        enhet = getColumn("ENHET")
+    )
+}
+
+private fun ResultSet.toOppdragsStatusHistorikk() = toList {
+    OppdragStatus(
+        kodeStatus = getColumn("KODE_STATUS"),
+        tidspktReg = getColumn("TIDSPKT_REG"),
+        brukerid = getColumn("BRUKERID")
+    )
+}
+
 private fun ResultSet.toOppdrag() = toList {
     OppdragsInfo(
         gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
