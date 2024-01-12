@@ -17,18 +17,10 @@ fun Route.oppdragsInfoApi(
 ) {
     route(BASE_PATH) {
 
-        get("faggrupper") {
-            call.respond(
-                oppdragsInfoService.hentFaggrupper(
-                    call
-                )
-            )
-        }
-
-        post("sokOppdrag") {
+        post("oppdrag") {
             val oppdragsInfoRequest: OppdragsInfoRequest = call.receive()
             call.respond(
-                oppdragsInfoService.sokOppdrag(
+                oppdragsInfoService.hentOppdrag(
                     oppdragsInfoRequest.gjelderId,
                     oppdragsInfoRequest.faggruppeKode,
                     call
@@ -36,12 +28,9 @@ fun Route.oppdragsInfoApi(
             )
         }
 
-        get("oppdrag/{oppdragsId}") {
+        get("faggrupper") {
             call.respond(
-                oppdragsInfoService.hentOppdragsLinjer(
-                    call.parameters["oppdragsId"].orEmpty(),
-                    call
-                )
+                oppdragsInfoService.hentFaggrupper()
             )
         }
 
@@ -49,8 +38,15 @@ fun Route.oppdragsInfoApi(
             val oppdragsInfoRequest: OppdragsInfoRequest = call.receive()
             call.respond(
                 oppdragsInfoService.hentOppdragsOmposteringer(
-                    oppdragsInfoRequest.gjelderId,
-                    call
+                    oppdragsInfoRequest.gjelderId
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/oppdragslinjer") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjer(
+                    call.parameters["oppdragsId"].orEmpty()
                 )
             )
         }
@@ -58,8 +54,7 @@ fun Route.oppdragsInfoApi(
         get("oppdrag/{oppdragsId}/enhetshistorikk") {
             call.respond(
                 oppdragsInfoService.hentOppdragsEnhetsHistorikk(
-                    call.parameters["oppdragsId"].orEmpty(),
-                    call
+                    call.parameters["oppdragsId"].orEmpty()
                 )
             )
         }
@@ -67,8 +62,7 @@ fun Route.oppdragsInfoApi(
         get("oppdrag/{oppdragsId}/statushistorikk") {
             call.respond(
                 oppdragsInfoService.hentOppdragsStatusHistorikk(
-                    call.parameters["oppdragsId"].orEmpty(),
-                    call
+                    call.parameters["oppdragsId"].orEmpty()
                 )
             )
         }
@@ -77,8 +71,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragLinjeStatuser(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
@@ -87,18 +80,16 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeAttestanter(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
 
-        get("oppdrag/{oppdragsId}/{linjeId}") {
+        get("oppdrag/{oppdragsId}/{linjeId}/detaljer") {
             call.respond(
-                oppdragsInfoService.hentOppdragsLinjeDetaljer(
+                oppdragsInfoService.eksistererOppdragsLinjeDetaljer(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
@@ -107,8 +98,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeValuta(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
@@ -127,18 +117,16 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeKravhaver(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
 
-        get("oppdrag/{oppdragsId}/{linjeId}/linjeenheter") {
+        get("oppdrag/{oppdragsId}/{linjeId}/enheter") {
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeEnheter(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
@@ -147,8 +135,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeGrad(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
@@ -157,8 +144,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeTekst(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
@@ -167,8 +153,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeKidListe(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
@@ -177,8 +162,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeMaksdato(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }
@@ -187,8 +171,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeOvrig(
                     call.parameters["oppdragsId"].orEmpty(),
-                    call.parameters["linjeId"].orEmpty(),
-                    call
+                    call.parameters["linjeId"].orEmpty()
                 )
             )
         }

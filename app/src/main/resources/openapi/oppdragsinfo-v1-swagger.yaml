@@ -20,7 +20,7 @@ tags:
     description: Linjeinformasjon til oppdrag tilknyttet person eller foretak
 
 paths:
-  /api/v1/oppdragsinfo/sokOppdrag:
+  /api/v1/oppdragsinfo/oppdrag:
     post:
       tags:
         - oppdragsinfo

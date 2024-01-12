@@ -28,7 +28,7 @@ import java.sql.ResultSet
 
 object OppdragsInfoRepository {
 
-    fun Connection.getOppdrag(
+    fun Connection.hentOppdrag(
         gjelderId: String
     ): List<OppdragsInfo> =
         prepareStatement(
@@ -43,7 +43,7 @@ object OppdragsInfoRepository {
             executeQuery().toOppdrag()
         }
 
-    fun Connection.getOppdragsListe(
+    fun Connection.hentOppdragsListe(
         gjelderId: String,
         faggruppeKode: String?
     ): List<Oppdrag> =
@@ -80,6 +80,22 @@ object OppdragsInfoRepository {
             executeQuery().toOppdragsListe()
         }
 
+    fun Connection.eksistererOmposteringer(
+        gjelderId: String
+    ): Boolean {
+        val resultSet = prepareStatement(
+            """
+            SELECT COUNT(*) 
+            FROM T_OMPOSTERING 
+            WHERE GJELDER_ID = (?)
+            """.trimIndent()
+        ).withParameters(
+            param(gjelderId)
+        ).executeQuery()
+        resultSet.next()
+        return resultSet.getInt(1) > 0
+    }
+
     fun Connection.hentFaggrupper(): List<Faggruppe> =
         prepareStatement(
             """
@@ -89,6 +105,22 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).run {
             executeQuery().toFaggrupper()
+        }
+
+    fun Connection.hentOppdragsOmposteringer(
+        gjelderId: String
+    ): List<Ompostering> =
+        prepareStatement(
+            """
+            SELECT * 
+            FROM T_OMPOSTERING 
+            WHERE GJELDER_ID = (?)
+            ORDER BY DATO_OMPOSTER_FOM
+            """.trimIndent()
+        ).withParameters(
+            param(gjelderId)
+        ).run {
+            executeQuery().toOppdragsOmposteringer()
         }
 
     fun Connection.hentOppdragsLinjer(
@@ -145,53 +177,6 @@ object OppdragsInfoRepository {
             executeQuery().toOppdragsLinjer()
         }
 
-    fun Connection.eksistererOmposteringer(
-        gjelderId: String
-    ): Boolean {
-        val resultSet = prepareStatement(
-            """
-            SELECT COUNT(*) 
-            FROM T_OMPOSTERING 
-            WHERE GJELDER_ID = (?)
-            """.trimIndent()
-        ).withParameters(
-            param(gjelderId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
-
-    fun Connection.hentKorreksjoner(
-        oppdragsId: String
-    ): List<Korreksjon> =
-        prepareStatement(
-            """
-            SELECT LINJE_ID, LINJE_ID_KORR
-            FROM T_KORREKSJON 
-            WHERE OPPDRAGS_ID = (?)
-            """.trimIndent()
-        ).withParameters(
-            param(oppdragsId)
-        ).run {
-            executeQuery().toOppdragsKorreksjoner()
-        }
-
-    fun Connection.hentOppdragsOmposteringer(
-        gjelderId: String
-    ): List<Ompostering> =
-        prepareStatement(
-            """
-            SELECT * 
-            FROM T_OMPOSTERING 
-            WHERE GJELDER_ID = (?)
-            ORDER BY DATO_OMPOSTER_FOM
-            """.trimIndent()
-        ).withParameters(
-            param(gjelderId)
-        ).run {
-            executeQuery().toOppdragsOmposteringer()
-        }
-
     fun Connection.hentOppdragsEnhetsHistorikk(
         oppdragsId: Int
     ): List<OppdragsEnhet> =
@@ -223,7 +208,6 @@ object OppdragsInfoRepository {
         ).run {
             executeQuery().toOppdragsStatusHistorikk()
         }
-
 
     fun Connection.hentOppdragsLinjeStatuser(
         oppdragsId: Int,
@@ -259,6 +243,21 @@ object OppdragsInfoRepository {
             param(oppdragsId), param(linjeId)
         ).run {
             executeQuery().toOppdragsLinjeAttestanter()
+        }
+
+    fun Connection.hentKorreksjoner(
+        oppdragsId: String
+    ): List<Korreksjon> =
+        prepareStatement(
+            """
+            SELECT LINJE_ID, LINJE_ID_KORR
+            FROM T_KORREKSJON 
+            WHERE OPPDRAGS_ID = (?)
+            """.trimIndent()
+        ).withParameters(
+            param(oppdragsId)
+        ).run {
+            executeQuery().toOppdragsKorreksjoner()
         }
 
 
@@ -471,7 +470,7 @@ object OppdragsInfoRepository {
         ).withParameters(
             param(oppdragsId)
         ).run {
-            executeQuery().toLinjeenhet()
+            executeQuery().toEnheter()
         }
 
     fun Connection.hentGrader(
@@ -505,7 +504,7 @@ object OppdragsInfoRepository {
         ).withParameters(
             param(oppdragsId)
         ).run {
-            executeQuery().toOppdragsTekst()
+            executeQuery().toTekster()
         }
 
     fun Connection.hentKidliste(
@@ -559,44 +558,6 @@ object OppdragsInfoRepository {
             executeQuery().toOvrig()
         }
 
-    private fun ResultSet.toOppdragsKorreksjoner() = toList {
-        Korreksjon(
-            linje = getColumn("LINJE_ID"),
-            korrigertLinje = getColumn("LINJE_ID_KORR")
-        )
-    }
-
-    private fun ResultSet.toOppdragsOmposteringer() = toList {
-        Ompostering(
-            id = getColumn("GJELDER_ID"),
-            kodeFaggruppe = getColumn("KODE_FAGGRUPPE"),
-            lopenr = getColumn("LOPENR"),
-            ompostering = getColumn("OMPOSTERING"),
-            omposteringFom = getColumn("DATO_OMPOSTER_FOM"),
-            feilReg = getColumn("FEILREG"),
-            beregningsId = getColumn("BEREGNINGS_ID"),
-            utfort = getColumn("UTFORT"),
-            brukerid = getColumn("BRUKERID"),
-            tidspktReg = getColumn("TIDSPKT_REG")
-        )
-    }
-
-    private fun ResultSet.toOppdragsEnhetsHistorikk() = toList {
-        OppdragsEnhet(
-            type = getColumn("TYPE_ENHET"),
-            datoFom = getColumn("DATO_FOM"),
-            enhet = getColumn("ENHET")
-        )
-    }
-
-    private fun ResultSet.toOppdragsStatusHistorikk() = toList {
-        OppdragStatus(
-            kodeStatus = getColumn("KODE_STATUS"),
-            tidspktReg = getColumn("TIDSPKT_REG"),
-            brukerid = getColumn("BRUKERID")
-        )
-    }
-
     private fun ResultSet.toOppdrag() = toList {
         OppdragsInfo(
             gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
@@ -613,6 +574,28 @@ object OppdragsInfoRepository {
             kjorIdag = getColumn("KJOR_IDAG"),
             typeBilag = getColumn("TYPE_BILAG"),
             kodeStatus = getColumn("KODE_STATUS")
+        )
+    }
+
+    private fun ResultSet.toFaggrupper() = toList {
+        Faggruppe(
+            navn = getColumn("NAVN_FAGGRUPPE"),
+            type = getColumn("KODE_FAGGRUPPE")
+        )
+    }
+
+    private fun ResultSet.toOppdragsOmposteringer() = toList {
+        Ompostering(
+            id = getColumn("GJELDER_ID"),
+            kodeFaggruppe = getColumn("KODE_FAGGRUPPE"),
+            lopenr = getColumn("LOPENR"),
+            ompostering = getColumn("OMPOSTERING"),
+            omposteringFom = getColumn("DATO_OMPOSTER_FOM"),
+            feilReg = getColumn("FEILREG"),
+            beregningsId = getColumn("BEREGNINGS_ID"),
+            utfort = getColumn("UTFORT"),
+            brukerid = getColumn("BRUKERID"),
+            tidspktReg = getColumn("TIDSPKT_REG")
         )
     }
 
@@ -636,10 +619,19 @@ object OppdragsInfoRepository {
         )
     }
 
-    private fun ResultSet.toFaggrupper() = toList {
-        Faggruppe(
-            navn = getColumn("NAVN_FAGGRUPPE"),
-            type = getColumn("KODE_FAGGRUPPE")
+    private fun ResultSet.toOppdragsEnhetsHistorikk() = toList {
+        OppdragsEnhet(
+            type = getColumn("TYPE_ENHET"),
+            datoFom = getColumn("DATO_FOM"),
+            enhet = getColumn("ENHET")
+        )
+    }
+
+    private fun ResultSet.toOppdragsStatusHistorikk() = toList {
+        OppdragStatus(
+            kodeStatus = getColumn("KODE_STATUS"),
+            tidspktReg = getColumn("TIDSPKT_REG"),
+            brukerid = getColumn("BRUKERID")
         )
     }
 
@@ -659,21 +651,10 @@ object OppdragsInfoRepository {
         )
     }
 
-    private fun ResultSet.toOppdragsEnhet() = toList {
-        OppdragsEnhet(
-            type = getColumn("TYPE_ENHET"),
-            enhet = getColumn("ENHET"),
-            datoFom = getColumn("DATO_FOM")
-        )
-    }
-
-    fun ResultSet.toSkyldner() = toList {
-        Skyldner(
-            linjeId = getColumn("LINJE_ID"),
-            skyldnerId = getColumn("SKYLDNER_ID"),
-            datoFom = getColumn("DATO_FOM"),
-            tidspktReg = getColumn("TIDSPKT_REG"),
-            brukerid = getColumn("BRUKERID")
+    private fun ResultSet.toOppdragsKorreksjoner() = toList {
+        Korreksjon(
+            linje = getColumn("LINJE_ID"),
+            korrigertLinje = getColumn("LINJE_ID_KORR")
         )
     }
 
@@ -690,7 +671,27 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toLinjeenhet() = toList {
+    fun ResultSet.toSkyldner() = toList {
+        Skyldner(
+            linjeId = getColumn("LINJE_ID"),
+            skyldnerId = getColumn("SKYLDNER_ID"),
+            datoFom = getColumn("DATO_FOM"),
+            tidspktReg = getColumn("TIDSPKT_REG"),
+            brukerid = getColumn("BRUKERID")
+        )
+    }
+
+    fun ResultSet.toKravhaver() = toList {
+        Kravhaver(
+            linjeId = getColumn("LINJE_ID"),
+            kravhaverId = getColumn("KRAVHAVER_ID"),
+            datoFom = getColumn("DATO_FOM"),
+            tidspktReg = getColumn("TIDSPKT_REG"),
+            brukerid = getColumn("BRUKERID")
+        )
+    }
+
+    fun ResultSet.toEnheter() = toList {
         LinjeEnhet(
             linjeId = getColumn("LINJE_ID"),
             typeEnhet = getColumn("TYPE_ENHET"),
@@ -712,27 +713,17 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toLKidlist() = toList {
-        Kid(
-            linjeId = getColumn("LINJE_ID"),
-            kid = getColumn("KID"),
-            datoFom = getColumn("DATO_FOM"),
-            tidspktReg = getColumn("TIDSPKT_REG"),
-            brukerid = getColumn("BRUKERID")
-        )
-    }
-
-    fun ResultSet.toOppdragsTekst() = toList {
+    fun ResultSet.toTekster() = toList {
         Tekst(
             linjeId = getColumn("LINJE_ID"),
             tekst = getColumn("TEKST")
         )
     }
 
-    fun ResultSet.toKravhaver() = toList {
-        Kravhaver(
+    fun ResultSet.toLKidlist() = toList {
+        Kid(
             linjeId = getColumn("LINJE_ID"),
-            kravhaverId = getColumn("KRAVHAVER_ID"),
+            kid = getColumn("KID"),
             datoFom = getColumn("DATO_FOM"),
             tidspktReg = getColumn("TIDSPKT_REG"),
             brukerid = getColumn("BRUKERID")

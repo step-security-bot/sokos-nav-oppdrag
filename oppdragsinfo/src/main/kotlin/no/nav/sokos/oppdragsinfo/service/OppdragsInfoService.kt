@@ -16,8 +16,8 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererOmpos
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererSkyldnere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererTekster
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererValutaer
-import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.getOppdrag
-import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.getOppdragsListe
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsListe
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentEnheter
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFaggrupper
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentGrader
@@ -67,7 +67,7 @@ class OppdragsInfoService(
     private val tpService: TpService = TpService()
 ) {
 
-    suspend fun sokOppdrag(
+    suspend fun hentOppdrag(
         gjelderId: String,
         faggruppeKode: String?,
         applicationCall: ApplicationCall
@@ -85,11 +85,11 @@ class OppdragsInfoService(
         )
 
         val oppdragsInfo = db2DataSource.connection.useAndHandleErrors {
-            it.getOppdrag(gjelderId).firstOrNull()
+            it.hentOppdrag(gjelderId).firstOrNull()
         } ?: return emptyList()
 
         val oppdrag =
-            db2DataSource.connection.useAndHandleErrors { it.getOppdragsListe(oppdragsInfo.gjelderId, faggruppeKode) }
+            db2DataSource.connection.useAndHandleErrors { it.hentOppdragsListe(oppdragsInfo.gjelderId, faggruppeKode) }
 
         val harOmposteringer =
             db2DataSource.connection.useAndHandleErrors { it.eksistererOmposteringer(oppdragsInfo.gjelderId) }
@@ -106,78 +106,43 @@ class OppdragsInfoService(
         )
     }
 
-    fun hentFaggrupper(
-        applicationCall: ApplicationCall
-    ): List<Faggruppe> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
+    fun hentFaggrupper(): List<Faggruppe> {
         return db2DataSource.connection.useAndHandleErrors {
             it.hentFaggrupper().toList()
         }
     }
 
-    fun hentOppdragsLinjer(
-        oppdragsId: String,
-        applicationCall: ApplicationCall
-    ): List<OppdragsLinje> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
-        secureLogger.info("Henter oppdragslinjer med oppdragsId: $oppdragsId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
-        return db2DataSource.connection.useAndHandleErrors {
-            it.hentOppdragsLinjer(oppdragsId.toInt()).toList()
-        }
-    }
-
     fun hentOppdragsOmposteringer(
-        gjelderId: String,
-        applicationCall: ApplicationCall
+        gjelderId: String
     ): List<Ompostering> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter omposteringer for gjelderId: $gjelderId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = gjelderId
-            )
-        )
         return db2DataSource.connection.useAndHandleErrors {
             it.hentOppdragsOmposteringer(gjelderId).toList()
         }
     }
 
+    fun hentOppdragsLinjer(
+        oppdragsId: String
+    ): List<OppdragsLinje> {
+        secureLogger.info("Henter oppdragslinjer med oppdragsId: $oppdragsId")
+        return db2DataSource.connection.useAndHandleErrors {
+            it.hentOppdragsLinjer(oppdragsId.toInt()).toList()
+        }
+    }
+
     fun hentOppdragsEnhetsHistorikk(
-        oppdragsId: String,
-        applicationCall: ApplicationCall
+        oppdragsId: String
     ): List<OppdragsEnhet> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragsEnhetsHistorikk for oppdrag: $oppdragsId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         return db2DataSource.connection.useAndHandleErrors {
             it.hentOppdragsEnhetsHistorikk(oppdragsId.toInt()).toList()
         }
     }
 
     fun hentOppdragsStatusHistorikk(
-        oppdragsId: String,
-        applicationCall: ApplicationCall
+        oppdragsId: String
     ): List<OppdragStatus> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragsStatusHistorikk for oppdrag: $oppdragsId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         return db2DataSource.connection.useAndHandleErrors {
             it.hentOppdragsStatusHistorikk(oppdragsId.toInt()).toList()
         }
@@ -185,17 +150,9 @@ class OppdragsInfoService(
 
     fun hentOppdragLinjeStatuser(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<LinjeStatus> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjstatuser for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         return db2DataSource.connection.useAndHandleErrors {
             it.hentOppdragsLinjeStatuser(oppdragsId.toInt(), linjeId.toInt()).toList()
         }
@@ -203,35 +160,19 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeAttestanter(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Attestant> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjstatuser for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         return db2DataSource.connection.useAndHandleErrors {
             it.hentOppdragsLinjeAttestanter(oppdragsId.toInt(), linjeId.toInt()).toList()
         }
     }
 
-    fun hentOppdragsLinjeDetaljer(
+    fun eksistererOppdragsLinjeDetaljer(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<OppdragsLinjeDetaljer> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjedetaljer for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             listOf(
@@ -250,37 +191,11 @@ class OppdragsInfoService(
         }
     }
 
-    private fun finnKorrigerteLinjer(oppdragsId: String, linjeId: String): MutableList<Int> {
-        val korrigerteLinjer = db2DataSource.connection.useAndHandleErrors { it.hentKorreksjoner(oppdragsId) }
-        val korrigerteLinjeIder: MutableList<Int> = ArrayList()
-        if (korrigerteLinjer.isNotEmpty()) {
-            var linje = linjeId.toInt()
-            for (korreksjon in korrigerteLinjer) {
-                val korrLinje = korreksjon.linje
-                if (korrLinje == linje) {
-                    korrigerteLinjeIder.add(korrLinje)
-                    linje = korreksjon.korrigertLinje
-                }
-            }
-            korrigerteLinjeIder.add(linje)
-        } else
-            korrigerteLinjeIder.add(linjeId.toInt())
-        return korrigerteLinjeIder
-    }
-
     fun hentOppdragsLinjeValuta(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Valuta> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjevaluta for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentValutaer(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
@@ -308,17 +223,9 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeKravhaver(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Kravhaver> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeKravhaver for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentKravhavere(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
@@ -327,17 +234,9 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeEnheter(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<LinjeEnhet> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeEnheter for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentEnheter(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
@@ -346,17 +245,9 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeGrad(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Grad> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeGrad for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentGrader(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
@@ -365,17 +256,9 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeTekst(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Tekst> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeTekst for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentTekster(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
@@ -384,17 +267,9 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeKidListe(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Kid> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeKidliste for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentKidliste(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
@@ -403,17 +278,9 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeMaksdato(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Maksdato> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeMaksdato for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentMaksdatoer(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
@@ -422,21 +289,31 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeOvrig(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Ovrig> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeOvrig for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentOvrige(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
+    }
+
+    private fun finnKorrigerteLinjer(oppdragsId: String, linjeId: String): MutableList<Int> {
+        val korrigerteLinjer = db2DataSource.connection.useAndHandleErrors { it.hentKorreksjoner(oppdragsId) }
+        val korrigerteLinjeIder: MutableList<Int> = ArrayList()
+        if (korrigerteLinjer.isNotEmpty()) {
+            var linje = linjeId.toInt()
+            for (korreksjon in korrigerteLinjer) {
+                val korrLinje = korreksjon.linje
+                if (korrLinje == linje) {
+                    korrigerteLinjeIder.add(korrLinje)
+                    linje = korreksjon.korrigertLinje
+                }
+            }
+            korrigerteLinjeIder.add(linje)
+        } else
+            korrigerteLinjeIder.add(linjeId.toInt())
+        return korrigerteLinjeIder
     }
 
     private suspend fun getGjelderIdNavn(gjelderId: String): String =
