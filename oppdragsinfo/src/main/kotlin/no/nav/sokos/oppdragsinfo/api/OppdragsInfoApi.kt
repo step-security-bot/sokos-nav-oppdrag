@@ -30,6 +30,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.sokOppdrag(
                     oppdragsInfoRequest.gjelderId,
+                    oppdragsInfoRequest.faggruppeKode,
                     call
                 )
             )

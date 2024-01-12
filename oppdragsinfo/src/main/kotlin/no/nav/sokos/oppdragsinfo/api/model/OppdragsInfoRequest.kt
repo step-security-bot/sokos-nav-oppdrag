@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OppdragsInfoRequest(
-    val gjelderId: String
+    val gjelderId: String,
+    val faggruppeKode: String? = null
 )

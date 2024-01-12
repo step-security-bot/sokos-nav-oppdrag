@@ -71,7 +71,9 @@ components:
           type: string
           example: "9 eller 11 siffer"
           description: 9 eller 11 siffer
-
+        faggruppeKode:
+          type: string
+          description: filtrering på faggruppeKode
     OppdragsInfo:
       type: object
       properties:

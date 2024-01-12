@@ -44,7 +44,8 @@ object OppdragsInfoRepository {
         }
 
     fun Connection.getOppdragsListe(
-        gjelderId: String
+        gjelderId: String,
+        faggruppeKode: String?
     ): List<Oppdrag> =
         prepareStatement(
             """
@@ -62,6 +63,7 @@ object OppdragsInfoRepository {
                         OS231Q1.T_FAGGRUPPE FG,
                         OS231Q1.T_OPPDRAG_STATUS OS
                 WHERE OP.OPPDRAG_GJELDER_ID = (?)
+                ${if (faggruppeKode != null) " AND OP.KODE_FAGOMRAADE = (?)" else ""}
                 AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
                 AND FG.KODE_FAGGRUPPE = FO.KODE_FAGGRUPPE
                 AND OS.OPPDRAGS_ID = OP.OPPDRAGS_ID
@@ -72,7 +74,8 @@ object OppdragsInfoRepository {
                 ORDER BY OS.KODE_STATUS
             """.trimIndent()
         ).withParameters(
-            param(gjelderId)
+            param(gjelderId),
+            faggruppeKode?.let { param(faggruppeKode) }
         ).run {
             executeQuery().toOppdragsListe()
         }

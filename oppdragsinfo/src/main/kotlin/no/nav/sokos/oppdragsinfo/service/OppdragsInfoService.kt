@@ -69,6 +69,7 @@ class OppdragsInfoService(
 
     suspend fun sokOppdrag(
         gjelderId: String,
+        faggruppeKode: String?,
         applicationCall: ApplicationCall
     ): List<OppdragsInfo> {
         val saksbehandler = hentSaksbehandler(applicationCall)
@@ -87,7 +88,8 @@ class OppdragsInfoService(
             it.getOppdrag(gjelderId).firstOrNull()
         } ?: return emptyList()
 
-        val oppdrag = db2DataSource.connection.useAndHandleErrors { it.getOppdragsListe(oppdragsInfo.gjelderId) }
+        val oppdrag =
+            db2DataSource.connection.useAndHandleErrors { it.getOppdragsListe(oppdragsInfo.gjelderId, faggruppeKode) }
 
         val harOmposteringer =
             db2DataSource.connection.useAndHandleErrors { it.eksistererOmposteringer(oppdragsInfo.gjelderId) }

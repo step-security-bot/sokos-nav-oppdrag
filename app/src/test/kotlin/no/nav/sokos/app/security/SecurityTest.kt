@@ -31,9 +31,10 @@ import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 val oppdragsInfoService: OppdragsInfoService = mockk()
 
 /**
- * Test for å sjekke at sikkerhetsmekanismen fungerer som forventet.
- * Bruker oppdragsinfo som utgangspunkt, fordi alle endepunktene i applikasjonen er sikret under samme konfigurasjon.
- * Endepunktene er wrappet i en authenticate() funksjon som sjekker om bruker er autentisert.
+ * Test for å sjekke at sikkerhetsmekanismen fungerer som forventet. Bruker
+ * oppdragsinfo som utgangspunkt, fordi alle endepunktene i applikasjonen
+ * er sikret under samme konfigurasjon. Endepunktene er wrappet i
+ * en authenticate() funksjon som sjekker om bruker er autentisert.
  */
 
 class SecurityTest : FunSpec({
@@ -69,7 +70,7 @@ class SecurityTest : FunSpec({
                     }
                 }
 
-                coEvery { oppdragsInfoService.sokOppdrag(any(), any()) } returns emptyList()
+                coEvery { oppdragsInfoService.sokOppdrag(any(), any(), any()) } returns emptyList()
 
                 val client = createClient {
                     install(ContentNegotiation) {

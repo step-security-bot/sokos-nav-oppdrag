@@ -67,13 +67,13 @@ internal class OppdragsInfoApiTest : FunSpec({
 
         val oppdragsInfoResponse = (listOf(oppdragsInfo))
 
-        coEvery { oppdragsInfoService.sokOppdrag(any(), any()) } returns oppdragsInfoResponse
+        coEvery { oppdragsInfoService.sokOppdrag(any(), any(), any()) } returns oppdragsInfoResponse
 
         val response = RestAssured.given()
             .filter(validationFilter)
             .header(HttpHeaders.ContentType, APPLICATION_JSON)
             .header(HttpHeaders.Authorization, "Bearer ${mockOAuth2Server.tokenFromDefaultProvider()}")
-            .body(OppdragsInfoRequest(gjelderId = "12345678901"))
+            .body(OppdragsInfoRequest(gjelderId = "12345678901", faggruppeKode = "ABC"))
             .port(PORT)
             .post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/sokOppdrag")
             .then()
