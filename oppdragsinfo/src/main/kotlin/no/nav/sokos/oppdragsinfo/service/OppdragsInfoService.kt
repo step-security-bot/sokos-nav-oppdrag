@@ -7,33 +7,37 @@ import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
 import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.config.secureLogger
 import no.nav.sokos.oppdragsinfo.database.Db2DataSource
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererEnheter
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererGrader
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererKidliste
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererKravhavere
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererMaksdatoer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererOmposteringer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererSkyldnere
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererTekster
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererValutaer
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.getOppdrag
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.getOppdragsListe
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentEnheter
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFaggrupper
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentGrader
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKidliste
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKorreksjoner
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKravhavere
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentMaksdatoer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhetsHistorikk
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeAttestanter
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeStatuser
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsOmposteringer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsStatusHistorikk
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOvrige
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentSkyldnere
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentTekster
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentValutaer
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
-import no.nav.sokos.oppdragsinfo.database.eksistererEnheter
-import no.nav.sokos.oppdragsinfo.database.eksistererGrader
-import no.nav.sokos.oppdragsinfo.database.eksistererKidliste
-import no.nav.sokos.oppdragsinfo.database.eksistererKravhavere
-import no.nav.sokos.oppdragsinfo.database.eksistererMaksdatoer
-import no.nav.sokos.oppdragsinfo.database.eksistererOmposteringer
-import no.nav.sokos.oppdragsinfo.database.eksistererSkyldnere
-import no.nav.sokos.oppdragsinfo.database.eksistererTekster
-import no.nav.sokos.oppdragsinfo.database.eksistererValutaer
-import no.nav.sokos.oppdragsinfo.database.hentEnheter
-import no.nav.sokos.oppdragsinfo.database.hentGrader
-import no.nav.sokos.oppdragsinfo.database.hentKidliste
-import no.nav.sokos.oppdragsinfo.database.hentKravhavere
-import no.nav.sokos.oppdragsinfo.database.hentMaksdatoer
-import no.nav.sokos.oppdragsinfo.database.hentOppdragsEnhetsHistorikk
-import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjeAttestanter
-import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjeStatuser
-import no.nav.sokos.oppdragsinfo.database.hentOppdragsLinjer
-import no.nav.sokos.oppdragsinfo.database.hentOppdragsOmposteringer
-import no.nav.sokos.oppdragsinfo.database.hentOppdragsStatusHistorikk
-import no.nav.sokos.oppdragsinfo.database.hentSkyldnere
-import no.nav.sokos.oppdragsinfo.database.hentTekster
-import no.nav.sokos.oppdragsinfo.database.hentValutaer
 import no.nav.sokos.oppdragsinfo.domain.Attestant
+import no.nav.sokos.oppdragsinfo.domain.Faggruppe
 import no.nav.sokos.oppdragsinfo.domain.Grad
 import no.nav.sokos.oppdragsinfo.domain.Kid
 import no.nav.sokos.oppdragsinfo.domain.Kravhaver
@@ -46,6 +50,7 @@ import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
+import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
 import no.nav.sokos.oppdragsinfo.domain.Tekst
 import no.nav.sokos.oppdragsinfo.domain.Valuta
@@ -97,6 +102,15 @@ class OppdragsInfoService(
                 oppdragsListe = oppdrag
             )
         )
+    }
+
+    fun hentFaggrupper(
+        applicationCall: ApplicationCall
+    ): List<Faggruppe> {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        return db2DataSource.connection.useAndHandleErrors {
+            it.hentFaggrupper().toList()
+        }
     }
 
     fun hentOppdragsLinjer(
@@ -216,9 +230,11 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             listOf(
                 OppdragsLinjeDetaljer(
+                    korrigerteLinjeIder = korrigerteLinjeIder,
                     harValutaer = it.eksistererValutaer(oppdragsId.toInt(), linjeId.toInt()),
                     harSkyldnere = it.eksistererSkyldnere(oppdragsId.toInt(), linjeId.toInt()),
                     harKravhavere = it.eksistererKravhavere(oppdragsId.toInt(), linjeId.toInt()),
@@ -230,6 +246,24 @@ class OppdragsInfoService(
                 )
             )
         }
+    }
+
+    private fun finnKorrigerteLinjer(oppdragsId: String, linjeId: String): MutableList<Int> {
+        val korrigerteLinjer = db2DataSource.connection.useAndHandleErrors { it.hentKorreksjoner(oppdragsId) }
+        val korrigerteLinjeIder: MutableList<Int> = ArrayList()
+        if (korrigerteLinjer.isNotEmpty()) {
+            var linje = linjeId.toInt()
+            for (korreksjon in korrigerteLinjer) {
+                val korrLinje = korreksjon.linje
+                if (korrLinje == linje) {
+                    korrigerteLinjeIder.add(korrLinje)
+                    linje = korreksjon.korrigertLinje
+                }
+            }
+            korrigerteLinjeIder.add(linje)
+        } else
+            korrigerteLinjeIder.add(linjeId.toInt())
+        return korrigerteLinjeIder
     }
 
     fun hentOppdragsLinjeValuta(
@@ -245,8 +279,9 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentValutaer(oppdragsId.toInt(), linjeId.toInt()).toList()
+            it.hentValutaer(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
     }
 
@@ -263,8 +298,9 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentSkyldnere(oppdragsId.toInt(), linjeId.toInt()).toList()
+            it.hentSkyldnere(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
     }
 
@@ -281,8 +317,9 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentKravhavere(oppdragsId.toInt(), linjeId.toInt()).toList()
+            it.hentKravhavere(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
     }
 
@@ -299,8 +336,9 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentEnheter(oppdragsId.toInt(), linjeId.toInt()).toList()
+            it.hentEnheter(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
     }
 
@@ -317,8 +355,9 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentGrader(oppdragsId.toInt(), linjeId.toInt()).toList()
+            it.hentGrader(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
     }
 
@@ -335,8 +374,9 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentTekster(oppdragsId.toInt(), linjeId.toInt()).toList()
+            it.hentTekster(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
     }
 
@@ -353,8 +393,9 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentKidliste(oppdragsId.toInt(), linjeId.toInt()).toList()
+            it.hentKidliste(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
     }
 
@@ -371,8 +412,28 @@ class OppdragsInfoService(
                 gjelderId = oppdragsId
             )
         )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentMaksdatoer(oppdragsId.toInt(), linjeId.toInt()).toList()
+            it.hentMaksdatoer(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
+        }
+    }
+
+    fun hentOppdragsLinjeOvrig(
+        oppdragsId: String,
+        linjeId: String,
+        applicationCall: ApplicationCall
+    ): List<Ovrig> {
+        val saksbehandler = hentSaksbehandler(applicationCall)
+        secureLogger.info("Henter oppdragslinjeOvrig for oppdrag : $oppdragsId, linje : $linjeId")
+        auditLogger.auditLog(
+            AuditLogg(
+                saksbehandler = saksbehandler.ident,
+                gjelderId = oppdragsId
+            )
+        )
+        val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
+        return db2DataSource.connection.useAndHandleErrors {
+            it.hentOvrige(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
         }
     }
 
