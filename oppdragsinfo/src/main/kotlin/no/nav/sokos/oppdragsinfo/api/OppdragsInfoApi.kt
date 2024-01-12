@@ -17,6 +17,14 @@ fun Route.oppdragsInfoApi(
 ) {
     route(BASE_PATH) {
 
+        get("faggrupper") {
+            call.respond(
+                oppdragsInfoService.hentFaggrupper(
+                    call
+                )
+            )
+        }
+
         post("sokOppdrag") {
             val oppdragsInfoRequest: OppdragsInfoRequest = call.receive()
             call.respond(
@@ -167,6 +175,16 @@ fun Route.oppdragsInfoApi(
         get("oppdrag/{oppdragsId}/{linjeId}/maksdato") {
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjeMaksdato(
+                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["linjeId"].orEmpty(),
+                    call
+                )
+            )
+        }
+
+        get("oppdrag/{oppdragsId}/{linjeId}/ovrig") {
+            call.respond(
+                oppdragsInfoService.hentOppdragsLinjeOvrig(
                     call.parameters["oppdragsId"].orEmpty(),
                     call.parameters["linjeId"].orEmpty(),
                     call
