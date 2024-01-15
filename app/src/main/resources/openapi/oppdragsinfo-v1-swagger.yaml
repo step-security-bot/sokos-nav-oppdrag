@@ -19,8 +19,11 @@ tags:
   - name: oppdragslinje
     description: Linjeinformasjon til oppdrag tilknyttet person eller foretak
 
+servers:
+  - url: /api/v1/oppdragsinfo
+
 paths:
-  /api/v1/oppdragsinfo/oppdrag:
+  /oppdrag:
     post:
       tags:
         - oppdragsinfo
@@ -70,10 +73,11 @@ components:
         gjelderId:
           type: string
           example: "9 eller 11 siffer"
-          description: 9 eller 11 siffer
+          description: 9 eller 11 siffer (Fødelsnummer, org.nr eller tss-id)
         faggruppeKode:
           type: string
           description: filtrering på faggruppeKode
+
     OppdragsInfo:
       type: object
       properties:
