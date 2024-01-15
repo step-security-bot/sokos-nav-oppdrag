@@ -97,8 +97,6 @@ components:
           type: string
         gjelderNavn:
           type: string
-        harOmposteringer:
-          type: boolean
         oppdragsListe:
           type: array
           items:
