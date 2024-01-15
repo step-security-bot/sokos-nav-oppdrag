@@ -1,6 +1,7 @@
 package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsResponse
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
@@ -16,8 +17,6 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererOmpos
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererSkyldnere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererTekster
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererValutaer
-import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
-import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsListe
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentEnheter
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFaggrupper
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentGrader
@@ -25,10 +24,12 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKidliste
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKorreksjoner
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKravhavere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentMaksdatoer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhetsHistorikk
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeAttestanter
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeStatuser
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsListe
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsOmposteringer
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsStatusHistorikk
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOvrige
@@ -48,7 +49,6 @@ import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
-import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
@@ -91,16 +91,12 @@ class OppdragsInfoService(
         val oppdrag =
             db2DataSource.connection.useAndHandleErrors { it.hentOppdragsListe(oppdragsInfo.gjelderId, faggruppeKode) }
 
-        val harOmposteringer =
-            db2DataSource.connection.useAndHandleErrors { it.eksistererOmposteringer(oppdragsInfo.gjelderId) }
-
         val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
 
         return listOf(
             OppdragsInfo(
                 gjelderId = oppdragsInfo.gjelderId,
                 gjelderNavn = gjelderNavn,
-                harOmposteringer = harOmposteringer,
                 oppdragsListe = oppdrag
             )
         )
@@ -113,21 +109,31 @@ class OppdragsInfoService(
     }
 
     fun hentOppdragsOmposteringer(
-        gjelderId: String
+        gjelderId: String,
+        oppdragsId: String
     ): List<Ompostering> {
         secureLogger.info("Henter omposteringer for gjelderId: $gjelderId")
         return db2DataSource.connection.useAndHandleErrors {
-            it.hentOppdragsOmposteringer(gjelderId).toList()
+            it.hentOppdragsOmposteringer(gjelderId, oppdragsId.toInt()).toList()
         }
     }
 
     fun hentOppdragsLinjer(
+        gjelderId: String,
         oppdragsId: String
-    ): List<OppdragsLinje> {
+    ): OppdragsResponse {
         secureLogger.info("Henter oppdragslinjer med oppdragsId: $oppdragsId")
-        return db2DataSource.connection.useAndHandleErrors {
-            it.hentOppdragsLinjer(oppdragsId.toInt()).toList()
-        }
+        return OppdragsResponse(
+            harOmposteringer = db2DataSource.connection.useAndHandleErrors {
+                it.eksistererOmposteringer(
+                    gjelderId,
+                    oppdragsId.toInt()
+                )
+            },
+            oppdragslinjer = db2DataSource.connection.useAndHandleErrors {
+                it.hentOppdragsLinjer(oppdragsId.toInt()).toList()
+            }
+        )
     }
 
     fun hentOppdragsEnhetsHistorikk(

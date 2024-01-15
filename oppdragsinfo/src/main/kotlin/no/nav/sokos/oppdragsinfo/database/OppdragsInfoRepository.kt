@@ -81,16 +81,24 @@ object OppdragsInfoRepository {
         }
 
     fun Connection.eksistererOmposteringer(
-        gjelderId: String
+        gjelderId: String,
+        oppdragsId: Int
     ): Boolean {
         val resultSet = prepareStatement(
             """
-            SELECT COUNT(*) 
-            FROM T_OMPOSTERING 
-            WHERE GJELDER_ID = (?)
+            SELECT COUNT(*)
+            FROM    OS231Q1.T_OMPOSTERING OM,
+                    OS231Q1.T_OPPDRAG OP,
+                    OS231Q1.T_FAGOMRAADE FO, 
+                    OS231Q1.T_FAGGRUPPE FG
+            WHERE OM.GJELDER_ID = (?)
+            AND OP.OPPDRAGS_ID = (?)
+            AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
+            AND FG.KODE_FAGGRUPPE = FO.KODE_FAGGRUPPE
+            AND FG.KODE_FAGGRUPPE = OM.KODE_FAGGRUPPE
             """.trimIndent()
         ).withParameters(
-            param(gjelderId)
+            param(gjelderId), param(oppdragsId)
         ).executeQuery()
         resultSet.next()
         return resultSet.getInt(1) > 0
@@ -108,17 +116,34 @@ object OppdragsInfoRepository {
         }
 
     fun Connection.hentOppdragsOmposteringer(
-        gjelderId: String
+        gjelderId: String,
+        oppdragsId: Int
     ): List<Ompostering> =
         prepareStatement(
             """
-            SELECT * 
-            FROM T_OMPOSTERING 
-            WHERE GJELDER_ID = (?)
-            ORDER BY DATO_OMPOSTER_FOM
+                SELECT OM.GJELDER_ID,
+                        OM.KODE_FAGGRUPPE,
+                        OM.LOPENR,
+                        OM.OMPOSTERING,
+                        OM.DATO_OMPOSTER_FOM,
+                        OM.FEILREG,
+                        OM.BEREGNINGS_ID,
+                        OM.UTFORT,
+                        OM.BRUKERID,
+                        OM.TIDSPKT_REG
+                FROM    OS231Q1.T_OMPOSTERING OM,
+                        OS231Q1.T_OPPDRAG OP,
+                        OS231Q1.T_FAGOMRAADE FO, 
+                        OS231Q1.T_FAGGRUPPE FG
+                WHERE OM.GJELDER_ID = (?)
+                AND OP.OPPDRAGS_ID = (?)
+                AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
+                AND FG.KODE_FAGGRUPPE = FO.KODE_FAGGRUPPE
+                AND FG.KODE_FAGGRUPPE = OM.KODE_FAGGRUPPE
+                ORDER BY OM.DATO_OMPOSTER_FOM
             """.trimIndent()
         ).withParameters(
-            param(gjelderId)
+            param(gjelderId), param(oppdragsId)
         ).run {
             executeQuery().toOppdragsOmposteringer()
         }

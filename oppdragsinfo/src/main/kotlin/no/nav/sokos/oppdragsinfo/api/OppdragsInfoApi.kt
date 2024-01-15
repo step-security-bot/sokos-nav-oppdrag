@@ -7,6 +7,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import no.nav.sokos.oppdragsinfo.api.model.OmposteringsInfoRequest
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoRequest
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 
@@ -35,10 +36,11 @@ fun Route.oppdragsInfoApi(
         }
 
         post("oppdrag/omposteringer") {
-            val oppdragsInfoRequest: OppdragsInfoRequest = call.receive()
+            val omposteringsInfoRequest: OmposteringsInfoRequest = call.receive()
             call.respond(
                 oppdragsInfoService.hentOppdragsOmposteringer(
-                    oppdragsInfoRequest.gjelderId
+                    omposteringsInfoRequest.gjelderId,
+                    omposteringsInfoRequest.oppdragsId
                 )
             )
         }
@@ -46,6 +48,7 @@ fun Route.oppdragsInfoApi(
         get("oppdrag/{oppdragsId}/oppdragslinjer") {
             call.respond(
                 oppdragsInfoService.hentOppdragsLinjer(
+                    call.request.headers.get("gjelderId").orEmpty(),
                     call.parameters["oppdragsId"].orEmpty()
                 )
             )
