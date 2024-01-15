@@ -37,7 +37,7 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentTekster
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentValutaer
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.useAndHandleErrors
 import no.nav.sokos.oppdragsinfo.domain.Attestant
-import no.nav.sokos.oppdragsinfo.domain.Faggruppe
+import no.nav.sokos.oppdragsinfo.domain.FagGruppe
 import no.nav.sokos.oppdragsinfo.domain.Grad
 import no.nav.sokos.oppdragsinfo.domain.Kid
 import no.nav.sokos.oppdragsinfo.domain.Kravhaver
@@ -106,7 +106,7 @@ class OppdragsInfoService(
         )
     }
 
-    fun hentFaggrupper(): List<Faggruppe> {
+    fun hentFaggrupper(): List<FagGruppe> {
         return db2DataSource.connection.useAndHandleErrors {
             it.hentFaggrupper().toList()
         }

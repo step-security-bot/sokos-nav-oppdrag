@@ -11,34 +11,27 @@ info:
 
 tags:
   - name: oppdragsinfo
-    description: Hovedinformasjon om oppdrag tilknyttet person eller foretak
-  - name: oppdragsdetaljer
-    description: Detaljert informasjon om oppdrag tilknyttet person eller foretak
-  - name: oppdragsdetaljertillegg
-    description: Tilleggsopplysninger til oppdrag tilknyttet person eller foretak
-  - name: oppdragslinje
-    description: Linjeinformasjon til oppdrag tilknyttet person eller foretak
+    description: Opplysninger om oppdrag tilknyttet person eller foretak
 
 servers:
   - url: /api/v1/oppdragsinfo
+
 
 paths:
   /oppdrag:
     post:
       tags:
         - oppdragsinfo
-      summary: Henter oppdragsdata tilknyttet person eller foretak
-      description: Oppdragsopplysninger kan begrenses til faggruppekode, fagsystemId og vedtaksdato
-      operationId: oppdrag
-
+      summary: Hent oppdragsdata
+      description: Returnerer oppdragsopplysninger tilknyttet person eller foretak. Søket gjøres på (gjelderId), 9 eller 11 siffer som kan være fødelsnummer, organisasjonsnummer eller tss id.
+      operationId: hentOppdrag
       requestBody:
-        description: gjelderId som skal søkes på
+        description: (gjelderId) er et krav, men (fagGruppeKode) er alternativ hvis filtrering er ønskelig.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/OppdragsInfoRequest'
         required: true
-
       responses:
         200:
           description: OK - Hvis oppdrag ikke finnes, returneres tom liste
@@ -58,6 +51,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
+      security:
+        - Bearer: [ ]
+
+
+  /faggrupper:
+    get:
+      tags:
+        - oppdragsinfo
+      summary: Hent tilgjengelige faggrupper
+      description: Returnerer en liste av tilgjengelige faggrupper som søket på oppdragsinfo kan filtreres på
+      operationId: hentFagGrupper
+      responses:
+        '200':
+          description: OK - Hvis faggrupper ikke finnes så returneres tom liste
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FagGruppe'
 
       security:
         - Bearer: [ ]
@@ -73,11 +86,10 @@ components:
         gjelderId:
           type: string
           example: "9 eller 11 siffer"
-          description: 9 eller 11 siffer (Fødelsnummer, org.nr eller tss-id)
+          description: 9 eller 11 siffer
         faggruppeKode:
           type: string
           description: filtrering på faggruppeKode
-
     OppdragsInfo:
       type: object
       properties:
@@ -110,6 +122,14 @@ components:
         kodeStatus:
           type: string
 
+    FagGruppe:
+      type: object
+      properties:
+        navn:
+          type: string
+        type:
+          type: string
+
     ApiError:
       type: object
       required:
@@ -137,7 +157,7 @@ components:
           description: En lesbar forklaring som er spesifikk for denne forekomsten av problemet
         path:
           type: string
-          example: /api/v1/oppdragsinfo/hentOppdrag
+          example: /api/v1/oppdragsinfo/oppdrag
           description: Endepunktet hvor feilen oppstå
 
   securitySchemes:

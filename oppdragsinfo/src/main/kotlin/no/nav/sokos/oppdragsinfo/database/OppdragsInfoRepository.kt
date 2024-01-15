@@ -5,7 +5,7 @@ import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.withParameters
 import no.nav.sokos.oppdragsinfo.domain.Attestant
-import no.nav.sokos.oppdragsinfo.domain.Faggruppe
+import no.nav.sokos.oppdragsinfo.domain.FagGruppe
 import no.nav.sokos.oppdragsinfo.domain.Grad
 import no.nav.sokos.oppdragsinfo.domain.Kid
 import no.nav.sokos.oppdragsinfo.domain.Korreksjon
@@ -96,7 +96,7 @@ object OppdragsInfoRepository {
         return resultSet.getInt(1) > 0
     }
 
-    fun Connection.hentFaggrupper(): List<Faggruppe> =
+    fun Connection.hentFaggrupper(): List<FagGruppe> =
         prepareStatement(
             """
             SELECT NAVN_FAGGRUPPE, KODE_FAGGRUPPE
@@ -104,7 +104,7 @@ object OppdragsInfoRepository {
             ORDER BY NAVN_FAGGRUPPE
             """.trimIndent()
         ).run {
-            executeQuery().toFaggrupper()
+            executeQuery().toFagGrupper()
         }
 
     fun Connection.hentOppdragsOmposteringer(
@@ -577,8 +577,8 @@ object OppdragsInfoRepository {
         )
     }
 
-    private fun ResultSet.toFaggrupper() = toList {
-        Faggruppe(
+    private fun ResultSet.toFagGrupper() = toList {
+        FagGruppe(
             navn = getColumn("NAVN_FAGGRUPPE"),
             type = getColumn("KODE_FAGGRUPPE")
         )
