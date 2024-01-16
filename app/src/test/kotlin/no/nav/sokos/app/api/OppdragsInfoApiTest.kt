@@ -23,9 +23,9 @@ import no.nav.sokos.app.config.AUTHENTICATION_NAME
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.commonConfig
 import no.nav.sokos.oppdragsinfo.api.model.GjelderIdRequest
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 
 internal const val PORT = 9090

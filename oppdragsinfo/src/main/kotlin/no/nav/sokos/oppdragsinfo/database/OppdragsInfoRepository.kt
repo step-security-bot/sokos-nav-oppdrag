@@ -1,5 +1,8 @@
 package no.nav.sokos.oppdragsinfo.database
 
+import java.sql.Connection
+import java.sql.ResultSet
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.getColumn
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
@@ -17,14 +20,11 @@ import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
 import no.nav.sokos.oppdragsinfo.domain.Tekst
 import no.nav.sokos.oppdragsinfo.domain.Valuta
-import java.sql.Connection
-import java.sql.ResultSet
 
 object OppdragsInfoRepository {
 

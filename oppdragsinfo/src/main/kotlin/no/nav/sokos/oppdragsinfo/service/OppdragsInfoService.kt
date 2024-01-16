@@ -2,6 +2,7 @@ package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsResponse
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
@@ -48,7 +49,6 @@ import no.nav.sokos.oppdragsinfo.domain.Maksdato
 import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
