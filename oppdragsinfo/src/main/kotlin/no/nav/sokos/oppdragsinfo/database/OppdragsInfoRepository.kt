@@ -1,5 +1,6 @@
 package no.nav.sokos.oppdragsinfo.database
 
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.getColumn
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
@@ -17,7 +18,6 @@ import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
-import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
@@ -30,7 +30,7 @@ object OppdragsInfoRepository {
 
     fun Connection.hentOppdrag(
         gjelderId: String
-    ): List<OppdragsInfo> =
+    ): List<OppdragsSokResponse> =
         prepareStatement(
             """
                 SELECT OPPDRAG_GJELDER_ID
@@ -43,12 +43,29 @@ object OppdragsInfoRepository {
             executeQuery().toOppdrag()
         }
 
+    fun Connection.erOppdragTilknyttetBruker(
+        gjelderId: String,
+        oppdragsId: Int
+    ): Boolean {
+        val resultSet = prepareStatement(
+            """
+            SELECT COUNT(*)
+            FROM    OS231Q1.T_OPPDRAG
+            WHERE   OPPDRAG_GJELDER_ID = (?)
+            AND     OPPDRAGS_ID = (?)
+            """.trimIndent()
+        ).withParameters(
+            param(gjelderId), param(oppdragsId)
+        ).executeQuery()
+        resultSet.next()
+        return resultSet.getInt(1) > 0
+    }
+
     fun Connection.hentOppdragsListe(
         gjelderId: String,
         faggruppeKode: String?
-    ): List<Oppdrag> =
-        prepareStatement(
-            """
+    ): List<Oppdrag> {
+        val test = """
                 SELECT OP.OPPDRAGS_ID,
                         OP.FAGSYSTEM_ID,
                         FO.NAVN_FAGOMRAADE,
@@ -63,7 +80,7 @@ object OppdragsInfoRepository {
                         OS231Q1.T_FAGGRUPPE FG,
                         OS231Q1.T_OPPDRAG_STATUS OS
                 WHERE OP.OPPDRAG_GJELDER_ID = (?)
-                ${if (faggruppeKode != null) " AND OP.KODE_FAGOMRAADE = (?)" else ""}
+                ${if (faggruppeKode != null) " AND FG.KODE_FAGGRUPPE = (?)" else ""}
                 AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
                 AND FG.KODE_FAGGRUPPE = FO.KODE_FAGGRUPPE
                 AND OS.OPPDRAGS_ID = OP.OPPDRAGS_ID
@@ -73,12 +90,17 @@ object OppdragsInfoRepository {
                 WHERE OS2.OPPDRAGS_ID = OS.OPPDRAGS_ID)
                 ORDER BY OS.KODE_STATUS
             """.trimIndent()
+
+        println("PRINTER UT SPØRRING: $test")
+        prepareStatement(
+            test
         ).withParameters(
             param(gjelderId),
             faggruppeKode?.let { param(faggruppeKode) }
         ).run {
-            executeQuery().toOppdragsListe()
+            return executeQuery().toOppdragsListe()
         }
+    }
 
     fun Connection.eksistererOmposteringer(
         gjelderId: String,
@@ -584,7 +606,7 @@ object OppdragsInfoRepository {
         }
 
     private fun ResultSet.toOppdrag() = toList {
-        OppdragsInfo(
+        OppdragsSokResponse(
             gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
             gjelderNavn = ""
         )
@@ -639,7 +661,7 @@ object OppdragsInfoRepository {
             delytelseId = getColumn("DELYTELSE_ID"),
             utbetalesTilId = getColumn("UTBETALES_TIL_ID"),
             refunderesOrgnr = getColumn("REFUNDERES_ID"),
-            brukerid = getColumn("BRUKERID"),
+            brukerId = getColumn("BRUKERID"),
             tidspktReg = getColumn("TIDSPKT_REG")
         )
     }

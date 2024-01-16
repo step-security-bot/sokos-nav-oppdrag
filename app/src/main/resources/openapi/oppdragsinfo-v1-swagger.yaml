@@ -22,15 +22,15 @@ paths:
     post:
       tags:
         - oppdragsinfo
-      summary: Hent oppdragsdata
-      description: Returnerer oppdragsopplysninger tilknyttet person eller foretak. Søket gjøres på (gjelderId), 9 eller 11 siffer som kan være fødelsnummer, organisasjonsnummer eller tss id.
-      operationId: hentOppdrag
+      summary: Søk etter oppdragsinfo
+      description: Returnerer oppdragsopplysninger tilknyttet person eller foretak.
+      operationId: sokOppdrag
       requestBody:
         description: (gjelderId) er et krav, men (fagGruppeKode) er alternativ hvis filtrering er ønskelig.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OppdragsInfoRequest'
+              $ref: '#/components/schemas/GjelderIdRequest'
         required: true
       responses:
         200:
@@ -60,10 +60,10 @@ paths:
       tags:
         - oppdragsinfo
       summary: Hent tilgjengelige faggrupper
-      description: Returnerer en liste av tilgjengelige faggrupper som søket på oppdragsinfo kan filtreres på
+      description: Returnerer en liste av tilgjengelige faggrupper. Faggruppe kan brukes til å filtrere søket i endepunktet -> /oppdrag
       operationId: hentFagGrupper
       responses:
-        '200':
+        200:
           description: OK - Hvis faggrupper ikke finnes så returneres tom liste
           content:
             application/json:
@@ -75,10 +75,54 @@ paths:
       security:
         - Bearer: [ ]
 
+  /{oppdragsId}:
+    post:
+      tags:
+        - oppdragsinfo
+      summary: Hent oppdrag
+      description: Returnerer oppdrag med tilhørende oppdragslinjer spesifisert av oppdragsId.
+      operationId: hentOppdrag
+      parameters:
+        - name: oppdragsId
+          in: path
+          description: Oppdrags id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: (gjelderId) er et krav og eneste verdi som skal sendes inn. Faggruppekode ikke relevant.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GjelderIdRequest'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OppdragsResponse'
+        400:
+          description: Ugyldig request - Oppdragsid har ingen tilknytning til gjelderId
+        401:
+          description: Ingen tilgang
+        500:
+          description: Annen feil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+      security:
+        - Bearer: [ ]
+
 components:
   schemas:
 
-    OppdragsInfoRequest:
+    GjelderIdRequest:
       type: object
       required:
         - gjelderId
@@ -90,6 +134,21 @@ components:
         faggruppeKode:
           type: string
           description: filtrering på faggruppeKode
+
+    OppdragsResponse:
+      type: object
+      required:
+        - harOmposteringer
+        - oppdragsLinjer
+      properties:
+        harOmposteringer:
+          type: boolean
+          description: Spesifiserer om oppdraget har omposteringer i samme faggruppe som oppdraget
+        oppdragsLinjer:
+          type: array
+          items:
+            $ref: '#/components/schemas/OppdragsLinje'
+
     OppdragsInfo:
       type: object
       properties:
@@ -118,6 +177,52 @@ components:
         typeBilag:
           type: string
         kodeStatus:
+          type: string
+
+    OppdragsLinje:
+      type: object
+      required:
+        - linjeId
+        - kodeKlasse
+        - datoVedtakFom
+        - sats
+        - typeSats
+        - datoFom
+        - delytelseId
+        - utbetalesTilId
+        - brukerId
+        - tidspktReg
+      properties:
+        linjeId:
+          type: integer
+        kodeKlasse:
+          type: string
+        datoVedtakFom:
+          type: string
+        datoVedtakTom:
+          type: string
+        sats:
+          type: number
+          format: double
+        typeSats:
+          type: string
+        kodeStatus:
+          type: string
+        datoFom:
+          type: string
+        linjeIdKorr:
+          type: integer
+        attestert:
+          type: string
+        delytelseId:
+          type: string
+        utbetalesTilId:
+          type: string
+        refunderesOrgnr:
+          type: string
+        brukerId:
+          type: string
+        tidspktReg:
           type: string
 
     FagGruppe:

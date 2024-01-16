@@ -6,5 +6,5 @@ import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 @Serializable
 data class OppdragsResponse(
     val harOmposteringer: Boolean,
-    val oppdragslinjer: List<OppdragsLinje>
+    val oppdragsLinjer: List<OppdragsLinje>
 )

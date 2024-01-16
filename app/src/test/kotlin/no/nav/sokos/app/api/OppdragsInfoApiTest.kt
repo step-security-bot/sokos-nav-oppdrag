@@ -22,10 +22,10 @@ import no.nav.sokos.app.OPPDRAGSINFO_API_PATH
 import no.nav.sokos.app.config.AUTHENTICATION_NAME
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.commonConfig
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoRequest
+import no.nav.sokos.oppdragsinfo.api.model.GjelderIdRequest
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
-import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 
 internal const val PORT = 9090
@@ -58,21 +58,21 @@ internal class OppdragsInfoApiTest : FunSpec({
             kodeStatus = "PASS",
         )
 
-        val oppdragsInfo = OppdragsInfo(
+        val oppdragsSokResponse = OppdragsSokResponse(
             gjelderId = "12345678901",
             gjelderNavn = "Test Testesen",
             oppdragsListe = listOf(oppdrag)
         )
 
-        val oppdragsInfoResponse = (listOf(oppdragsInfo))
+        val oppdragsInfoResponse = (listOf(oppdragsSokResponse))
 
-        coEvery { oppdragsInfoService.hentOppdrag(any(), any(), any()) } returns oppdragsInfoResponse
+        coEvery { oppdragsInfoService.sokOppdrag(any(), any(), any()) } returns oppdragsInfoResponse
 
         val response = RestAssured.given()
             .filter(validationFilter)
             .header(HttpHeaders.ContentType, APPLICATION_JSON)
             .header(HttpHeaders.Authorization, "Bearer ${mockOAuth2Server.tokenFromDefaultProvider()}")
-            .body(OppdragsInfoRequest(gjelderId = "12345678901", faggruppeKode = "ABC"))
+            .body(GjelderIdRequest(gjelderId = "12345678901", faggruppeKode = "ABC"))
             .port(PORT)
             .post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/oppdrag")
             .then()
@@ -81,8 +81,8 @@ internal class OppdragsInfoApiTest : FunSpec({
             .extract()
             .response()
 
-        response.jsonPath().getList<OppdragsInfo>("gjelderId").first().shouldBe("12345678901")
-        response.jsonPath().getList<OppdragsInfo>("gjelderNavn").first().shouldBe("Test Testesen")
+        response.jsonPath().getList<OppdragsSokResponse>("gjelderId").first().shouldBe("12345678901")
+        response.jsonPath().getList<OppdragsSokResponse>("gjelderNavn").first().shouldBe("Test Testesen")
         response.jsonPath().getList<Oppdrag>("oppdragsListe").shouldHaveSize(1)
     }
 

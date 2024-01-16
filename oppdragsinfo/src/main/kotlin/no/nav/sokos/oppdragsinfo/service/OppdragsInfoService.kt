@@ -2,6 +2,7 @@ package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsResponse
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
@@ -17,6 +18,7 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererOmpos
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererSkyldnere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererTekster
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererValutaer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.erOppdragTilknyttetBruker
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentEnheter
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFaggrupper
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentGrader
@@ -48,7 +50,6 @@ import no.nav.sokos.oppdragsinfo.domain.Maksdato
 import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
-import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
@@ -67,11 +68,11 @@ class OppdragsInfoService(
     private val tpService: TpService = TpService()
 ) {
 
-    suspend fun hentOppdrag(
+    suspend fun sokOppdrag(
         gjelderId: String,
         faggruppeKode: String?,
         applicationCall: ApplicationCall
-    ): List<OppdragsInfo> {
+    ): List<OppdragsSokResponse> {
         val saksbehandler = hentSaksbehandler(applicationCall)
         logger.info(
             "Søker etter oppdrag med gjelderId: $gjelderId"
@@ -94,7 +95,7 @@ class OppdragsInfoService(
         val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
 
         return listOf(
-            OppdragsInfo(
+            OppdragsSokResponse(
                 gjelderId = oppdragsInfo.gjelderId,
                 gjelderNavn = gjelderNavn,
                 oppdragsListe = oppdrag
@@ -118,11 +119,21 @@ class OppdragsInfoService(
         }
     }
 
-    fun hentOppdragsLinjer(
+    fun hentOppdrag(
         gjelderId: String,
         oppdragsId: String
     ): OppdragsResponse {
         secureLogger.info("Henter oppdragslinjer med oppdragsId: $oppdragsId")
+
+        val oppdragKnyttetTilbruker = db2DataSource.connection.useAndHandleErrors {
+            it.erOppdragTilknyttetBruker(gjelderId, oppdragsId.toInt())
+        }
+
+        if (!oppdragKnyttetTilbruker) {
+            throw Exception("Oppdraget er ikke knyttet til bruker")
+            // TODO: Bytt til ClientRequestException
+        }
+
         return OppdragsResponse(
             harOmposteringer = db2DataSource.connection.useAndHandleErrors {
                 it.eksistererOmposteringer(
@@ -130,7 +141,7 @@ class OppdragsInfoService(
                     oppdragsId.toInt()
                 )
             },
-            oppdragslinjer = db2DataSource.connection.useAndHandleErrors {
+            oppdragsLinjer = db2DataSource.connection.useAndHandleErrors {
                 it.hentOppdragsLinjer(oppdragsId.toInt()).toList()
             }
         )
@@ -154,7 +165,7 @@ class OppdragsInfoService(
         }
     }
 
-    fun hentOppdragLinjeStatuser(
+    fun hentOppdragsLinjeStatuser(
         oppdragsId: String,
         linjeId: String
     ): List<LinjeStatus> {

@@ -24,7 +24,7 @@ import no.nav.sokos.app.config.PropertiesConfig
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.securityConfig
 import no.nav.sokos.app.configureTestApplication
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsInfoRequest
+import no.nav.sokos.oppdragsinfo.api.model.GjelderIdRequest
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 
@@ -70,7 +70,7 @@ class SecurityTest : FunSpec({
                     }
                 }
 
-                coEvery { oppdragsInfoService.hentOppdrag(any(), any(), any()) } returns emptyList()
+                coEvery { oppdragsInfoService.sokOppdrag(any(), any(), any()) } returns emptyList()
 
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -81,7 +81,7 @@ class SecurityTest : FunSpec({
                 val response = client.post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/oppdrag") {
                     header(HttpHeaders.Authorization, "Bearer ${tokenFromDefaultProvider()}")
                     header(HttpHeaders.ContentType, APPLICATION_JSON)
-                    setBody(OppdragsInfoRequest(gjelderId = "12345678901"))
+                    setBody(GjelderIdRequest(gjelderId = "12345678901"))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
