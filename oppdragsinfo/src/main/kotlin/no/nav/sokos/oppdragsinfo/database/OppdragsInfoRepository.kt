@@ -2,7 +2,7 @@ package no.nav.sokos.oppdragsinfo.database
 
 import java.sql.Connection
 import java.sql.ResultSet
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.getColumn
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
@@ -30,7 +30,7 @@ object OppdragsInfoRepository {
 
     fun Connection.hentOppdrag(
         gjelderId: String
-    ): List<OppdragsSokRespons> =
+    ): List<OppdragsSokResponse> =
         prepareStatement(
             """
                 SELECT OPPDRAG_GJELDER_ID
@@ -584,7 +584,7 @@ object OppdragsInfoRepository {
         }
 
     private fun ResultSet.toOppdrag() = toList {
-        OppdragsSokRespons(
+        OppdragsSokResponse(
             gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
             gjelderNavn = ""
         )

@@ -23,7 +23,7 @@ import no.nav.sokos.app.config.AUTHENTICATION_NAME
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.commonConfig
 import no.nav.sokos.oppdragsinfo.api.model.GjelderIdRequest
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
@@ -58,13 +58,13 @@ internal class OppdragsInfoApiTest : FunSpec({
             kodeStatus = "PASS",
         )
 
-        val oppdragsSokRespons = OppdragsSokRespons(
+        val oppdragsSokResponse = OppdragsSokResponse(
             gjelderId = "12345678901",
             gjelderNavn = "Test Testesen",
             oppdragsListe = listOf(oppdrag)
         )
 
-        val oppdragsInfoResponse = (listOf(oppdragsSokRespons))
+        val oppdragsInfoResponse = (listOf(oppdragsSokResponse))
 
         coEvery { oppdragsInfoService.sokOppdrag(any(), any(), any()) } returns oppdragsInfoResponse
 
@@ -81,8 +81,8 @@ internal class OppdragsInfoApiTest : FunSpec({
             .extract()
             .response()
 
-        response.jsonPath().getList<OppdragsSokRespons>("gjelderId").first().shouldBe("12345678901")
-        response.jsonPath().getList<OppdragsSokRespons>("gjelderNavn").first().shouldBe("Test Testesen")
+        response.jsonPath().getList<OppdragsSokResponse>("gjelderId").first().shouldBe("12345678901")
+        response.jsonPath().getList<OppdragsSokResponse>("gjelderNavn").first().shouldBe("Test Testesen")
         response.jsonPath().getList<Oppdrag>("oppdragsListe").shouldHaveSize(1)
     }
 

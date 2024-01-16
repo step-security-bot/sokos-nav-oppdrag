@@ -2,7 +2,7 @@ package no.nav.sokos.oppdragsinfo.service
 
 import io.ktor.server.application.ApplicationCall
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsResponse
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
@@ -71,7 +71,7 @@ class OppdragsInfoService(
         gjelderId: String,
         faggruppeKode: String?,
         applicationCall: ApplicationCall
-    ): List<OppdragsSokRespons> {
+    ): List<OppdragsSokResponse> {
         val saksbehandler = hentSaksbehandler(applicationCall)
         logger.info(
             "Søker etter oppdrag med gjelderId: $gjelderId"
@@ -94,7 +94,7 @@ class OppdragsInfoService(
         val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
 
         return listOf(
-            OppdragsSokRespons(
+            OppdragsSokResponse(
                 gjelderId = oppdragsInfo.gjelderId,
                 gjelderNavn = gjelderNavn,
                 oppdragsListe = oppdrag
