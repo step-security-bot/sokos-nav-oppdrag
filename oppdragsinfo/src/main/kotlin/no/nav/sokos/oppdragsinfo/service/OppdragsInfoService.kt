@@ -48,7 +48,7 @@ import no.nav.sokos.oppdragsinfo.domain.Maksdato
 import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
-import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
+import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokRespons
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
@@ -67,11 +67,11 @@ class OppdragsInfoService(
     private val tpService: TpService = TpService()
 ) {
 
-    suspend fun hentOppdrag(
+    suspend fun sokOppdrag(
         gjelderId: String,
         faggruppeKode: String?,
         applicationCall: ApplicationCall
-    ): List<OppdragsInfo> {
+    ): List<OppdragsSokRespons> {
         val saksbehandler = hentSaksbehandler(applicationCall)
         logger.info(
             "Søker etter oppdrag med gjelderId: $gjelderId"
@@ -94,7 +94,7 @@ class OppdragsInfoService(
         val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
 
         return listOf(
-            OppdragsInfo(
+            OppdragsSokRespons(
                 gjelderId = oppdragsInfo.gjelderId,
                 gjelderNavn = gjelderNavn,
                 oppdragsListe = oppdrag
@@ -118,7 +118,7 @@ class OppdragsInfoService(
         }
     }
 
-    fun hentOppdragsLinjer(
+    fun hentOppdrag(
         gjelderId: String,
         oppdragsId: String
     ): OppdragsResponse {
@@ -154,7 +154,7 @@ class OppdragsInfoService(
         }
     }
 
-    fun hentOppdragLinjeStatuser(
+    fun hentOppdragsLinjeStatuser(
         oppdragsId: String,
         linjeId: String
     ): List<LinjeStatus> {

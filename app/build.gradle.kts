@@ -28,6 +28,8 @@ dependencies {
     runtimeOnly("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     runtimeOnly("com.papertrailapp:logback-syslog4j:$papertrailappVersion")
 
+    implementation(files(("/Users/mudasar/Documents/PO-Utbetaling/db2jcc_license_cisuz.jar")))
+
     // Test
     testImplementation("com.lemonappdev:konsist:$konsistVersion")
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")
