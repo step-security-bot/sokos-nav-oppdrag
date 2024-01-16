@@ -64,9 +64,8 @@ object OppdragsInfoRepository {
     fun Connection.hentOppdragsListe(
         gjelderId: String,
         faggruppeKode: String?
-    ): List<Oppdrag> =
-        prepareStatement(
-            """
+    ): List<Oppdrag> {
+        val test = """
                 SELECT OP.OPPDRAGS_ID,
                         OP.FAGSYSTEM_ID,
                         FO.NAVN_FAGOMRAADE,
@@ -81,7 +80,7 @@ object OppdragsInfoRepository {
                         OS231Q1.T_FAGGRUPPE FG,
                         OS231Q1.T_OPPDRAG_STATUS OS
                 WHERE OP.OPPDRAG_GJELDER_ID = (?)
-                ${if (faggruppeKode != null) " AND OP.KODE_FAGOMRAADE = (?)" else ""}
+                ${if (faggruppeKode != null) " AND FG.KODE_FAGGRUPPE = (?)" else ""}
                 AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
                 AND FG.KODE_FAGGRUPPE = FO.KODE_FAGGRUPPE
                 AND OS.OPPDRAGS_ID = OP.OPPDRAGS_ID
@@ -91,12 +90,17 @@ object OppdragsInfoRepository {
                 WHERE OS2.OPPDRAGS_ID = OS.OPPDRAGS_ID)
                 ORDER BY OS.KODE_STATUS
             """.trimIndent()
+
+        println("PRINTER UT SPØRRING: $test")
+        prepareStatement(
+            test
         ).withParameters(
             param(gjelderId),
             faggruppeKode?.let { param(faggruppeKode) }
         ).run {
-            executeQuery().toOppdragsListe()
+            return executeQuery().toOppdragsListe()
         }
+    }
 
     fun Connection.eksistererOmposteringer(
         gjelderId: String,
@@ -657,7 +661,7 @@ object OppdragsInfoRepository {
             delytelseId = getColumn("DELYTELSE_ID"),
             utbetalesTilId = getColumn("UTBETALES_TIL_ID"),
             refunderesOrgnr = getColumn("REFUNDERES_ID"),
-            brukerid = getColumn("BRUKERID"),
+            brukerId = getColumn("BRUKERID"),
             tidspktReg = getColumn("TIDSPKT_REG")
         )
     }

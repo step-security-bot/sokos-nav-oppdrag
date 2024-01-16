@@ -124,11 +124,16 @@ class OppdragsInfoService(
         oppdragsId: String
     ): OppdragsResponse {
         secureLogger.info("Henter oppdragslinjer med oppdragsId: $oppdragsId")
-        if (!db2DataSource.connection.useAndHandleErrors {
-                it.erOppdragTilknyttetBruker(gjelderId, oppdragsId.toInt())
-            }) {
-//            throw ClientRequestException()
+
+        val oppdragKnyttetTilbruker = db2DataSource.connection.useAndHandleErrors {
+            it.erOppdragTilknyttetBruker(gjelderId, oppdragsId.toInt())
         }
+
+        if (!oppdragKnyttetTilbruker) {
+            throw Exception("Oppdraget er ikke knyttet til bruker")
+            // TODO: Bytt til ClientRequestException
+        }
+
         return OppdragsResponse(
             harOmposteringer = db2DataSource.connection.useAndHandleErrors {
                 it.eksistererOmposteringer(
@@ -136,7 +141,7 @@ class OppdragsInfoService(
                     oppdragsId.toInt()
                 )
             },
-            oppdragslinjer = db2DataSource.connection.useAndHandleErrors {
+            oppdragsLinjer = db2DataSource.connection.useAndHandleErrors {
                 it.hentOppdragsLinjer(oppdragsId.toInt()).toList()
             }
         )
