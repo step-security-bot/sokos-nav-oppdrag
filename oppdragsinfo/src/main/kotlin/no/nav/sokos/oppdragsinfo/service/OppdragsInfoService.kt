@@ -18,6 +18,7 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererOmpos
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererSkyldnere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererTekster
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererValutaer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.erOppdragTilknyttetBruker
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentEnheter
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentFaggrupper
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentGrader
@@ -123,6 +124,11 @@ class OppdragsInfoService(
         oppdragsId: String
     ): OppdragsResponse {
         secureLogger.info("Henter oppdragslinjer med oppdragsId: $oppdragsId")
+        if (!db2DataSource.connection.useAndHandleErrors {
+                it.erOppdragTilknyttetBruker(gjelderId, oppdragsId.toInt())
+            }) {
+//            throw ClientRequestException()
+        }
         return OppdragsResponse(
             harOmposteringer = db2DataSource.connection.useAndHandleErrors {
                 it.eksistererOmposteringer(

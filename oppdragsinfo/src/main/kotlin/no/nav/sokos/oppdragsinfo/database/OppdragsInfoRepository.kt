@@ -1,7 +1,5 @@
 package no.nav.sokos.oppdragsinfo.database
 
-import java.sql.Connection
-import java.sql.ResultSet
 import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.getColumn
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
@@ -25,6 +23,8 @@ import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
 import no.nav.sokos.oppdragsinfo.domain.Tekst
 import no.nav.sokos.oppdragsinfo.domain.Valuta
+import java.sql.Connection
+import java.sql.ResultSet
 
 object OppdragsInfoRepository {
 
@@ -42,6 +42,24 @@ object OppdragsInfoRepository {
         ).run {
             executeQuery().toOppdrag()
         }
+
+    fun Connection.erOppdragTilknyttetBruker(
+        gjelderId: String,
+        oppdragsId: Int
+    ): Boolean {
+        val resultSet = prepareStatement(
+            """
+            SELECT COUNT(*)
+            FROM    OS231Q1.T_OPPDRAG
+            WHERE   OPPDRAG_GJELDER_ID = (?)
+            AND     OPPDRAGS_ID = (?)
+            """.trimIndent()
+        ).withParameters(
+            param(gjelderId), param(oppdragsId)
+        ).executeQuery()
+        resultSet.next()
+        return resultSet.getInt(1) > 0
+    }
 
     fun Connection.hentOppdragsListe(
         gjelderId: String,
