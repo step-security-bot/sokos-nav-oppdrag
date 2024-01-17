@@ -138,8 +138,7 @@ class OppdragsInfoService(
         return OppdragsResponse(
             enhet = db2DataSource.connection.useAndHandleErrors {
                 it.hentOppdragsEnhet(
-                    "BOS",
-                    oppdragsId.toInt()
+                    oppdragsId = oppdragsId.toInt()
                 ).first()
             },
             behandlendeEnhet = db2DataSource.connection.useAndHandleErrors {

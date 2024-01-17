@@ -225,7 +225,7 @@ object OppdragsInfoRepository {
         }
 
     fun Connection.hentOppdragsEnhet(
-        typeEnhet: String,
+        typeEnhet: String? = null,
         oppdragsId: Int
     ): List<OppdragsEnhet> =
         prepareStatement(
@@ -233,13 +233,16 @@ object OppdragsInfoRepository {
             SELECT TYPE_ENHET, DATO_FOM, ENHET 
             FROM T_OPPDRAGSENHET 
             WHERE   OPPDRAGS_ID = (?)
-            AND     TYPE_ENHET = (?)
+            ${if (typeEnhet != null) " AND TYPE_ENHET = (?)" else " AND TYPE_ENHET IN (SELECT TYPE_ENHET FROM T_ENHETSTYPE WHERE TYPE_ENHET != 'BEH')"}
             AND     DATO_FOM = (SELECT MAX(DATO_FOM) FROM T_OPPDRAGSENHET 
                                 WHERE   OPPDRAGS_ID = (?)
-                                AND     TYPE_ENHET = (?))
+                                ${if (typeEnhet != null) " AND TYPE_ENHET = (?))" else " AND TYPE_ENHET IN (SELECT TYPE_ENHET FROM T_ENHETSTYPE WHERE TYPE_ENHET != 'BEH'))"}
             """.trimIndent()
         ).withParameters(
-            param(oppdragsId), param(typeEnhet), param(oppdragsId), param(typeEnhet)
+            param(oppdragsId),
+            typeEnhet?.let { param(typeEnhet) },
+            param(oppdragsId),
+            typeEnhet?.let { param(typeEnhet) }
         ).run {
             executeQuery().toOppdragsEnhet()
         }
