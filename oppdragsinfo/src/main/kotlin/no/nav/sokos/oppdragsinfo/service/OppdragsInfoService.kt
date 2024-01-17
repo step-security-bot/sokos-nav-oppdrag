@@ -27,6 +27,7 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKorreksjone
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKravhavere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentMaksdatoer
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhet
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhetsHistorikk
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeAttestanter
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeStatuser
@@ -135,6 +136,18 @@ class OppdragsInfoService(
         }
 
         return OppdragsResponse(
+            enhet = db2DataSource.connection.useAndHandleErrors {
+                it.hentOppdragsEnhet(
+                    "BOS",
+                    oppdragsId.toInt()
+                ).first()
+            },
+            behandlendeEnhet = db2DataSource.connection.useAndHandleErrors {
+                it.hentOppdragsEnhet(
+                    "BEH",
+                    oppdragsId.toInt()
+                ).elementAtOrNull(0)
+            },
             harOmposteringer = db2DataSource.connection.useAndHandleErrors {
                 it.eksistererOmposteringer(
                     gjelderId,

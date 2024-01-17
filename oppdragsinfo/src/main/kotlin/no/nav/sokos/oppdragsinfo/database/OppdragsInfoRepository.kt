@@ -34,7 +34,7 @@ object OppdragsInfoRepository {
         prepareStatement(
             """
                 SELECT OPPDRAG_GJELDER_ID
-                FROM OS231Q1.T_OPPDRAG
+                FROM T_OPPDRAG
                 WHERE OPPDRAG_GJELDER_ID = (?)
             """.trimIndent()
         ).withParameters(
@@ -50,7 +50,7 @@ object OppdragsInfoRepository {
         val resultSet = prepareStatement(
             """
             SELECT COUNT(*)
-            FROM    OS231Q1.T_OPPDRAG
+            FROM    T_OPPDRAG
             WHERE   OPPDRAG_GJELDER_ID = (?)
             AND     OPPDRAGS_ID = (?)
             """.trimIndent()
@@ -75,10 +75,10 @@ object OppdragsInfoRepository {
                         FG.NAVN_FAGGRUPPE,
                         OS.KODE_STATUS,
                         OS.TIDSPKT_REG
-                FROM OS231Q1.T_OPPDRAG OP,
-                        OS231Q1.T_FAGOMRAADE FO, 
-                        OS231Q1.T_FAGGRUPPE FG,
-                        OS231Q1.T_OPPDRAG_STATUS OS
+                FROM T_OPPDRAG OP,
+                        T_FAGOMRAADE FO, 
+                        T_FAGGRUPPE FG,
+                        T_OPPDRAG_STATUS OS
                 WHERE OP.OPPDRAG_GJELDER_ID = (?)
                 ${if (faggruppeKode != null) " AND FG.KODE_FAGGRUPPE = (?)" else ""}
                 AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
@@ -86,7 +86,7 @@ object OppdragsInfoRepository {
                 AND OS.OPPDRAGS_ID = OP.OPPDRAGS_ID
                 AND OS.TIDSPKT_REG = (
                 SELECT MAX(OS2.TIDSPKT_REG)
-                FROM OS231Q1.T_OPPDRAG_STATUS OS2
+                FROM T_OPPDRAG_STATUS OS2
                 WHERE OS2.OPPDRAGS_ID = OS.OPPDRAGS_ID)
                 ORDER BY OS.KODE_STATUS
             """.trimIndent()
@@ -109,10 +109,10 @@ object OppdragsInfoRepository {
         val resultSet = prepareStatement(
             """
             SELECT COUNT(*)
-            FROM    OS231Q1.T_OMPOSTERING OM,
-                    OS231Q1.T_OPPDRAG OP,
-                    OS231Q1.T_FAGOMRAADE FO, 
-                    OS231Q1.T_FAGGRUPPE FG
+            FROM    T_OMPOSTERING OM,
+                    T_OPPDRAG OP,
+                    T_FAGOMRAADE FO, 
+                    T_FAGGRUPPE FG
             WHERE OM.GJELDER_ID = (?)
             AND OP.OPPDRAGS_ID = (?)
             AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
@@ -153,10 +153,10 @@ object OppdragsInfoRepository {
                         OM.UTFORT,
                         OM.BRUKERID,
                         OM.TIDSPKT_REG
-                FROM    OS231Q1.T_OMPOSTERING OM,
-                        OS231Q1.T_OPPDRAG OP,
-                        OS231Q1.T_FAGOMRAADE FO, 
-                        OS231Q1.T_FAGGRUPPE FG
+                FROM    T_OMPOSTERING OM,
+                        T_OPPDRAG OP,
+                        T_FAGOMRAADE FO, 
+                        T_FAGGRUPPE FG
                 WHERE OM.GJELDER_ID = (?)
                 AND OP.OPPDRAGS_ID = (?)
                 AND FO.KODE_FAGOMRAADE = OP.KODE_FAGOMRAADE
@@ -191,30 +191,30 @@ object OppdragsInfoRepository {
             OPLI.REFUNDERES_ID,
             OPLI.BRUKERID,
             OPLI.TIDSPKT_REG
-        FROM OS231Q1.T_KJOREDATO KJDA, OS231Q1.T_OPPDRAGSLINJE OPLI, OS231Q1.T_LINJE_STATUS LIST
-        LEFT OUTER JOIN OS231Q1.T_KORREKSJON KORR
+        FROM T_KJOREDATO KJDA, T_OPPDRAGSLINJE OPLI, T_LINJE_STATUS LIST
+        LEFT OUTER JOIN T_KORREKSJON KORR
             ON LIST.OPPDRAGS_ID = KORR.OPPDRAGS_ID
             AND LIST.LINJE_ID = KORR.LINJE_ID
             WHERE OPLI.OPPDRAGS_ID = (?)
             AND LIST.OPPDRAGS_ID = OPLI.OPPDRAGS_ID
             AND LIST.LINJE_ID = OPLI.LINJE_ID
             AND LIST.TIDSPKT_REG = (SELECT MAX(LIS1.TIDSPKT_REG)
-                                    FROM OS231Q1.T_LINJE_STATUS LIS1
+                                    FROM T_LINJE_STATUS LIS1
                                     WHERE LIS1.OPPDRAGS_ID = LIST.OPPDRAGS_ID
                                     AND LIS1.LINJE_ID = LIST.LINJE_ID
                                     AND (CASE WHEN KJDA.KJOREDATO <= LIS1.DATO_FOM
                                     THEN (SELECT MIN(LIS2.DATO_FOM)
-                                            FROM OS231Q1.T_LINJE_STATUS LIS2
+                                            FROM T_LINJE_STATUS LIS2
                                             WHERE  LIS2.OPPDRAGS_ID = LIST.OPPDRAGS_ID
                                             AND LIS2.LINJE_ID = LIST.LINJE_ID)
                                             WHEN 1 < (SELECT COUNT(*)
-                                                        FROM OS231Q1.T_LINJE_STATUS LIS3
+                                                        FROM T_LINJE_STATUS LIS3
                                                         WHERE LIS3.OPPDRAGS_ID = LIST.OPPDRAGS_ID
                                                         AND LIS3.LINJE_ID = LIST.LINJE_ID
                                                         AND LIS3.KODE_STATUS = 'KORR')
                                                         THEN LIS1.DATO_FOM
                                                         ELSE (SELECT MAX(LIS4.DATO_FOM)
-                                                                FROM OS231Q1.T_LINJE_STATUS LIS4
+                                                                FROM T_LINJE_STATUS LIS4
                                                                 WHERE LIS4.OPPDRAGS_ID = LIST.OPPDRAGS_ID
                                                                 AND LIS4.LINJE_ID = LIST.LINJE_ID) END) = LIS1.DATO_FOM)
         """.trimIndent()
@@ -222,6 +222,26 @@ object OppdragsInfoRepository {
             param(oppdragId)
         ).run {
             executeQuery().toOppdragsLinjer()
+        }
+
+    fun Connection.hentOppdragsEnhet(
+        typeEnhet: String,
+        oppdragsId: Int
+    ): List<OppdragsEnhet> =
+        prepareStatement(
+            """
+            SELECT TYPE_ENHET, DATO_FOM, ENHET 
+            FROM T_OPPDRAGSENHET 
+            WHERE   OPPDRAGS_ID = (?)
+            AND     TYPE_ENHET = (?)
+            AND     DATO_FOM = (SELECT MAX(DATO_FOM) FROM T_OPPDRAGSENHET 
+                                WHERE   OPPDRAGS_ID = (?)
+                                AND     TYPE_ENHET = (?))
+            """.trimIndent()
+        ).withParameters(
+            param(oppdragsId), param(typeEnhet), param(oppdragsId), param(typeEnhet)
+        ).run {
+            executeQuery().toOppdragsEnhet()
         }
 
     fun Connection.hentOppdragsEnhetsHistorikk(
@@ -237,7 +257,7 @@ object OppdragsInfoRepository {
         ).withParameters(
             param(oppdragsId)
         ).run {
-            executeQuery().toOppdragsEnhetsHistorikk()
+            executeQuery().toOppdragsEnhet()
         }
 
     fun Connection.hentOppdragsStatusHistorikk(
@@ -666,7 +686,7 @@ object OppdragsInfoRepository {
         )
     }
 
-    private fun ResultSet.toOppdragsEnhetsHistorikk() = toList {
+    private fun ResultSet.toOppdragsEnhet() = toList {
         OppdragsEnhet(
             type = getColumn("TYPE_ENHET"),
             datoFom = getColumn("DATO_FOM"),

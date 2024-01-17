@@ -138,9 +138,17 @@ components:
     OppdragsResponse:
       type: object
       required:
+        - enhet
+        - behandlendeEnhet
         - harOmposteringer
         - oppdragsLinjer
       properties:
+        enhet:
+          type: object
+          $ref: '#/components/schemas/OppdragsEnhet'
+        behandlendeEnhet:
+          type: object
+          $ref: '#/components/schemas/OppdragsEnhet'
         harOmposteringer:
           type: boolean
           description: Spesifiserer om oppdraget har omposteringer i samme faggruppe som oppdraget
@@ -148,6 +156,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OppdragsLinje'
+
 
     OppdragsInfo:
       type: object
@@ -177,6 +186,16 @@ components:
         typeBilag:
           type: string
         kodeStatus:
+          type: string
+
+    OppdragsEnhet:
+      type: object
+      properties:
+        type:
+          type: string
+        datoFom:
+          type: string
+        enhet:
           type: string
 
     OppdragsLinje:
