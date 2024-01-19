@@ -22,12 +22,6 @@ val eregCallCounter: Counter = Counter.build()
     .help("Counts calls to ereg with response status code")
     .register(prometheusMeterRegistryOppdragsInfo.prometheusRegistry)
 
-val eregValidationErrorCounter: Counter = Counter.build()
-    .namespace(METRICS_NAMESPACE)
-    .name("ereg_validation_error_counter")
-    .help("Counts validating errors in ereg response")
-    .register(prometheusMeterRegistryOppdragsInfo.prometheusRegistry)
-
 val tpCallCounter: Counter = Counter.build()
     .namespace(METRICS_NAMESPACE)
     .name("tp_call_counter")

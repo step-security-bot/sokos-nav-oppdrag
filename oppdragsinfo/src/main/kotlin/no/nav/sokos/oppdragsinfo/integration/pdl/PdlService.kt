@@ -72,4 +72,3 @@ private fun handleErrors(errors: List<GraphQLClientError>, ident: String): Perso
         }
     }
 }
-

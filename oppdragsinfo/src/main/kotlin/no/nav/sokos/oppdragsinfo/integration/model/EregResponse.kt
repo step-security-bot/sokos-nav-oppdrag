@@ -11,7 +11,6 @@ data class Organisasjon(
 
 @Serializable
 data class Navn(
-
     @SerialName("sammensattnavn")
     val sammensattnavn: String
 )

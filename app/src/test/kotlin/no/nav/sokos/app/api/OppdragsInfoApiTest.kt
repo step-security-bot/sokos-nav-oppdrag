@@ -22,11 +22,13 @@ import no.nav.sokos.app.OPPDRAGSINFO_API_PATH
 import no.nav.sokos.app.config.AUTHENTICATION_NAME
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.commonConfig
-import no.nav.sokos.oppdragsinfo.api.model.GjelderIdRequest
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
+import no.nav.sokos.oppdragsinfo.api.SokOppdragRequest
+import no.nav.sokos.oppdragsinfo.api.SokOppdragResponse
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
+import org.hamcrest.Matchers.equalTo
+
 
 internal const val PORT = 9090
 
@@ -46,7 +48,7 @@ internal class OppdragsInfoApiTest : FunSpec({
         server.stop(1000, 10000)
     }
 
-    test("henter oppdrag med riktig gjelderId") {
+    test("sokOppdrag med gyldig gjelderId skal returnere 200 OK") {
 
         val oppdrag = Oppdrag(
             fagsystemId = "12345678901",
@@ -58,21 +60,19 @@ internal class OppdragsInfoApiTest : FunSpec({
             kodeStatus = "PASS",
         )
 
-        val oppdragsSokResponse = OppdragsSokResponse(
+        val sokOppdragResponse = SokOppdragResponse(
             gjelderId = "12345678901",
             gjelderNavn = "Test Testesen",
             oppdragsListe = listOf(oppdrag)
         )
 
-        val oppdragsInfoResponse = (listOf(oppdragsSokResponse))
-
-        coEvery { oppdragsInfoService.sokOppdrag(any(), any(), any()) } returns oppdragsInfoResponse
+        coEvery { oppdragsInfoService.sokOppdrag(any(), any(), any()) } returns listOf(sokOppdragResponse)
 
         val response = RestAssured.given()
             .filter(validationFilter)
             .header(HttpHeaders.ContentType, APPLICATION_JSON)
             .header(HttpHeaders.Authorization, "Bearer ${mockOAuth2Server.tokenFromDefaultProvider()}")
-            .body(GjelderIdRequest(gjelderId = "12345678901", faggruppeKode = "ABC"))
+            .body(SokOppdragRequest(gjelderId = "12345678901", fagGruppeKode = "ABC"))
             .port(PORT)
             .post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/oppdrag")
             .then()
@@ -81,9 +81,24 @@ internal class OppdragsInfoApiTest : FunSpec({
             .extract()
             .response()
 
-        response.jsonPath().getList<OppdragsSokResponse>("gjelderId").first().shouldBe("12345678901")
-        response.jsonPath().getList<OppdragsSokResponse>("gjelderNavn").first().shouldBe("Test Testesen")
+        response.jsonPath().getList<SokOppdragResponse>("gjelderId").first().shouldBe("12345678901")
+        response.jsonPath().getList<SokOppdragResponse>("gjelderNavn").first().shouldBe("Test Testesen")
         response.jsonPath().getList<Oppdrag>("oppdragsListe").shouldHaveSize(1)
+    }
+
+    test("sokOppdrag med ugyldig gjelderId skal returnere 400 Bad Request") {
+
+        RestAssured.given()
+            .filter(validationFilter)
+            .header(HttpHeaders.ContentType, APPLICATION_JSON)
+            .header(HttpHeaders.Authorization, "Bearer ${mockOAuth2Server.tokenFromDefaultProvider()}")
+            .body(SokOppdragRequest(gjelderId = "123", fagGruppeKode = ""))
+            .port(PORT)
+            .post("$BASE_API_PATH$OPPDRAGSINFO_API_PATH/oppdrag")
+            .then()
+            .assertThat()
+            .statusCode(HttpStatusCode.BadRequest.value)
+            .body("message", equalTo ("gjelderId må være satt og tillatt format er 9 eller 11 siffer"))
     }
 
 })

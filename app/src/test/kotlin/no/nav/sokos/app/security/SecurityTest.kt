@@ -24,7 +24,7 @@ import no.nav.sokos.app.config.PropertiesConfig
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.securityConfig
 import no.nav.sokos.app.configureTestApplication
-import no.nav.sokos.oppdragsinfo.api.model.GjelderIdRequest
+import no.nav.sokos.oppdragsinfo.api.GjelderIdRequest
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 
@@ -39,7 +39,7 @@ val oppdragsInfoService: OppdragsInfoService = mockk()
 
 class SecurityTest : FunSpec({
 
-    test("oppdragsinfo - test http POST endepunkt uten token bør returnere 401") {
+    test("endepunkt uten token bør returnere 401") {
         withMockOAuth2Server {
             testApplication {
                 configureTestApplication()
@@ -57,7 +57,7 @@ class SecurityTest : FunSpec({
         }
     }
 
-    test("oppdragsinfo - test http POST endepunkt med token bør returnere 200") {
+    test("endepunkt med token bør returnere 200") {
         withMockOAuth2Server {
             testApplication {
                 configureTestApplication()

@@ -43,9 +43,9 @@ internal class ProjectStructureTest : FunSpec({
             .imports
             .assertFalse { it.isWildcard }
 
-        /*   projectScope
-                   .functions()
-                   .assertTrue { it.numParameters < 5 }*/
+        projectScope
+            .functions()
+            .assertTrue { it.numParameters < 5 }
 
     }
 })

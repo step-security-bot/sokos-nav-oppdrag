@@ -30,7 +30,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GjelderIdRequest'
+              $ref: '#/components/schemas/SokOppdragRequest'
         required: true
       responses:
         200:
@@ -40,9 +40,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OppdragsInfo'
+                  $ref: '#/components/schemas/SokOppdragResponse'
         400:
           description: Ugyldig request, oppfyller ikke swagger-kontrakt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         401:
           description: Ingen tilgang
         500:
@@ -122,6 +126,19 @@ paths:
 components:
   schemas:
 
+    SokOppdragRequest:
+      type: object
+      required:
+        - gjelderId
+      properties:
+        gjelderId:
+          type: string
+          example: "9 eller 11 siffer"
+          description: 9 eller 11 siffer
+        fagGruppeKode:
+          type: string
+          description: filtrering på faggruppeKode
+
     GjelderIdRequest:
       type: object
       required:
@@ -131,34 +148,8 @@ components:
           type: string
           example: "9 eller 11 siffer"
           description: 9 eller 11 siffer
-        faggruppeKode:
-          type: string
-          description: filtrering på faggruppeKode
 
-    OppdragsResponse:
-      type: object
-      required:
-        - enhet
-        - behandlendeEnhet
-        - harOmposteringer
-        - oppdragsLinjer
-      properties:
-        enhet:
-          type: object
-          $ref: '#/components/schemas/OppdragsEnhet'
-        behandlendeEnhet:
-          type: object
-          $ref: '#/components/schemas/OppdragsEnhet'
-        harOmposteringer:
-          type: boolean
-          description: Spesifiserer om oppdraget har omposteringer i samme faggruppe som oppdraget
-        oppdragsLinjer:
-          type: array
-          items:
-            $ref: '#/components/schemas/OppdragsLinje'
-
-
-    OppdragsInfo:
+    SokOppdragResponse:
       type: object
       properties:
         gjelderId:
@@ -169,6 +160,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Oppdrag'
+
+    OppdragsResponse:
+      type: object
+      required:
+        - enhet
+        - harOmposteringer
+        - oppdragsLinjer
+      properties:
+        enhet:
+          $ref: '#/components/schemas/OppdragsEnhet'
+        behandlendeEnhet:
+          $ref: '#/components/schemas/OppdragsEnhet'
+        harOmposteringer:
+          type: boolean
+          description: Spesifiserer om oppdraget har omposteringer i samme faggruppe som oppdraget
+        oppdragsLinjer:
+          type: array
+          items:
+            $ref: '#/components/schemas/OppdragsLinje'
 
     Oppdrag:
       type: object
@@ -271,11 +281,11 @@ components:
           description: HTTP status kode
         error:
           type: string
-          example: Error type
+          example: Bad Request
           description: En kort, lesbar oppsummering av problemet
         message:
           type: string
-          example: Error message, invalid value
+          example: Verdien er ikke tilatt
           description: En lesbar forklaring som er spesifikk for denne forekomsten av problemet
         path:
           type: string

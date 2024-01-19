@@ -27,7 +27,7 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
     runtimeOnly("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     runtimeOnly("com.papertrailapp:logback-syslog4j:$papertrailappVersion")
-
+    
     // Test
     testImplementation("com.lemonappdev:konsist:$konsistVersion")
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion")

@@ -1,8 +1,10 @@
 package no.nav.sokos.oppdragsinfo.service
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsResponse
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
+import io.ktor.server.plugins.requestvalidation.RequestValidationException
+import no.nav.sokos.oppdragsinfo.api.OppdragResponse
+import no.nav.sokos.oppdragsinfo.api.SokOppdragResponse
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
@@ -73,7 +75,7 @@ class OppdragsInfoService(
         gjelderId: String,
         faggruppeKode: String?,
         applicationCall: ApplicationCall
-    ): List<OppdragsSokResponse> {
+    ): List<SokOppdragResponse> {
         val saksbehandler = hentSaksbehandler(applicationCall)
         logger.info(
             "Søker etter oppdrag med gjelderId: $gjelderId"
@@ -96,7 +98,7 @@ class OppdragsInfoService(
         val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
 
         return listOf(
-            OppdragsSokResponse(
+            SokOppdragResponse(
                 gjelderId = oppdragsInfo.gjelderId,
                 gjelderNavn = gjelderNavn,
                 oppdragsListe = oppdrag
@@ -123,7 +125,7 @@ class OppdragsInfoService(
     fun hentOppdrag(
         gjelderId: String,
         oppdragsId: String
-    ): OppdragsResponse {
+    ): OppdragResponse {
         secureLogger.info("Henter oppdragslinjer med oppdragsId: $oppdragsId")
 
         val oppdragKnyttetTilbruker = db2DataSource.connection.useAndHandleErrors {
@@ -131,11 +133,13 @@ class OppdragsInfoService(
         }
 
         if (!oppdragKnyttetTilbruker) {
-            throw Exception("Oppdraget er ikke knyttet til bruker")
-            // TODO: Bytt til ClientRequestException
+            throw RequestValidationException(
+                HttpStatusCode.BadRequest.value,
+                listOf("Oppdraget er ikke knyttet til bruker")
+            )
         }
 
-        return OppdragsResponse(
+        return OppdragResponse(
             enhet = db2DataSource.connection.useAndHandleErrors {
                 it.hentOppdragsEnhet(
                     oppdragsId = oppdragsId.toInt()
@@ -145,7 +149,7 @@ class OppdragsInfoService(
                 it.hentOppdragsEnhet(
                     "BEH",
                     oppdragsId.toInt()
-                ).elementAtOrNull(0)
+                ).firstOrNull()
             },
             harOmposteringer = db2DataSource.connection.useAndHandleErrors {
                 it.eksistererOmposteringer(

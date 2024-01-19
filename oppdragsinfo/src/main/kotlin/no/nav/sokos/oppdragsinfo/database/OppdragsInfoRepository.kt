@@ -1,6 +1,8 @@
 package no.nav.sokos.oppdragsinfo.database
 
-import no.nav.sokos.oppdragsinfo.api.model.OppdragsSokResponse
+import java.sql.Connection
+import java.sql.ResultSet
+import no.nav.sokos.oppdragsinfo.api.SokOppdragResponse
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.getColumn
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
@@ -23,14 +25,12 @@ import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
 import no.nav.sokos.oppdragsinfo.domain.Tekst
 import no.nav.sokos.oppdragsinfo.domain.Valuta
-import java.sql.Connection
-import java.sql.ResultSet
 
 object OppdragsInfoRepository {
 
     fun Connection.hentOppdrag(
         gjelderId: String
-    ): List<OppdragsSokResponse> =
+    ): List<SokOppdragResponse> =
         prepareStatement(
             """
                 SELECT OPPDRAG_GJELDER_ID
@@ -46,26 +46,26 @@ object OppdragsInfoRepository {
     fun Connection.erOppdragTilknyttetBruker(
         gjelderId: String,
         oppdragsId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
-            SELECT COUNT(*)
-            FROM    T_OPPDRAG
-            WHERE   OPPDRAG_GJELDER_ID = (?)
-            AND     OPPDRAGS_ID = (?)
+                SELECT COUNT(*)
+                FROM T_OPPDRAG
+                WHERE OPPDRAG_GJELDER_ID = (?)
+                AND OPPDRAGS_ID = (?)
             """.trimIndent()
         ).withParameters(
             param(gjelderId), param(oppdragsId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.hentOppdragsListe(
         gjelderId: String,
         faggruppeKode: String?
-    ): List<Oppdrag> {
-        val test = """
+    ): List<Oppdrag> =
+        prepareStatement(
+            """
                 SELECT OP.OPPDRAGS_ID,
                         OP.FAGSYSTEM_ID,
                         FO.NAVN_FAGOMRAADE,
@@ -90,26 +90,21 @@ object OppdragsInfoRepository {
                 WHERE OS2.OPPDRAGS_ID = OS.OPPDRAGS_ID)
                 ORDER BY OS.KODE_STATUS
             """.trimIndent()
-
-        println("PRINTER UT SPØRRING: $test")
-        prepareStatement(
-            test
         ).withParameters(
             param(gjelderId),
             faggruppeKode?.let { param(faggruppeKode) }
         ).run {
             return executeQuery().toOppdragsListe()
         }
-    }
 
     fun Connection.eksistererOmposteringer(
         gjelderId: String,
         oppdragsId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)
-            FROM    T_OMPOSTERING OM,
+            FROM T_OMPOSTERING OM,
                     T_OPPDRAG OP,
                     T_FAGOMRAADE FO, 
                     T_FAGGRUPPE FG
@@ -121,10 +116,9 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(gjelderId), param(oppdragsId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.hentFaggrupper(): List<FagGruppe> =
         prepareStatement(
@@ -232,11 +226,12 @@ object OppdragsInfoRepository {
             """
             SELECT TYPE_ENHET, DATO_FOM, ENHET 
             FROM T_OPPDRAGSENHET 
-            WHERE   OPPDRAGS_ID = (?)
+            WHERE OPPDRAGS_ID = (?)
             ${if (typeEnhet != null) " AND TYPE_ENHET = (?)" else " AND TYPE_ENHET IN (SELECT TYPE_ENHET FROM T_ENHETSTYPE WHERE TYPE_ENHET != 'BEH')"}
-            AND     DATO_FOM = (SELECT MAX(DATO_FOM) FROM T_OPPDRAGSENHET 
-                                WHERE   OPPDRAGS_ID = (?)
-                                ${if (typeEnhet != null) " AND TYPE_ENHET = (?))" else " AND TYPE_ENHET IN (SELECT TYPE_ENHET FROM T_ENHETSTYPE WHERE TYPE_ENHET != 'BEH'))"}
+            AND DATO_FOM = (SELECT MAX(DATO_FOM) 
+                            FROM T_OPPDRAGSENHET
+                            WHERE OPPDRAGS_ID = (?)
+                            ${if (typeEnhet != null) " AND TYPE_ENHET = (?))" else " AND TYPE_ENHET IN (SELECT TYPE_ENHET FROM T_ENHETSTYPE WHERE TYPE_ENHET != 'BEH'))"}
             """.trimIndent()
         ).withParameters(
             param(oppdragsId),
@@ -334,8 +329,8 @@ object OppdragsInfoRepository {
     fun Connection.eksistererValutaer(
         oppdragsId: Int,
         linjeId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)  
             FROM T_VALUTA 
@@ -344,16 +339,15 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(oppdragsId), param(linjeId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.eksistererSkyldnere(
         oppdragsId: Int,
         linjeId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)  
             FROM T_SKYLDNER 
@@ -362,16 +356,15 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(oppdragsId), param(linjeId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.eksistererKravhavere(
         oppdragsId: Int,
         linjeId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)  
             FROM T_KRAVHAVER 
@@ -380,16 +373,15 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(oppdragsId), param(linjeId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.eksistererEnheter(
         oppdragsId: Int,
         linjeId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)  
             FROM T_LINJEENHET 
@@ -398,16 +390,15 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(oppdragsId), param(linjeId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.eksistererGrader(
         oppdragsId: Int,
         linjeId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)  
             FROM T_GRAD 
@@ -416,16 +407,15 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(oppdragsId), param(linjeId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.eksistererTekster(
         oppdragsId: Int,
         linjeId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)  
             FROM T_TEKST 
@@ -434,16 +424,15 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(oppdragsId), param(linjeId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.eksistererKidliste(
         oppdragsId: Int,
         linjeId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)  
             FROM T_KID 
@@ -452,16 +441,15 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(oppdragsId), param(linjeId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.eksistererMaksdatoer(
         oppdragsId: Int,
         linjeId: Int
-    ): Boolean {
-        val resultSet = prepareStatement(
+    ): Boolean =
+        prepareStatement(
             """
             SELECT COUNT(*)  
             FROM T_MAKS_DATO  
@@ -470,10 +458,9 @@ object OppdragsInfoRepository {
             """.trimIndent()
         ).withParameters(
             param(oppdragsId), param(linjeId)
-        ).executeQuery()
-        resultSet.next()
-        return resultSet.getInt(1) > 0
-    }
+        ).run {
+            executeQuery().let { it.next() && it.getInt(1) > 0 }
+        }
 
     fun Connection.hentValutaer(
         oppdragsId: Int,
@@ -629,7 +616,7 @@ object OppdragsInfoRepository {
         }
 
     private fun ResultSet.toOppdrag() = toList {
-        OppdragsSokResponse(
+        SokOppdragResponse(
             gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
             gjelderNavn = ""
         )
@@ -728,7 +715,7 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toValuta() = toList {
+    private fun ResultSet.toValuta() = toList {
         Valuta(
             linjeId = getColumn("LINJE_ID"),
             type = getColumn("TYPE_VALUTA"),
@@ -741,7 +728,7 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toSkyldner() = toList {
+    private fun ResultSet.toSkyldner() = toList {
         Skyldner(
             linjeId = getColumn("LINJE_ID"),
             skyldnerId = getColumn("SKYLDNER_ID"),
@@ -751,7 +738,7 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toKravhaver() = toList {
+    private fun ResultSet.toKravhaver() = toList {
         Kravhaver(
             linjeId = getColumn("LINJE_ID"),
             kravhaverId = getColumn("KRAVHAVER_ID"),
@@ -761,7 +748,7 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toEnheter() = toList {
+    private fun ResultSet.toEnheter() = toList {
         LinjeEnhet(
             linjeId = getColumn("LINJE_ID"),
             typeEnhet = getColumn("TYPE_ENHET"),
@@ -773,7 +760,7 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toGrad() = toList {
+    private fun ResultSet.toGrad() = toList {
         Grad(
             linjeId = getColumn("LINJE_ID"),
             typeGrad = getColumn("TYPE_GRAD"),
@@ -783,14 +770,14 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toTekster() = toList {
+    private fun ResultSet.toTekster() = toList {
         Tekst(
             linjeId = getColumn("LINJE_ID"),
             tekst = getColumn("TEKST")
         )
     }
 
-    fun ResultSet.toLKidlist() = toList {
+    private fun ResultSet.toLKidlist() = toList {
         Kid(
             linjeId = getColumn("LINJE_ID"),
             kid = getColumn("KID"),
@@ -800,7 +787,7 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toMaksdato() = toList {
+    private fun ResultSet.toMaksdato() = toList {
         Maksdato(
             linjeId = getColumn("LINJE_ID"),
             maksdato = getColumn("MAKS_DATO"),
@@ -810,7 +797,7 @@ object OppdragsInfoRepository {
         )
     }
 
-    fun ResultSet.toOvrig() = toList {
+    private fun ResultSet.toOvrig() = toList {
         Ovrig(
             linjeId = getColumn("LINJE_ID"),
             vedtaksId = getColumn("VEDTAK_ID"),
@@ -819,6 +806,3 @@ object OppdragsInfoRepository {
         )
     }
 }
-
-
-
