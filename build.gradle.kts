@@ -10,7 +10,7 @@ plugins {
 val ktorVersion = "2.3.7"
 
 // Monitorering
-val prometheusVersion = "1.12.1"
+val prometheusVersion = "1.12.2"
 
 // Serialization
 val kotlinxSerializationVersion = "1.6.2"
