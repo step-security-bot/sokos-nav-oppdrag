@@ -26,7 +26,7 @@ paths:
       description: Returnerer oppdragsopplysninger tilknyttet person eller foretak.
       operationId: sokOppdrag
       requestBody:
-        description: (gjelderId) er et krav, men (fagGruppeKode) er alternativ hvis filtrering er ønskelig.
+        description: gjelderId er et krav, men fagGruppeKode er alternativ hvis filtrering er ønskelig
         content:
           application/json:
             schema:
@@ -93,7 +93,7 @@ paths:
           schema:
             type: string
       requestBody:
-        description: (gjelderId) er et krav og eneste verdi som skal sendes inn. Faggruppekode ikke relevant.
+        description: gjelderId er et krav
         content:
           application/json:
             schema:
@@ -136,7 +136,7 @@ paths:
           schema:
             type: string
       requestBody:
-        description: (gjelderId) er et krav og eneste verdi som skal sendes inn. Faggruppekode ikke relevant.
+        description: gjelderId er et krav
         content:
           application/json:
             schema:
@@ -797,6 +797,17 @@ components:
           items:
             $ref: '#/components/schemas/OppdragsLinje'
 
+    FagGruppe:
+      type: object
+      required:
+        - navn
+        - type
+      properties:
+        navn:
+          type: string
+        type:
+          type: string
+
     Ompostering:
       type: object
       required:
@@ -1161,14 +1172,6 @@ components:
         tidspktReg:
           type: string
         brukerid:
-          type: string
-
-    FagGruppe:
-      type: object
-      properties:
-        navn:
-          type: string
-        type:
           type: string
 
     ApiError:
