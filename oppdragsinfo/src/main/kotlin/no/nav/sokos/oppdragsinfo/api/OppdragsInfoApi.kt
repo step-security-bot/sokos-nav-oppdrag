@@ -89,7 +89,7 @@ fun Route.oppdragsInfoApi(
 
         get("{oppdragsId}/{linjeId}/detaljer") {
             call.respond(
-                oppdragsInfoService.eksistererOppdragsLinjeDetaljer(
+                oppdragsInfoService.hentOppdragsLinjeDetaljer(
                     call.parameters["oppdragsId"].orEmpty(),
                     call.parameters["linjeId"].orEmpty()
                 )

@@ -12,5 +12,5 @@ data class OppdragsLinjeDetaljer(
     val harGrader: Boolean,
     val harTekster: Boolean,
     val harKidliste: Boolean,
-    val harMaksdatoer: Boolean,
+    val harMaksdatoer: Boolean
 )

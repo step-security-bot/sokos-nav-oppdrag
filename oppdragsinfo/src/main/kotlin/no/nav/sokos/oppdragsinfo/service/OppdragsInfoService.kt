@@ -201,7 +201,7 @@ class OppdragsInfoService(
         }
     }
 
-    fun eksistererOppdragsLinjeDetaljer(
+    fun hentOppdragsLinjeDetaljer(
         oppdragsId: String,
         linjeId: String
     ): List<OppdragsLinjeDetaljer> {
