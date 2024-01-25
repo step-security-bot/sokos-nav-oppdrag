@@ -27,9 +27,9 @@
     </appender>
 
     <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+        <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>%m%n%xEx</pattern>
-        </encoder>
+        </layout>
 
         <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
             <!-- remote system to log to -->
@@ -67,6 +67,6 @@
         </else>
     </if>
 
-    <logger name="no.nav.sokos" level="INFO"/>
+    <logger name="no.nav.sokos.oppdragsinfo" level="INFO"/>
 
 </configuration>
