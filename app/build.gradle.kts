@@ -4,7 +4,7 @@ val logbackVersion = "1.4.14"
 val logstashVersion = "7.4"
 val papertrailappVersion = "1.0.0"
 val konsistVersion = "0.13.0"
-val swaggerRequestValidatorVersion = "2.39.0"
+val swaggerRequestValidatorVersion = "2.40.0"
 val mockOAuth2ServerVersion = "2.1.1"
 
 dependencies {
