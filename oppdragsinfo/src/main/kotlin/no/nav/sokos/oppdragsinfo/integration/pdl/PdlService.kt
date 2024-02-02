@@ -35,7 +35,7 @@ class PdlService(
             logger.info("Henter Person fra PDL")
             graphQLKtorClient.execute(request) {
                 header(HttpHeaders.Authorization, "Bearer $accessToken")
-                header("Tema", "OKO")
+                header("behandlingsnummer", "B154")
             }
         }
 
