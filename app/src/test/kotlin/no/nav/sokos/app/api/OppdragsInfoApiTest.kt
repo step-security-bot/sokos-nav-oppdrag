@@ -98,7 +98,7 @@ internal class OppdragsInfoApiTest : FunSpec({
             .then()
             .assertThat()
             .statusCode(HttpStatusCode.BadRequest.value)
-            .body("message", equalTo ("gjelderId må være satt og tillatt format er 9 eller 11 siffer"))
+            .body("message", equalTo ("gjelderId er ugyldig. Tillatt format er 9 eller 11 siffer"))
     }
 
 })
