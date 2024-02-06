@@ -23,9 +23,9 @@ import no.nav.sokos.app.config.AUTHENTICATION_NAME
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.commonConfig
 import no.nav.sokos.oppdragsinfo.api.SokOppdragRequest
-import no.nav.sokos.oppdragsinfo.api.SokOppdragResponse
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
+import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.service.OppdragsInfoService
 import org.hamcrest.Matchers.equalTo
 
@@ -60,7 +60,7 @@ internal class OppdragsInfoApiTest : FunSpec({
             kodeStatus = "PASS",
         )
 
-        val sokOppdragResponse = SokOppdragResponse(
+        val sokOppdragResponse = OppdragsInfo(
             gjelderId = "12345678901",
             gjelderNavn = "Test Testesen",
             oppdragsListe = listOf(oppdrag)
@@ -81,8 +81,8 @@ internal class OppdragsInfoApiTest : FunSpec({
             .extract()
             .response()
 
-        response.jsonPath().getList<SokOppdragResponse>("gjelderId").first().shouldBe("12345678901")
-        response.jsonPath().getList<SokOppdragResponse>("gjelderNavn").first().shouldBe("Test Testesen")
+        response.jsonPath().getList<OppdragsInfo>("gjelderId").first().shouldBe("12345678901")
+        response.jsonPath().getList<OppdragsInfo>("gjelderNavn").first().shouldBe("Test Testesen")
         response.jsonPath().getList<Oppdrag>("oppdragsListe").shouldHaveSize(1)
     }
 

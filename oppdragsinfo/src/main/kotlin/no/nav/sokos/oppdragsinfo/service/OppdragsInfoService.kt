@@ -3,8 +3,6 @@ package no.nav.sokos.oppdragsinfo.service
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.plugins.requestvalidation.RequestValidationException
-import no.nav.sokos.oppdragsinfo.api.OppdragResponse
-import no.nav.sokos.oppdragsinfo.api.SokOppdragResponse
 import no.nav.sokos.oppdragsinfo.audit.AuditLogg
 import no.nav.sokos.oppdragsinfo.audit.AuditLogger
 import no.nav.sokos.oppdragsinfo.audit.Saksbehandler
@@ -28,7 +26,7 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKidliste
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKorreksjoner
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKravhavere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentMaksdatoer
-import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdrag
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsInfo
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhet
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhetsHistorikk
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeAttestanter
@@ -51,8 +49,10 @@ import no.nav.sokos.oppdragsinfo.domain.LinjeEnhet
 import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
 import no.nav.sokos.oppdragsinfo.domain.Maksdato
 import no.nav.sokos.oppdragsinfo.domain.Ompostering
+import no.nav.sokos.oppdragsinfo.domain.OppdragDetaljer
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
+import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
@@ -75,7 +75,7 @@ class OppdragsInfoService(
         gjelderId: String,
         faggruppeKode: String?,
         applicationCall: ApplicationCall
-    ): List<SokOppdragResponse> {
+    ): List<OppdragsInfo> {
         val saksbehandler = hentSaksbehandler(applicationCall)
         logger.info(
             "Søker etter oppdrag med gjelderId: $gjelderId"
@@ -89,19 +89,19 @@ class OppdragsInfoService(
         )
 
         val oppdragsInfo = db2DataSource.connection.useAndHandleErrors {
-            it.hentOppdrag(gjelderId).firstOrNull()
+            it.hentOppdragsInfo(gjelderId).firstOrNull()
         } ?: return emptyList()
 
-        val oppdrag =
+        val oppdragsListe =
             db2DataSource.connection.useAndHandleErrors { it.hentOppdragsListe(oppdragsInfo.gjelderId, faggruppeKode) }
 
-        val gjelderNavn = getGjelderIdNavn(oppdragsInfo.gjelderId)
+        val gjelderNavn = hentNavnForGjelderId(oppdragsInfo.gjelderId)
 
         return listOf(
-            SokOppdragResponse(
+            OppdragsInfo(
                 gjelderId = oppdragsInfo.gjelderId,
                 gjelderNavn = gjelderNavn,
-                oppdragsListe = oppdrag
+                oppdragsListe = oppdragsListe
             )
         )
     }
@@ -125,7 +125,7 @@ class OppdragsInfoService(
     fun hentOppdrag(
         gjelderId: String,
         oppdragsId: String
-    ): OppdragResponse {
+    ): OppdragDetaljer {
         secureLogger.info("Henter oppdragslinjer med oppdragsId: $oppdragsId")
 
         val oppdragKnyttetTilbruker = db2DataSource.connection.useAndHandleErrors {
@@ -139,7 +139,7 @@ class OppdragsInfoService(
             )
         }
 
-        return OppdragResponse(
+        return OppdragDetaljer(
             enhet = db2DataSource.connection.useAndHandleErrors {
                 it.hentOppdragsEnhet(
                     oppdragsId = oppdragsId.toInt()
@@ -349,7 +349,7 @@ class OppdragsInfoService(
         return korrigerteLinjeIder
     }
 
-    private suspend fun getGjelderIdNavn(gjelderId: String): String =
+    private suspend fun hentNavnForGjelderId(gjelderId: String): String =
         when {
             gjelderId.toLong() > 80000000000 -> tpService.getLeverandorNavn(gjelderId).navn
             gjelderId.toLong() < 80000000000 -> pdlService.getPersonNavn(gjelderId)?.navn?.firstOrNull()
