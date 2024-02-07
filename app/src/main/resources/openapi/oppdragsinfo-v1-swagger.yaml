@@ -40,7 +40,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SokOppdragResponse'
+                  $ref: '#/components/schemas/OppdragsInfo'
         400:
           description: Ugyldig request, oppfyller ikke swagger-kontrakt
           content:
@@ -105,7 +105,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OppdragsResponse'
+                $ref: '#/components/schemas/OppdragDetaljer'
         400:
           description: Ugyldig request - Oppdragsid har ingen tilknytning til gjelderId
           content:
@@ -772,7 +772,7 @@ components:
           example: "9 eller 11 siffer"
           description: 9 eller 11 siffer
 
-    SokOppdragResponse:
+    OppdragsInfo:
       type: object
       properties:
         gjelderId:
@@ -784,7 +784,7 @@ components:
           items:
             $ref: '#/components/schemas/Oppdrag'
 
-    OppdragsResponse:
+    OppdragDetaljer:
       type: object
       required:
         - enhet

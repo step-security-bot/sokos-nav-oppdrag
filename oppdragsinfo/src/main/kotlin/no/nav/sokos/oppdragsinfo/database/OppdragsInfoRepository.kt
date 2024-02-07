@@ -2,7 +2,6 @@ package no.nav.sokos.oppdragsinfo.database
 
 import java.sql.Connection
 import java.sql.ResultSet
-import no.nav.sokos.oppdragsinfo.api.SokOppdragResponse
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.getColumn
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.param
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.toList
@@ -20,6 +19,7 @@ import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
+import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
 import no.nav.sokos.oppdragsinfo.domain.Skyldner
@@ -28,9 +28,9 @@ import no.nav.sokos.oppdragsinfo.domain.Valuta
 
 object OppdragsInfoRepository {
 
-    fun Connection.hentOppdrag(
+    fun Connection.hentOppdragsInfo(
         gjelderId: String
-    ): List<SokOppdragResponse> =
+    ): List<OppdragsInfo> =
         prepareStatement(
             """
                 SELECT OPPDRAG_GJELDER_ID
@@ -616,9 +616,8 @@ object OppdragsInfoRepository {
         }
 
     private fun ResultSet.toOppdrag() = toList {
-        SokOppdragResponse(
-            gjelderId = getColumn("OPPDRAG_GJELDER_ID"),
-            gjelderNavn = ""
+        OppdragsInfo(
+            gjelderId = getColumn("OPPDRAG_GJELDER_ID")
         )
     }
 

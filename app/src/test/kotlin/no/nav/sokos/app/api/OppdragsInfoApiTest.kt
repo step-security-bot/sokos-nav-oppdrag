@@ -23,9 +23,7 @@ import no.nav.sokos.app.config.AUTHENTICATION_NAME
 import no.nav.sokos.app.config.authenticate
 import no.nav.sokos.app.config.commonConfig
 import no.nav.sokos.oppdragsinfo.api.GjelderIdRequest
-import no.nav.sokos.oppdragsinfo.api.OppdragResponse
 import no.nav.sokos.oppdragsinfo.api.SokOppdragRequest
-import no.nav.sokos.oppdragsinfo.api.SokOppdragResponse
 import no.nav.sokos.oppdragsinfo.api.oppdragsInfoApi
 import no.nav.sokos.oppdragsinfo.domain.Attestant
 import no.nav.sokos.oppdragsinfo.domain.FagGruppe
@@ -37,8 +35,10 @@ import no.nav.sokos.oppdragsinfo.domain.LinjeStatus
 import no.nav.sokos.oppdragsinfo.domain.Maksdato
 import no.nav.sokos.oppdragsinfo.domain.Ompostering
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
+import no.nav.sokos.oppdragsinfo.domain.OppdragDetaljer
 import no.nav.sokos.oppdragsinfo.domain.OppdragStatus
 import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
+import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.domain.OppdragsLinjeDetaljer
 import no.nav.sokos.oppdragsinfo.domain.Ovrig
@@ -82,7 +82,7 @@ internal class OppdragsInfoApiTest : FunSpec({
             kodeStatus = "PASS",
         )
 
-        val sokOppdragResponse = SokOppdragResponse(
+        val sokOppdragResponse = OppdragsInfo(
             gjelderId = "12345678901",
             gjelderNavn = "Test Testesen",
             oppdragsListe = listOf(oppdrag)
@@ -103,8 +103,8 @@ internal class OppdragsInfoApiTest : FunSpec({
             .extract()
             .response()
 
-        response.body.jsonPath().getList<SokOppdragResponse>("gjelderId").first().shouldBe("12345678901")
-        response.body.jsonPath().getList<SokOppdragResponse>("gjelderNavn").first().shouldBe("Test Testesen")
+        response.body.jsonPath().getList<OppdragsInfo>("gjelderId").first().shouldBe("12345678901")
+        response.body.jsonPath().getList<OppdragsInfo>("gjelderNavn").first().shouldBe("Test Testesen")
         response.body.jsonPath().getList<Oppdrag>("oppdragsListe").shouldHaveSize(1)
     }
 
@@ -125,7 +125,7 @@ internal class OppdragsInfoApiTest : FunSpec({
 
     test("hent oppdrag med gyldig gjelderId skal returnere 200 OK") {
 
-        val oppdragResponse = OppdragResponse(
+        val oppdragResponse = OppdragDetaljer(
             enhet = OppdragsEnhet(
                 type = "BOS",
                 datoFom = "2024-01-01",
