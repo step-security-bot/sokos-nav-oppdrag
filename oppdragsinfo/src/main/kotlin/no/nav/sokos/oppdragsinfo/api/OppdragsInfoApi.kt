@@ -38,7 +38,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdrag(
                     gjelderIdRequest.gjelderId,
-                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["oppdragsId"].orEmpty()
                 )
             )
         }
@@ -48,7 +48,7 @@ fun Route.oppdragsInfoApi(
             call.respond(
                 oppdragsInfoService.hentOppdragsOmposteringer(
                     gjelderIdRequest.gjelderId,
-                    call.parameters["oppdragsId"].orEmpty(),
+                    call.parameters["oppdragsId"].orEmpty()
                 )
             )
         }
@@ -110,7 +110,6 @@ fun Route.oppdragsInfoApi(
                 oppdragsInfoService.hentOppdragsLinjeSkyldner(
                     call.parameters["oppdragsId"].orEmpty(),
                     call.parameters["linjeId"].orEmpty(),
-                    call
                 )
             )
         }
