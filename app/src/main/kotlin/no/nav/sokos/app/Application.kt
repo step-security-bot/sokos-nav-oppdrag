@@ -10,8 +10,7 @@ import no.nav.sokos.app.config.PropertiesConfig
 import no.nav.sokos.app.config.commonConfig
 import no.nav.sokos.app.config.routingConfig
 import no.nav.sokos.app.config.securityConfig
-import no.nav.sokos.app.metrics.appStateReadyFalse
-import no.nav.sokos.app.metrics.appStateRunningFalse
+import no.nav.sokos.app.metrics.Metrics
 import no.nav.sokos.oppdragsinfo.database.Db2DataSource
 
 fun main() {
@@ -55,10 +54,10 @@ class ApplicationState(
     ready: Boolean = false
 ) {
     var initialized: Boolean by Delegates.observable(alive) { _, _, newValue ->
-        if (!newValue) appStateReadyFalse.inc()
+        if (!newValue) Metrics.appStateReadyFalse.inc()
     }
     var running: Boolean by Delegates.observable(ready) { _, _, newValue ->
-        if (!newValue) appStateRunningFalse.inc()
+        if (!newValue) Metrics.appStateRunningFalse.inc()
     }
 }
 

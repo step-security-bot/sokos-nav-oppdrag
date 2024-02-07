@@ -21,7 +21,7 @@ import java.util.UUID
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
-import no.nav.sokos.app.metrics.prometheusMeterRegistryApp
+import no.nav.sokos.app.metrics.Metrics
 import no.nav.sokos.oppdragsinfo.config.oppdragsInfoRequestValidationConfig
 import no.nav.sokos.oppdragsinfo.config.oppdragsInfoStatusPageConfig
 import org.slf4j.event.Level
@@ -59,7 +59,7 @@ fun Application.commonConfig() {
         oppdragsInfoRequestValidationConfig()
     }
     install(MicrometerMetrics) {
-        registry = prometheusMeterRegistryApp
+        registry = Metrics.prometheusMeterRegistryApp
         meterBinders = listOf(
             UptimeMetrics(),
             JvmMemoryMetrics(),

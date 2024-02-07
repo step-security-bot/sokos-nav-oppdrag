@@ -26,9 +26,9 @@ import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKidliste
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKorreksjoner
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentKravhavere
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentMaksdatoer
-import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsInfo
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhet
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhetsHistorikk
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsInfo
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeAttestanter
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjeStatuser
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjer
@@ -237,17 +237,9 @@ class OppdragsInfoService(
 
     fun hentOppdragsLinjeSkyldner(
         oppdragsId: String,
-        linjeId: String,
-        applicationCall: ApplicationCall
+        linjeId: String
     ): List<Skyldner> {
-        val saksbehandler = hentSaksbehandler(applicationCall)
         secureLogger.info("Henter oppdragslinjeSkyldner for oppdrag : $oppdragsId, linje : $linjeId")
-        auditLogger.auditLog(
-            AuditLogg(
-                saksbehandler = saksbehandler.ident,
-                gjelderId = oppdragsId
-            )
-        )
         val korrigerteLinjeIder: MutableList<Int> = finnKorrigerteLinjer(oppdragsId, linjeId)
         return db2DataSource.connection.useAndHandleErrors {
             it.hentSkyldnere(oppdragsId.toInt(), korrigerteLinjeIder.joinToString(",")).toList()
