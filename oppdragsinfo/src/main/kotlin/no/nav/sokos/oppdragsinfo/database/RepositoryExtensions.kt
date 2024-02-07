@@ -9,7 +9,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.database.RepositoryExtensions.Parameter
-import no.nav.sokos.oppdragsinfo.metrics.databaseFailureCounterOppdragsInfo
+import no.nav.sokos.oppdragsinfo.metrics.Metrics
 
 object RepositoryExtensions {
 
@@ -19,7 +19,7 @@ object RepositoryExtensions {
                 return block(this)
             }
         } catch (ex: SQLException) {
-            databaseFailureCounterOppdragsInfo.labels("${ex.errorCode}", ex.sqlState).inc()
+            Metrics.databaseFailureCounterOppdragsInfo.labels("${ex.errorCode}", ex.sqlState).inc()
             throw ex
         }
     }

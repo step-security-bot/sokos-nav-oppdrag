@@ -14,7 +14,7 @@ import no.nav.sokos.oppdragsinfo.config.ApiError
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.integration.model.Organisasjon
-import no.nav.sokos.oppdragsinfo.metrics.eregCallCounter
+import no.nav.sokos.oppdragsinfo.metrics.Metrics
 import no.nav.sokos.oppdragsinfo.util.EregException
 import no.nav.sokos.oppdragsinfo.util.RetryException
 import no.nav.sokos.oppdragsinfo.util.defaultHttpClient
@@ -38,7 +38,7 @@ class EregService(
                 throw RetryException(ex)
             }
         }.let { response ->
-            eregCallCounter.labels("${response.status.value}").inc()
+            Metrics.eregCallCounter.labels("${response.status.value}").inc()
             when (response.status.value) {
                 200 -> {
                     response.body<Organisasjon>()

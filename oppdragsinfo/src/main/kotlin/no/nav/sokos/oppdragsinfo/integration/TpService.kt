@@ -10,7 +10,7 @@ import no.nav.sokos.oppdragsinfo.config.ApiError
 import no.nav.sokos.oppdragsinfo.config.PropertiesConfig
 import no.nav.sokos.oppdragsinfo.config.logger
 import no.nav.sokos.oppdragsinfo.integration.model.TssResponse
-import no.nav.sokos.oppdragsinfo.metrics.tpCallCounter
+import no.nav.sokos.oppdragsinfo.metrics.Metrics
 import no.nav.sokos.oppdragsinfo.util.RetryException
 import no.nav.sokos.oppdragsinfo.util.TpException
 import no.nav.sokos.oppdragsinfo.util.defaultHttpClient
@@ -34,7 +34,7 @@ class TpService(
                 throw RetryException(ex)
             }
         }.let { response ->
-            tpCallCounter.labels("${response.status.value}").inc()
+            Metrics.tpCallCounter.labels("${response.status.value}").inc()
             when (response.status.value) {
                 200 -> {
                     TssResponse(response.body<String>())
