@@ -51,7 +51,7 @@ spec:
         - application: azure-token-generator
           namespace: aura
           cluster: dev-gcp
-        - application: sokos-op-fasade
+        - application: sokos-utbetalingsportalen
           namespace: okonomi
           cluster: dev-gcp
   webproxy: true
