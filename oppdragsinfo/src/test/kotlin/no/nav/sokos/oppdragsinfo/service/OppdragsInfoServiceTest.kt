@@ -3,7 +3,6 @@ package no.nav.sokos.oppdragsinfo.service
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import java.sql.Connection
 import io.ktor.server.application.ApplicationCall
 import io.mockk.every
 import io.mockk.mockk
@@ -12,15 +11,23 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.sokos.oppdragsinfo.database.Db2DataSource
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.eksistererOmposteringer
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.erOppdragTilknyttetBruker
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsEnhet
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsInfo
+import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsLinjer
 import no.nav.sokos.oppdragsinfo.database.OppdragsInfoRepository.hentOppdragsListe
 import no.nav.sokos.oppdragsinfo.domain.Oppdrag
+import no.nav.sokos.oppdragsinfo.domain.OppdragsEnhet
 import no.nav.sokos.oppdragsinfo.domain.OppdragsInfo
+import no.nav.sokos.oppdragsinfo.domain.OppdragsLinje
 import no.nav.sokos.oppdragsinfo.integration.EregService
 import no.nav.sokos.oppdragsinfo.integration.TpService
 import no.nav.sokos.oppdragsinfo.integration.pdl.PdlService
 import no.nav.sokos.oppdragsinfo.integration.pdl.hentperson.Navn
 import no.nav.sokos.oppdragsinfo.integration.pdl.hentperson.Person
+import java.lang.Boolean.TRUE
+import java.sql.Connection
 
 val applicationCall = mockk<ApplicationCall>()
 val db2DataSource = mockk<Db2DataSource>(relaxed = true)
@@ -68,21 +75,68 @@ internal class OppdragsInfoServiceTest : FunSpec({
             )
         )
 
-
         every { applicationCall.request.headers["Authorization"] } returns MockOAuth2Server().tokenFromDefaultProvider()
         every { connection.hentOppdragsInfo("12345678901") } returns listOf(oppdragsInfo)
         every { connection.hentOppdragsListe("12345678901", "") } returns listOf(oppdrag)
         every { pdlService.getPersonNavn(any()) } returns person
 
-
         val result = oppdragsInfoService.sokOppdrag("12345678901", "", applicationCall)
-
-        println(result.toString())
 
         result.first().gjelderId shouldBe "12345678901"
         result.first().gjelderNavn shouldBe "Ola Mellomnavn Nordmann"
         result.first().oppdragsListe?.shouldHaveSize(1)
 
+    }
+
+    test("test hentOppdrag") {
+
+        val oppdragsId = 12345
+        val gjelderId = "12345678901"
+
+        val oppdragsenhet = OppdragsEnhet(
+            type = "BOS",
+            datoFom = "2024-01-01",
+            enhet = "0502"
+        )
+        val behandlendeOppdragsenhet = OppdragsEnhet(
+            type = "BEH",
+            datoFom = "2024-01-01",
+            enhet = "0101"
+        )
+
+        val oppdragsLinje = OppdragsLinje(
+            linjeId = 11,
+            kodeKlasse = "ABC",
+            datoVedtakFom = "2024-01-01",
+            datoVedtakTom = null,
+            sats = 99.9,
+            typeSats = "DAG",
+            kodeStatus = "X",
+            datoFom = "2024-01-01",
+            linjeIdKorr = 22,
+            attestert = "J",
+            delytelseId = "D3",
+            utbetalesTilId = "A1B2",
+            refunderesOrgnr = "123456789",
+            brukerId = "abc123",
+            tidspktReg = "2024-01-01"
+        )
+        every { applicationCall.request.headers["Authorization"] } returns MockOAuth2Server().tokenFromDefaultProvider()
+        every { connection.erOppdragTilknyttetBruker(gjelderId, oppdragsId) } returns TRUE
+        every { connection.hentOppdragsEnhet(oppdragsId = oppdragsId) } returns listOf(oppdragsenhet)
+        every { connection.hentOppdragsEnhet(typeEnhet = "BEH", oppdragsId = oppdragsId) } returns listOf(
+            behandlendeOppdragsenhet
+        )
+        every { connection.eksistererOmposteringer(gjelderId, oppdragsId) } returns TRUE
+        every { connection.hentOppdragsLinjer(oppdragsId) } returns listOf(oppdragsLinje)
+
+        val result = oppdragsInfoService.hentOppdrag(gjelderId, oppdragsId.toString())
+
+        result.enhet.enhet shouldBe "0502"
+        result.behandlendeEnhet?.enhet shouldBe "0101"
+        result.harOmposteringer shouldBe TRUE
+        result.oppdragsLinjer.shouldHaveSize(1)
+        result.oppdragsLinjer.first().kodeKlasse shouldBe "ABC"
     }
 })
 
