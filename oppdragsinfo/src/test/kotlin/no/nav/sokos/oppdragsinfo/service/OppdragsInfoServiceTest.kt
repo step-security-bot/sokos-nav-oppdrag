@@ -121,7 +121,7 @@ internal class OppdragsInfoServiceTest : FunSpec({
             brukerId = "abc123",
             tidspktReg = "2024-01-01"
         )
-        every { applicationCall.request.headers["Authorization"] } returns MockOAuth2Server().tokenFromDefaultProvider()
+
         every { connection.erOppdragTilknyttetBruker(gjelderId, oppdragsId) } returns TRUE
         every { connection.hentOppdragsEnhet(oppdragsId = oppdragsId) } returns listOf(oppdragsenhet)
         every { connection.hentOppdragsEnhet(typeEnhet = "BEH", oppdragsId = oppdragsId) } returns listOf(
